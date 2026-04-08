@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análise de Concorrentes — Gummy | GUDAY</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="https://use.typekit.net/lcw2zgr.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -655,124 +654,6 @@
         .slide-cover .cover-divider   { animation: fadeInUp 0.6s 0.45s both; }
         .slide-cover .cover-competitor-card { animation: fadeInUp 0.6s 0.55s both; }
 
-        /* ── ANNOTATIONS / EDIT MODE ──────────────────── */
-        .phone-mockup {
-            position: relative;
-        }
-
-        .annotation-rect {
-            position: absolute;
-            border: 3px solid #e00;
-            background: rgba(255, 0, 0, 0.06);
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        body.edit-mode .annotation-rect {
-            pointer-events: auto;
-            cursor: pointer;
-        }
-
-        body.edit-mode .phone-mockup img {
-            cursor: crosshair;
-        }
-
-        .annotation-rect:hover {
-            border-color: #f00;
-        }
-
-        body.edit-mode .annotation-rect::after {
-            content: '✕';
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 20px;
-            height: 20px;
-            background: #e00;
-            color: white;
-            border-radius: 50%;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.15s;
-        }
-
-        body.edit-mode .annotation-rect:hover::after {
-            opacity: 1;
-        }
-
-        .drawing-rect {
-            position: absolute;
-            border: 3px solid #e00;
-            background: rgba(255, 0, 0, 0.08);
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .btn-edit {
-            background: var(--white);
-            color: var(--text-dark);
-            border: 1px solid #ddd;
-            padding: 9px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.2s, transform 0.1s, border-color 0.2s;
-        }
-
-        .btn-edit:hover {
-            background: #f5f5f5;
-            border-color: #bbb;
-            transform: translateY(-1px);
-        }
-
-        .btn-edit:active { transform: translateY(0); }
-        .btn-edit svg { width: 16px; height: 16px; }
-
-        body.edit-mode .btn-edit {
-            background: #e00;
-            color: white;
-            border-color: #e00;
-        }
-
-        body.edit-mode .btn-edit:hover {
-            background: #c00;
-            border-color: #c00;
-        }
-
-        .btn-export {
-            background: var(--white);
-            color: var(--text-dark);
-            border: 1px solid #ddd;
-            padding: 9px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: background 0.2s, transform 0.1s, border-color 0.2s;
-        }
-
-        .btn-export:hover {
-            background: #f5f5f5;
-            border-color: #bbb;
-            transform: translateY(-1px);
-        }
-
-        .btn-export:active { transform: translateY(0); }
-        .btn-export svg { width: 14px; height: 14px; }
-
         /* ── RESPONSIVE ──────────────────────────────── */
         @media (max-height: 650px) {
             .toolbar { height: 44px; }
@@ -795,53 +676,6 @@
             </div>
         </div>
         <div class="toolbar-actions">
-            <button class="btn-export edit-only" onclick="undoAnnotation()" id="btnUndo" title="Desfazer última anotação" style="display:none">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="1 4 1 10 7 10"/>
-                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-                </svg>
-            </button>
-            <button class="btn-export edit-only" onclick="clearSlideAnnotations()" id="btnClearSlide" title="Remover anotações do slide atual" style="display:none">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                </svg>
-            </button>
-            <button class="btn-export" onclick="toggleZoomMode()" id="btnZoomToggle" title="Ampliar">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
-                </svg>
-            </button>
-            <button class="btn-export zoom-only" onclick="zoomIn()" id="btnZoomIn" title="Zoom in" style="display:none">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
-                </svg>
-            </button>
-            <button class="btn-export zoom-only" onclick="zoomOut()" id="btnZoomOut" title="Zoom out" style="display:none">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>
-                </svg>
-            </button>
-            <button class="btn-export zoom-only" onclick="exitZoomMode()" id="btnZoomClose" title="Sair do zoom" style="display:none">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-            </button>
-            <button class="btn-edit" onclick="toggleEditMode()" id="btnEdit">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="9" y1="3" x2="9" y2="21"/>
-                </svg>
-                Editar
-            </button>
-            <button class="btn-export" onclick="exportAnnotations()" id="btnExport" title="Exportar anotações">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                JSON
-            </button>
             <button class="btn-download" onclick="downloadPDF()" id="btnDownload">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -899,22 +733,21 @@
             const catOrder = [];
             const catMap = {};
             rows.forEach(cols => {
-                const id = cols[0] || "";
-                const cat = cols[2] || "";
-                const bench = cols[3] || "";
-                const page = cols[4] || "";
-                const insight = cols[5] || "";
-                const desc = cols[6] || "";
-                const p1 = (cols[7] || "").replace(/^\//, "");
-                const p2 = (cols[8] || "").replace(/^\//, "");
-                const p3 = (cols[9] || "").replace(/^\//, "");
+                const cat = cols[1] || "";
+                const bench = cols[2] || "";
+                const page = cols[3] || "";
+                const insight = cols[4] || "";
+                const desc = cols[5] || "";
+                const p1 = (cols[6] || "").replace(/^\//, "");
+                const p2 = (cols[7] || "").replace(/^\//, "");
+                const p3 = (cols[8] || "").replace(/^\//, "");
                 const imgs = [p1, p2, p3].filter(Boolean);
                 const rawUrls = bench.split(/\s*\/\s*/).filter(Boolean);
                 /* Fill URLs to match number of images */
                 const urls = imgs.map((_, i) => rawUrls[i] || rawUrls[rawUrls.length - 1] || "");
                 if (!cat || imgs.length === 0) return;
                 if (!catMap[cat]) { catMap[cat] = []; catOrder.push(cat); }
-                catMap[cat].push({ id, title: insight, desc, imgs, urls, page });
+                catMap[cat].push({ title: insight, desc, imgs, urls, page });
             });
             /* Sort by predefined order, then any remaining */
             const sorted = [];
@@ -953,7 +786,6 @@
                         idx: idxInPage,
                         globalNum: globalIdx + 1,
                         pageOffset: pageIdx * SIDEBAR_MAX,
-                        id: s.id,
                         title: s.title,
                         desc: s.desc,
                         imgs: s.imgs,
@@ -1009,7 +841,7 @@
 
             const imgsHTML = d.imgs.map((img, i) => {
                 const url = d.urls[i] || "";
-                return `<div class="phone-mockup" data-annoid="${d.id}-${i}">
+                return `<div class="phone-mockup">
                     <img src="${img}" alt="${getTitle(d)}" draggable="false" onerror="console.warn('Image not found: ${img}'); this.style.border='2px dashed #c00'; this.alt='⚠ ${img}'">
                     <div class="img-source-url">${url}</div>
                 </div>`;
@@ -1120,11 +952,6 @@
 
             cur = idx;
             updateUI();
-
-            /* Update URL parameter */
-            const slideData = allSlides[idx];
-            const param = slideData.id || "cover";
-            history.replaceState(null, "", "?slide=" + param);
         }
 
         function next() { goTo(cur + 1); }
@@ -1161,7 +988,6 @@
         }
 
         function enterFS() {
-            if (zoomActive) exitZoomMode();
             document.body.classList.add("fullscreen-mode");
             document.documentElement.requestFullscreen().catch(() => {});
             setTimeout(resizeSlide, 50);
@@ -1258,18 +1084,8 @@
 
         window.downloadPDF = downloadPDF;
 
-        /* ── ZOOM (declared early for resizeSlide) ── */
-        let zoomActive = false;
-        let editZoom = 1;
-
-        function applyEditZoom() {
-            viewport.style.transform = `scale(${editZoom})`;
-            viewport.style.transformOrigin = "top left";
-        }
-
         /* ── RESPONSIVE SCALING ────────────────────── */
         function resizeSlide() {
-            if (zoomActive) { applyEditZoom(); return; }
             const area = viewport.parentElement;
             const aw = area.clientWidth - 100;
             const ah = area.clientHeight - 50;
@@ -1285,257 +1101,6 @@
         window.addEventListener("resize", resizeSlide);
         resizeSlide();
         setTimeout(resizeSlide, 200);
-
-        /* ── URL PARAM NAVIGATION ────────────────── */
-        const urlSlide = new URLSearchParams(location.search).get("slide");
-        if (urlSlide && urlSlide !== "cover") {
-            const idx = allSlides.findIndex(s => s.id === urlSlide);
-            if (idx > 0) {
-                /* Direct jump without animation on first load */
-                const slides = viewport.children;
-                const thumbs = panel.querySelectorAll(".thumb-wrap");
-                slides[0].classList.remove("active");
-                slides[idx].classList.add("active");
-                thumbs[0].classList.remove("active");
-                thumbs[idx].classList.add("active");
-                thumbs[idx].scrollIntoView({ block: "nearest" });
-                cur = idx;
-                updateUI();
-            }
-        }
-
-        /* ── ANNOTATIONS / EDIT MODE ──────────────── */
-        const ANNO_KEY = "guday-annotations";
-        const ANNO_FILE = "annotations.json";
-        let annotations = {};  /* { "slideIdx-imgIdx": [{x,y,w,h}, ...] } */
-        let editMode = false;
-
-        /* Load annotations: try JSON file first, then localStorage */
-        async function loadAnnotations() {
-            try {
-                const resp = await fetch(ANNO_FILE);
-                if (resp.ok) {
-                    annotations = await resp.json();
-                    renderAllAnnotations();
-                    return;
-                }
-            } catch (e) {}
-            const saved = localStorage.getItem(ANNO_KEY);
-            if (saved) {
-                try { annotations = JSON.parse(saved); } catch(e) { annotations = {}; }
-            }
-            renderAllAnnotations();
-        }
-
-        function saveToLocalStorage() {
-            localStorage.setItem(ANNO_KEY, JSON.stringify(annotations));
-        }
-
-        /* Render annotations for all slides */
-        function renderAllAnnotations() {
-            document.querySelectorAll(".annotation-rect").forEach(el => el.remove());
-            document.querySelectorAll(".phone-mockup[data-annoid]").forEach(mockup => {
-                const key = mockup.dataset.annoid;
-                const rects = annotations[key] || [];
-                rects.forEach((r, ri) => {
-                    addRectDOM(mockup, r, key, ri);
-                });
-            });
-        }
-
-        function addRectDOM(mockup, r, key, ri) {
-            const div = document.createElement("div");
-            div.className = "annotation-rect";
-            div.style.left = r.x + "%";
-            div.style.top = r.y + "%";
-            div.style.width = r.w + "%";
-            div.style.height = r.h + "%";
-            div.dataset.key = key;
-            div.dataset.ri = ri;
-            div.addEventListener("click", (e) => {
-                if (!editMode) return;
-                e.stopPropagation();
-                deleteAnnotation(key, parseInt(div.dataset.ri));
-            });
-            mockup.appendChild(div);
-        }
-
-        function deleteAnnotation(key, ri) {
-            if (!annotations[key]) return;
-            annotations[key].splice(ri, 1);
-            if (annotations[key].length === 0) delete annotations[key];
-            saveToLocalStorage();
-            renderAllAnnotations();
-        }
-
-        /* Drawing logic */
-        let drawing = false;
-        let drawStart = null;
-        let drawMockup = null;
-        let drawEl = null;
-
-        function getRelativePos(e, mockup) {
-            const img = mockup.querySelector("img");
-            const rect = img.getBoundingClientRect();
-            return {
-                x: ((e.clientX - rect.left) / rect.width) * 100,
-                y: ((e.clientY - rect.top) / rect.height) * 100
-            };
-        }
-
-        viewport.addEventListener("mousedown", (e) => {
-            if (!editMode) return;
-            const mockup = e.target.closest(".phone-mockup");
-            if (!mockup || !mockup.querySelector("img")) return;
-            if (e.target.classList.contains("annotation-rect")) return;
-            if (e.target.tagName !== "IMG") return;
-
-            e.preventDefault();
-            drawing = true;
-            drawMockup = mockup;
-            drawStart = getRelativePos(e, mockup);
-
-            drawEl = document.createElement("div");
-            drawEl.className = "drawing-rect";
-            drawEl.style.left = drawStart.x + "%";
-            drawEl.style.top = drawStart.y + "%";
-            drawEl.style.width = "0%";
-            drawEl.style.height = "0%";
-            mockup.appendChild(drawEl);
-        });
-
-        viewport.addEventListener("mousemove", (e) => {
-            if (!drawing || !drawEl || !drawMockup) return;
-            const pos = getRelativePos(e, drawMockup);
-            const x = Math.min(drawStart.x, pos.x);
-            const y = Math.min(drawStart.y, pos.y);
-            const w = Math.abs(pos.x - drawStart.x);
-            const h = Math.abs(pos.y - drawStart.y);
-            drawEl.style.left = x + "%";
-            drawEl.style.top = y + "%";
-            drawEl.style.width = w + "%";
-            drawEl.style.height = h + "%";
-        });
-
-        viewport.addEventListener("mouseup", (e) => {
-            if (!drawing || !drawEl || !drawMockup) return;
-            drawing = false;
-            const pos = getRelativePos(e, drawMockup);
-            const x = Math.min(drawStart.x, pos.x);
-            const y = Math.min(drawStart.y, pos.y);
-            const w = Math.abs(pos.x - drawStart.x);
-            const h = Math.abs(pos.y - drawStart.y);
-
-            drawEl.remove();
-            drawEl = null;
-
-            /* Ignore tiny accidental clicks */
-            if (w < 1.5 || h < 1.5) { drawMockup = null; return; }
-
-            const key = drawMockup.dataset.annoid;
-            if (!annotations[key]) annotations[key] = [];
-            const rect = { x: Math.round(x*100)/100, y: Math.round(y*100)/100, w: Math.round(w*100)/100, h: Math.round(h*100)/100 };
-            annotations[key].push(rect);
-            undoHistory.push({ key, rect });
-
-            saveToLocalStorage();
-            renderAllAnnotations();
-            drawMockup = null;
-        });
-
-        /* Toggle edit mode */
-        function toggleEditMode() {
-            editMode = !editMode;
-            document.body.classList.toggle("edit-mode", editMode);
-            const btn = document.getElementById("btnEdit");
-            btn.innerHTML = editMode
-                ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Salvar`
-                : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg> Editar`;
-            document.querySelectorAll(".edit-only").forEach(el => {
-                el.style.display = editMode ? "flex" : "none";
-            });
-        }
-
-        /* Clear all annotations on current slide */
-        function clearSlideAnnotations() {
-            const slide = viewport.children[cur];
-            const mockups = slide.querySelectorAll(".phone-mockup[data-annoid]");
-            mockups.forEach(mockup => {
-                delete annotations[mockup.dataset.annoid];
-            });
-            saveToLocalStorage();
-            renderAllAnnotations();
-        }
-
-        window.clearSlideAnnotations = clearSlideAnnotations;
-
-        /* Zoom mode controls */
-        function toggleZoomMode() {
-            zoomActive = true;
-            editZoom = 1.1;
-            applyEditZoom();
-            document.getElementById("btnZoomToggle").style.display = "none";
-            document.querySelectorAll(".zoom-only").forEach(el => el.style.display = "flex");
-        }
-
-        function exitZoomMode() {
-            zoomActive = false;
-            editZoom = 1;
-            resizeSlide();
-            document.getElementById("btnZoomToggle").style.display = "flex";
-            document.querySelectorAll(".zoom-only").forEach(el => el.style.display = "none");
-        }
-
-        function zoomIn() {
-            editZoom = Math.min(editZoom + 0.1, 3);
-            applyEditZoom();
-        }
-
-        function zoomOut() {
-            editZoom = Math.max(editZoom - 0.1, 0.5);
-            applyEditZoom();
-        }
-
-        window.toggleZoomMode = toggleZoomMode;
-        window.exitZoomMode = exitZoomMode;
-        window.zoomIn = zoomIn;
-        window.zoomOut = zoomOut;
-
-        window.toggleEditMode = toggleEditMode;
-
-        /* Export annotations as JSON file download */
-        function exportAnnotations() {
-            const json = JSON.stringify(annotations, null, 2);
-            const blob = new Blob([json], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "annotations.json";
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        window.exportAnnotations = exportAnnotations;
-
-        /* Undo last annotation */
-        let undoHistory = []; /* [{key, rect}] */
-
-        function undoAnnotation() {
-            if (undoHistory.length === 0) return;
-            const last = undoHistory.pop();
-            if (annotations[last.key]) {
-                annotations[last.key].pop();
-                if (annotations[last.key].length === 0) delete annotations[last.key];
-            }
-            saveToLocalStorage();
-            renderAllAnnotations();
-        }
-
-        window.undoAnnotation = undoAnnotation;
-
-        /* Load on startup */
-        loadAnnotations();
-
     })();
     </script>
 </body>
