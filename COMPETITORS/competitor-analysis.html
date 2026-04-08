@@ -423,7 +423,6 @@
         .sidebar-list {
             padding: 16px 18px;
             flex: 1;
-            overflow-y: auto;
         }
 
         .sidebar-item {
@@ -706,109 +705,96 @@
     </div>
 
     <script>
-    (function () {
-        /* ── DATA ──────────────────────────────────── */
-        const categories = [
-            {
-                name: "Clareza",
-                slides: [
-                    { title: "Hero section claro com CTA", desc: "Banners claros com comunicação clara e CTA para atrair cliques", imgs: ["_gummy/1.png","_essential/1.png","_maismu/1.png"], urls: ["gummy.com.br","essentialnutrition.com.br","lojamaismu.com.br"], page: "Home" },
-                    { title: "Mini FAQ no topo", desc: "FAQ no topo ajuda usuários a entenderem o produto cedo", imgs: ["_gummy/12.png"], urls: ["gummy.com.br"], page: "PDP" },
-                    { title: "Hero section das coleções", desc: "Adicionar header nas collections com descrição ou promoções", imgs: ["_gummy/19.png","_desincha/3.png"], urls: ["gummy.com.br","desincha.com.br"], page: "CP" },
-                    { title: "Product cards com benefícios claros", desc: "", imgs: ["_essential/2.png"], urls: ["essentialnutrition.com.br"], page: "HP" },
-                    { title: "Diferencial de marca com seção dedicada", desc: "", imgs: ["_essential/3.png"], urls: ["essentialnutrition.com.br"], page: "HP" },
-                    { title: "Ingredientes claros em baixo de cada product card", desc: "", imgs: ["_essential/4.png"], urls: ["essentialnutrition.com.br"], page: "CP" },
-                    { title: "Seção dedicada de ingredientes", desc: "Clareza nos ingredientes com botões clicáveis para checar as características de cada componente", imgs: ["_essential/8.png"], urls: ["essentialnutrition.com.br"], page: "PP" },
-                    { title: "Foto do produto com a gummy", desc: "Mostrar não só a embalagem como a balinha fora do bottle também", imgs: ["_drgood/1.png"], urls: ["finistore.com.br"], page: "HP" },
-                    { title: "Deixar claro a quantidade por pote", desc: "", imgs: ["_drgood/1.png"], urls: ["finistore.com.br"], page: "HP" },
-                    { title: "Seção dedicada sobre a marca", desc: "Descrição clara do que a marca é", imgs: ["_desincha/2.png"], urls: ["desincha.com.br"], page: "HP" },
-                    { title: "Seção clara de como usar", desc: "", imgs: ["_desincha/7.png"], urls: ["desincha.com.br"], page: "PP" },
-                    { title: "Seção dedicada sobre formato", desc: "Seção dedicada sobre o formato e sabor com emojis", imgs: ["_desincha/9.png"], urls: ["desincha.com.br"], page: "PP" },
-                    { title: "Seção dedicada sobre sabor", desc: "Seção dedicada sobre o sabor de cada produto em específico", imgs: ["_desincha/10.png","_maismu/10.png"], urls: ["desincha.com.br","lojamaismu.com.br"], page: "PP" },
-                    { title: "FAQ na home", desc: "", imgs: ["_bold/4.png"], urls: ["boldsnacks.com.br"], page: "HP" }
-                ]
-            },
-            {
-                name: "Confiança",
-                slides: [
-                    { title: "UGC & Depoimentos", desc: "Depoimentos e UGC no topo em formato de reels", imgs: ["_gummy/3.png"], urls: ["gummy.com.br"], page: "Home" },
-                    { title: "Farmácias", desc: "Logos de farmácias credenciadas para aumentar credibilidade", imgs: ["_gummy/7.png"], urls: ["gummy.com.br"], page: "Home" },
-                    { title: "Logos de imprensa", desc: "Logos de imprensa claros e no topo", imgs: ["_gummy/12.png","_desincha/3.png"], urls: ["gummy.com.br","desincha.com.br"], page: "PDP" },
-                    { title: "Antes e depois", desc: "Seção iterativa que permite usuários verem resultados", imgs: ["_gummy/13.png"], urls: ["gummy.com.br"], page: "PDP" },
-                    { title: "Dados estatísticos", desc: "Dados que apresentem a eficácia do produto em nossos clientes", imgs: ["_gummy/15.png"], urls: ["gummy.com.br"], page: "PDP" },
-                    { title: "Reviews com vídeos", desc: "Mais reviews com vídeos na seção de testimonials, não só texto", imgs: ["_gummy/15.png"], urls: ["gummy.com.br"], page: "PDP" },
-                    { title: "Controle de qualidade", desc: "Materiais de controle de qualidade para download", imgs: ["_essential/9.png"], urls: ["essentialnutrition.com.br"], page: "PP" }
-                ]
-            },
-            {
-                name: "UX",
-                slides: [
-                    { title: "Mais vendidos com sub filters bõtoes", desc: "Sub-filters para a pessoa escolher a categoria sem scrollar a página", imgs: ["_gummy/5.png"], urls: ["gummy.com.br"], page: "Home" },
-                    { title: "Menu com cards", desc: "Banners no Menu estilizados ao invés de apenas textos", imgs: ["_gummy/8.png","_gummy/9.png"], urls: ["gummy.com.br","gummy.com.br"], page: "Menu" },
-                    { title: "Seleção de SKU com modal", desc: "Modal que abre para seleção de opções com one-click", imgs: ["_gummy/17.png"], urls: ["gummy.com.br"], page: "Cart" },
-                    { title: "Adicionar botões com sub-filters nas coleções", desc: "", imgs: ["_gummy/20.png"], urls: ["gummy.com.br"], page: "CP" },
-                    { title: "Seção de cadastro de newsletter claro e destacado", desc: "", imgs: ["_drgood/2.png"], urls: ["finistore.com.br"], page: "HP" },
-                    { title: "Monte seu kit", desc: "Banner com combinação de combos usando pop-up e cart de desbloqueio", imgs: ["_bold/1.png","_bold/5.png"], urls: ["boldsnacks.com.br","boldsnacks.com.br"], page: "HP" },
-                    { title: "Compra rápida", desc: "Botão de compra rápida no mobile", imgs: ["_bold/6.png","_bold/11.png"], urls: ["boldsnacks.com.br","boldsnacks.com.br"], page: "HP" },
-                    { title: "Termos de pesquisa populares", desc: "Termos de pesquisa mais buscados junto com a barra de pesquisa", imgs: ["_bold/7.png"], urls: ["boldsnacks.com.br"], page: "Menu" },
-                    { title: "Frete no carrinho", desc: "Cálculo de frete no carrinho com hyperlink", imgs: ["_bold/10.png"], urls: ["boldsnacks.com.br"], page: "Cart" },
-                    { title: "Cards de produto no topo", desc: "Cards de produtos apresentados de forma muito clara depois da primeira dobra", imgs: ["_maismu/2.png"], urls: ["lojamaismu.com.br"], page: "HP" },
-                    { title: "Títulos com infos", desc: "Título com informações úteis (benefício + quantidade)", imgs: ["_maismu/5.png"], urls: ["lojamaismu.com.br"], page: "PP" },
-                    { title: "Checkout em etapas", desc: "", imgs: ["_maismu/6.png"], urls: ["lojamaismu.com.br"], page: "Checkout" }
-                ]
-            },
-            {
-                name: "Benefícios",
-                slides: [
-                    { title: "Seção dedicada para benefícios", desc: "Seção dedicada com benefício claro para todos produtos com forte apelo visual", imgs: ["_essential/6.png","_essential/7.png"], urls: ["essentialnutrition.com.br","essentialnutrition.com.br"], page: "PP" },
-                    { title: "Explicação do componente", desc: "Explicação do benefício dos componentes principais dos produtos", imgs: ["_essential/10.png"], urls: ["essentialnutrition.com.br"], page: "PP" },
-                    { title: "No-list section", desc: "No section explorando que ingredientes são evitados e características", imgs: ["_desincha/3.png"], urls: ["desincha.com.br"], page: "HP" },
-                    { title: "Imagens de galeria com badges de promoções", desc: "", imgs: ["_desincha/6.png"], urls: ["desincha.com.br"], page: "PP" },
-                    { title: "Adicionar mais seções de benefícios", desc: "Seção dedicada sobre cada benefício ao invés de só falar de forma geral sobre todos benefícios", imgs: ["_desincha/11.png"], urls: ["desincha.com.br"], page: "PP" },
-                    { title: "Seção dedicada como CTA final", desc: "Repetição de CTA relembrando benefício", imgs: ["_desincha/12.png"], urls: ["desincha.com.br"], page: "PP" },
-                    { title: "Propriedades / badges sobre cada produto", desc: "", imgs: ["_bold/2.png"], urls: ["boldsnacks.com.br"], page: "HP" },
-                    { title: "Cashback", desc: "Cashback para compras futuras", imgs: ["_bold/8.png"], urls: ["boldsnacks.com.br"], page: "PP" },
-                    { title: "Pureza da creatina", desc: "Benefício da pureza da creatina claro na galeria de imagens, sendo benefício principal", imgs: ["_maismu/7.png"], urls: ["lojamaismu.com.br"], page: "PP" },
-                    { title: "Clareza de quanto tempo dura o produto", desc: "", imgs: ["_maismu/8.png"], urls: ["lojamaismu.com.br"], page: "PP" },
-                    { title: "Seção dedicada apresentando outros sabores", desc: "", imgs: ["_maismu/11.png"], urls: ["lojamaismu.com.br"], page: "PP" }
-                ]
-            },
-            {
-                name: "AOV Booster",
-                slides: [
-                    { title: "Benefícios de uso recorrente", desc: "Beneficios do uso diário para instigar usuários a usarem sempre", imgs: ["_gummy/14.png"], urls: ["gummy.com.br"], page: "PDP" },
-                    { title: "Up-sell no carrinho", desc: "Adicionar recomendação de up-sell", imgs: ["_gummy/18.png","_essential/12.png","_desincha/8.png"], urls: ["gummy.com.br","essentialnutrition.com.br","desincha.com.br"], page: "Cart" },
-                    { title: "Seção de conheça outros produtos", desc: "", imgs: ["_essential/5.png"], urls: ["essentialnutrition.com.br"], page: "PP" },
-                    { title: "Banner único com chamada para algum produto ou promoção", desc: "", imgs: ["_bold/3.png"], urls: ["boldsnacks.com.br"], page: "HP" },
-                    { title: "Kits montados", desc: "Kits montados reforçando ângulo de frete grátis com chamada para ação clara", imgs: ["_bold/9.png"], urls: ["boldsnacks.com.br"], page: "PP" }
-                ]
-            },
-            {
-                name: "Ofertas",
-                slides: [
-                    { title: "Banner de grupo de Wpp", desc: "Banner para as pessoas entrarem no grupo VIP e aumentar a base", imgs: ["_gummy/6.png"], urls: ["gummy.com.br"], page: "Home" }
-                ]
-            }
-        ];
+    (async function () {
+        const SIDEBAR_MAX = 8;
+        const CAT_ORDER = ["Clareza", "Confiança", "Benefícios", "AOV Booster", "UX"];
+        const CSV_PATH = "DB - Competitors Research - Sheet1.csv";
 
-        /* Flatten into ordered list: cover + grouped slides */
+        /* ── CSV PARSER ────────────────────────────── */
+        function parseCSV(text) {
+            const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+            const rows = [];
+            for (let i = 1; i < lines.length; i++) {
+                const cols = [];
+                let cur = "", inQ = false;
+                for (let c = 0; c < lines[i].length; c++) {
+                    const ch = lines[i][c];
+                    if (ch === '"') { inQ = !inQ; }
+                    else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ""; }
+                    else { cur += ch; }
+                }
+                cols.push(cur.trim());
+                if (cols.length >= 7) rows.push(cols);
+            }
+            return rows;
+        }
+
+        function csvToCategories(rows) {
+            const catOrder = [];
+            const catMap = {};
+            rows.forEach(cols => {
+                const cat = cols[1] || "";
+                const bench = cols[2] || "";
+                const page = cols[3] || "";
+                const insight = cols[4] || "";
+                const desc = cols[5] || "";
+                const p1 = (cols[6] || "").replace(/^\//, "");
+                const p2 = (cols[7] || "").replace(/^\//, "");
+                const p3 = (cols[8] || "").replace(/^\//, "");
+                const imgs = [p1, p2, p3].filter(Boolean);
+                const rawUrls = bench.split(/\s*\/\s*/).filter(Boolean);
+                /* Fill URLs to match number of images */
+                const urls = imgs.map((_, i) => rawUrls[i] || rawUrls[rawUrls.length - 1] || "");
+                if (!cat || imgs.length === 0) return;
+                if (!catMap[cat]) { catMap[cat] = []; catOrder.push(cat); }
+                catMap[cat].push({ title: insight, desc, imgs, urls, page });
+            });
+            /* Sort by predefined order, then any remaining */
+            const sorted = [];
+            CAT_ORDER.forEach(name => { if (catMap[name]) sorted.push({ name, slides: catMap[name] }); });
+            catOrder.forEach(name => { if (!CAT_ORDER.includes(name) && catMap[name]) sorted.push({ name, slides: catMap[name] }); });
+            return sorted;
+        }
+
+        /* ── FETCH & PARSE ─────────────────────────── */
+        let categories;
+        try {
+            const resp = await fetch(CSV_PATH);
+            const text = await resp.text();
+            categories = csvToCategories(parseCSV(text));
+        } catch (e) {
+            console.error("CSV fetch failed:", e);
+            document.body.innerHTML = '<div style="padding:40px;font-size:18px;color:#c00">Erro: não foi possível carregar o CSV.<br>Use Live Server (não file://).</div>';
+            return;
+        }
+
+        /* ── FLATTEN with sidebar pagination (max 7) ── */
         const allSlides = [{ type: "cover" }];
         let lastCat = "";
         categories.forEach(cat => {
-            cat.slides.forEach((s, idx) => {
-                allSlides.push({
-                    type: "content",
-                    catName: cat.name,
-                    catSlides: cat.slides,
-                    idx,
-                    title: s.title,
-                    desc: s.desc,
-                    imgs: s.imgs.filter(Boolean),
-                    urls: s.urls.filter(Boolean),
-                    page: s.page,
-                    newCategory: (cat.name !== lastCat)
+            const pages = [];
+            for (let i = 0; i < cat.slides.length; i += SIDEBAR_MAX) {
+                pages.push(cat.slides.slice(i, i + SIDEBAR_MAX));
+            }
+            pages.forEach((pageSlides, pageIdx) => {
+                pageSlides.forEach((s, idxInPage) => {
+                    const globalIdx = pageIdx * SIDEBAR_MAX + idxInPage;
+                    allSlides.push({
+                        type: "content",
+                        catName: cat.name,
+                        catSlides: pageSlides,
+                        idx: idxInPage,
+                        globalNum: globalIdx + 1,
+                        pageOffset: pageIdx * SIDEBAR_MAX,
+                        title: s.title,
+                        desc: s.desc,
+                        imgs: s.imgs,
+                        urls: s.urls,
+                        page: s.page,
+                        newCategory: (cat.name !== lastCat)
+                    });
+                    lastCat = cat.name;
                 });
-                lastCat = cat.name;
             });
         });
 
@@ -838,6 +824,7 @@
         }
 
         function contentHTML(d) {
+            const offset = d.pageOffset || 0;
             const items = d.catSlides.map((s, i) => {
                 const isCurrent = i === d.idx;
                 const active = isCurrent ? " current" : "";
@@ -847,7 +834,7 @@
                     text = `${s.title} <span class="sidebar-item-desc">(${s.desc})</span>`;
                 }
                 return `<div class="sidebar-item${active}">
-                    <span class="sidebar-item-num">${i + 1}.</span>
+                    <span class="sidebar-item-num">${offset + i + 1}.</span>
                     <span class="sidebar-item-text">${text}</span>
                 </div>`;
             }).join("");
@@ -855,7 +842,7 @@
             const imgsHTML = d.imgs.map((img, i) => {
                 const url = d.urls[i] || "";
                 return `<div class="phone-mockup">
-                    <img src="${img}" alt="${getTitle(d)}" draggable="false">
+                    <img src="${img}" alt="${getTitle(d)}" draggable="false" onerror="console.warn('Image not found: ${img}'); this.style.border='2px dashed #c00'; this.alt='⚠ ${img}'">
                     <div class="img-source-url">${url}</div>
                 </div>`;
             }).join("");

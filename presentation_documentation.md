@@ -7,7 +7,16 @@ Sistema de apresentacao interativa no browser que simula o Google Slides, usado 
 **Arquivo principal:** `COMPETITORS/competitor-analysis.html`
 **Banco de dados:** `COMPETITORS/DB - Competitors Research - Sheet1.csv`
 **Tipo:** Single-file HTML (CSS + JS inline, zero build step)
-**Abre direto no browser** — basta dar duplo clique no arquivo ou usar Live Server.
+**Requer Live Server** — os dados sao carregados via `fetch()` do CSV, nao funciona com `file://`.
+
+### Fluxo de dados (dinamico)
+
+1. Ao carregar a pagina, o JS faz `fetch("DB - Competitors Research - Sheet1.csv")`
+2. Parseia o CSV automaticamente (suporta campos com aspas/virgulas)
+3. Agrupa por categoria na ordem em que aparecem no CSV
+4. Pagina o sidebar (max 7 itens por pagina)
+5. Renderiza slides, thumbnails e navegacao
+6. **Para atualizar a apresentacao: edite o CSV e recarregue a pagina**
 
 ---
 
@@ -155,6 +164,27 @@ Arquivo `COMPETITORS/DB - Competitors Research - Sheet1.csv` com colunas:
 - Se tem **Insight** mas nao **Descricao**: titulo = Insight, sem parenteses
 - Se tem **Descricao** mas nao **Insight**: titulo = Descricao
 - A descricao so aparece no slide ativo, nao nos outros itens do sidebar
+- A descricao no slide ativo fica em **bold** (mesma cor e peso do titulo)
+
+### Logica de URLs (Bench)
+
+- URLs separadas por ` / ` no campo Bench
+- Cada URL corresponde ao Print na mesma posicao (1a URL → Print 1, 2a → Print 2, etc.)
+- **Se houver mais prints que URLs, a ultima URL disponivel e repetida** para os prints restantes
+- Isso evita imagens sem link quando o mesmo site tem multiplos screenshots
+
+### Paginacao do sidebar
+
+- Maximo de **7 itens por pagina** no sidebar
+- Categorias com mais de 7 itens sao divididas automaticamente em multiplos slides
+- Numeracao continua entre paginas (ex: pagina 2 comeca em 8, 9, 10...)
+- Mesmo titulo de categoria em todas as paginas
+
+### Validacao de imagens
+
+- Imagens com path quebrado mostram borda vermelha tracejada + nome do arquivo
+- `console.warn` e logado no DevTools para cada imagem nao encontrada
+- Para validar todos os paths do CSV: rodar o script Node.js descrito na secao "Como validar"
 
 ### Concorrentes analisados
 
@@ -222,8 +252,9 @@ Arquivo `COMPETITORS/DB - Competitors Research - Sheet1.csv` com colunas:
 - Botao "PDF" no toolbar
 - Usa `html2canvas` para capturar cada slide como imagem (scale 2x para qualidade)
 - Usa `jsPDF` para montar o PDF landscape (960x540px por pagina)
-- Mostra progresso no botao durante a geracao (1/51, 2/51...)
+- Mostra progresso no botao durante a geracao
 - Download automatico como `Competitor-Analysis-GUDAY.pdf`
+- Quantidade de slides e dinamica (depende do CSV)
 
 ### Escalonamento responsivo
 
@@ -242,30 +273,46 @@ Criar pasta dentro de `COMPETITORS/` com prefixo `_` e nome minusculo (ex: `_nov
 
 ### 2. Atualizar o CSV
 
-Adicionar linhas em `DB - Competitors Research - Sheet1.csv` com as colunas:
+Adicionar linhas em `DB - Competitors Research - Sheet1.csv`:
 ```
 #,Categoria,Bench,Pagina,Insight,Descricao,Print 1,Print 2,Print 3
 51,Clareza,novosite.com.br,Home,Titulo do insight,Descricao detalhada,/_novocompetitor/1.png,,
 ```
 
-### 3. Atualizar o JavaScript
+**Nao precisa editar o JavaScript** — os dados sao carregados dinamicamente do CSV.
 
-No array `categories` dentro do `<script>`, adicionar as entradas na categoria correspondente:
+### 3. Atualizar capa (se novo concorrente)
 
-```javascript
-{
-    title: "Titulo do insight",
-    desc: "Descricao detalhada",
-    imgs: ["_novocompetitor/1.png"],
-    urls: ["novosite.com.br"],
-    page: "Home"
-}
-```
-
-### 4. Atualizar capa (se novo concorrente)
-
-- Adicionar nome na capa: `cover-competitor-name`
+- Adicionar nome na capa: editar `cover-competitor-name` no HTML
 - Nome do arquivo PDF: `pdf.save("...")` na funcao `downloadPDF()`
+
+### 4. Validar
+
+Recarregar a pagina no Live Server e verificar. Para validacao em batch:
+```bash
+cd PRESENTATION/COMPETITORS
+node -e "
+const fs = require('fs');
+const text = fs.readFileSync('DB - Competitors Research - Sheet1.csv', 'utf-8');
+const lines = text.split('\n').filter(l => l.trim());
+for (let i = 1; i < lines.length; i++) {
+    const cols = [];
+    let cur = '', inQ = false;
+    for (const ch of lines[i]) {
+        if (ch === '\"') { inQ = !inQ; }
+        else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+        else { cur += ch; }
+    }
+    cols.push(cur.trim());
+    for (const ci of [6,7,8]) {
+        const p = (cols[ci] || '').replace(/^\//, '');
+        if (p && !fs.existsSync(p))
+            console.log('MISSING: ' + p + ' (row #' + cols[0] + ')');
+    }
+}
+console.log('Done.');
+"
+```
 
 ---
 
@@ -293,8 +340,9 @@ No array `categories` dentro do `<script>`, adicionar as entradas na categoria c
 
 | Secao | Descricao |
 |-------|-----------|
-| DATA | Array `categories` com todos os dados dos slides (titulo, desc, imgs[], urls[], page) |
-| Flatten | Gera `allSlides` (capa + slides agrupados por categoria) |
+| CSV PARSER | `parseCSV()` e `csvToCategories()` — carrega e parseia o CSV dinamicamente |
+| FETCH & PARSE | `fetch()` do CSV no load, com fallback de erro |
+| Flatten | Gera `allSlides` (capa + slides agrupados por categoria, paginados a cada 7) |
 | RENDER HELPERS | `getTitle()`, `coverHTML()`, `contentHTML()`, `slideHTML()` |
 | BUILD DOM | Cria slides e thumbnails no DOM |
 | NAVIGATION | `goTo()`, `next()`, `prev()`, `updateUI()` |
