@@ -2,14 +2,25 @@
 
 ## Overview
 
-Sistema de apresentacao interativa no browser que simula o Google Slides, usado para analise de concorrentes da GUDAY. O formato segue o modelo da WeConvert (MYND - Competitor analysis.pdf) adaptado ao branding da GUDAY.
+Sistema de apresentacoes interativas no browser que simula o Google Slides, usado para analises da GUDAY. O formato segue o branding da GUDAY e o modelo da WeConvert.
 
-**Arquivo principal:** `COMPETITORS/competitor-analysis.html`
-**Arquivo legado:** `COMPETITORS/competitor-analysis-legado.html` (backup pre-anotacoes)
+Existem **2 apresentacoes** independentes:
+
+### 1. Competitor Analysis (Analise de Concorrentes)
+
+**Arquivo:** `COMPETITORS/competitor-analysis.html`
+**Legado:** `COMPETITORS/competitor-analysis-legado.html`
 **Banco de dados:** `COMPETITORS/DB - Competitors Research - Sheet1.csv`
-**Anotacoes:** `COMPETITORS/annotations.json` (exportavel, opcional)
-**Tipo:** Single-file HTML (CSS + JS inline, zero build step)
-**Requer Live Server** — os dados sao carregados via `fetch()` do CSV, nao funciona com `file://`.
+**Anotacoes:** `COMPETITORS/annotations.json`
+**Fonte de dados:** CSV local (via `fetch`)
+**Requer Live Server** — nao funciona com `file://`
+
+### 2. Post-Purchase Analysis (Pesquisa Pos-Compra)
+
+**Arquivo:** `POST-PURCHASE/post-purchase-analysis.html`
+**Fonte de dados:** Google Sheets ao vivo (publica)
+**Sheet ID:** `1rQ5VjGYa07zwi-utOK4dE2UmhIxVhSi1WqvcVHECgSs`
+**Funciona direto no browser** — dados carregados do Google Sheets via URL publica, nao precisa de Live Server
 
 ### Repositorios e Deploy
 
@@ -43,18 +54,23 @@ O remote `presentation` ja esta configurado. O segundo comando sincroniza a past
 ```
 PRESENTATION/
 ├── COMPETITORS/
-│   ├── competitor-analysis.html              # Apresentacao principal
+│   ├── competitor-analysis.html              # Apresentacao de concorrentes
 │   ├── competitor-analysis-legado.html       # Backup pre-anotacoes
 │   ├── DB - Competitors Research - Sheet1.csv  # Banco de dados (fonte)
 │   ├── annotations.json                      # Anotacoes exportadas (opcional)
+│   ├── favicon.svg                           # Favicon GUDAY
 │   ├── _gummy/                               # Screenshots Gummy
 │   ├── _essential/                           # Screenshots Essential
 │   ├── _desincha/                            # Screenshots Desincha
 │   ├── _drgood/                              # Screenshots Dr. Good
 │   ├── _bold/                                # Screenshots Bold
 │   └── _maismu/                              # Screenshots Mais Mu
+├── POST-PURCHASE/
+│   ├── post-purchase-analysis.html           # Apresentacao pos-compra
+│   ├── DB - Post-Purchase - Sheet1.csv       # Dados brutos (backup)
+│   ├── DB - Post-Purchase.xlsx               # Planilha original
+│   └── MYND - Post Purchase Analysis.pdf     # Referencia de formato
 ├── presentation_documentation.md             # Este arquivo
-├── MYND - Competitor analysis.pdf            # Referencia de formato (WeConvert)
 ├── GUDAY_Reposicionamento_05_03_2026.pdf     # Brand guidelines
 └── GUDAY — BASE DE CONHECIMENTO DO ASSISTENTE CRIATIVO (2).pdf
 ```
@@ -476,3 +492,222 @@ A diferenca principal e o branding: MYND usa navy/teal, nos usamos roxo GUDAY (`
 - Ate 3 imagens lado a lado usando flex row com `gap: 12px` e `align-items: stretch`
 - Resolucao base do slide e 960x540 (16:9). Tentativas de aumentar para 1440x810, 1920x1080, 1920x820 e 1600x600 foram revertidas pois degradavam a qualidade visual das imagens (scaling up do browser causa blur). A resolucao 960x540 com scale down e a que produz melhor resultado
 - Imagens com path invalido mostram borda vermelha tracejada + alt text com nome do arquivo + console.warn
+
+---
+
+# Post-Purchase Analysis
+
+## Overview
+
+Apresentacao de dados da pesquisa pos-compra da GUDAY. Os dados sao carregados ao vivo do Google Sheets — ao editar a planilha, basta recarregar a pagina.
+
+**Arquivo:** `POST-PURCHASE/post-purchase-analysis.html`
+**Referencia de formato:** `POST-PURCHASE/MYND - Post Purchase Analysis.pdf`
+
+---
+
+## Arquitetura
+
+### Fonte de dados
+
+Google Sheets publico:
+- **Sheet ID:** `1rQ5VjGYa07zwi-utOK4dE2UmhIxVhSi1WqvcVHECgSs`
+- **URL base:** `https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}`
+
+### Abas do Google Sheets
+
+| Aba | GID | Tipo | Descricao |
+|-----|-----|------|-----------|
+| dados brutos | 0 | raw | Respostas individuais (nao usado diretamente) |
+| genero | 397488875 | bars | Distribuicao por genero |
+| age | 381994185 | bars | Distribuicao por faixa etaria |
+| canal | 2095508115 | bars | Como conheceu a Guday |
+| interesse | 786515145 | bars | O que despertou interesse |
+| fatores | 1945302614 | bars | Fatores de compra |
+| dificuldade | 706090509 | bars | Dificuldades antes da Guday |
+| nps | 622836116 | bars | Satisfacao geral (0-10) |
+| recomendar | 1933124829 | bars | Probabilidade de recomendar (0-10) |
+| objecoes | 839143174 | bars | Objecoes antes de comprar |
+| naoRecom | 1185308463 | bars | Maior medo/preocupacao antes de comprar |
+| comprarMais | 1350295206 | bars | O que convenceria a comprar mais |
+| descricao | 2129416028 | quotes | Citacoes de clientes |
+
+### Formato esperado das abas (bars)
+
+```csv
+Category,Percentage,Count
+Feminino,86.11%,62
+Masculino,13.89%,10
+```
+
+ou
+
+```csv
+Category,Count,Percentage
+Nao gostar dos sabores,27,64.29%
+```
+
+O parser detecta a coluna `Percentage` pelo nome do header, independente da posicao.
+
+### Formato esperado da aba (quotes)
+
+```csv
+Como voce descreveria?
+"É uma forma muito gostosa de suplementacao..."
+Parece um docinho e nao um suplemento.
+```
+
+Primeira linha = header (ignorada). Demais linhas = citacoes. Linhas vazias sao filtradas. Maximo 6 citacoes exibidas.
+
+---
+
+## Tipos de slides
+
+### 1. Cover (capa)
+
+Gradiente roxo GUDAY com titulo, subtitulo e metadados (n respostas, periodo).
+
+### 2. Content (conclusoes + grafico de barras)
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  TITULO (insight principal, bold)                            │
+├────────────────────────────┬─────────────────────────────────┤
+│  CONCLUSOES (50%)          │  GRAFICO BARRAS HORIZ. (50%)    │
+│  • Bullet 1                │  ████████████████ 69.44%        │
+│  • Bullet 2                │  ████ 15.28%                    │
+│  • Bullet 3                │  ███ 9.72%                      │
+├────────────────────────────┴─────────────────────────────────┤
+│  Source: Post-purchase survey          [GUDAY logo]          │
+└──────────────────────────────────────────────────────────────┘
+```
+
+- Barras ordenadas do maior para o menor
+- Maximo 7 barras exibidas (restante cortado)
+- Cor das barras: roxo `#7f56d9`
+- Labels truncados com ellipsis (max 130px)
+
+### 3. Dual-chart (dois graficos lado a lado)
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  TITULO                                                      │
+├────────────────────────────┬─────────────────────────────────┤
+│  GRAFICO ESQUERDO          │  GRAFICO DIREITO                │
+│  (pizza ou barras)         │  (barras)                       │
+├────────────────────────────┴─────────────────────────────────┤
+│  Source                                    [GUDAY logo]      │
+└──────────────────────────────────────────────────────────────┘
+```
+
+- Propriedade `usePie: true` no slide para usar pizza na esquerda
+- Usado para: genero (pizza) + idade (barras), NPS + recomendar (barras + barras)
+
+### 4. Quotes (citacoes de clientes)
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  TITULO                                                      │
+│  Pergunta da pesquisa                                        │
+│  ┌──────────────┐  ┌──────────────┐                         │
+│  │ " Citacao 1  │  │ " Citacao 2  │                         │
+│  └──────────────┘  └──────────────┘                         │
+│  ┌──────────────┐  ┌──────────────┐                         │
+│  │ " Citacao 3  │  │ " Citacao 4  │                         │
+│  └──────────────┘  └──────────────┘                         │
+├──────────────────────────────────────────────────────────────┤
+│  Source                                    [GUDAY logo]      │
+└──────────────────────────────────────────────────────────────┘
+```
+
+- Grid 2 colunas
+- Cards com fundo `#f7f6f4` e aspas roxas
+- Maximo 6 citacoes, filtradas por tamanho minimo (>3 chars)
+
+---
+
+## Slides atuais (11)
+
+| # | Tipo | Titulo resumido | Dados |
+|---|------|----------------|-------|
+| 1 | cover | Post-Purchase Analysis | - |
+| 2 | dual-chart (pizza+barras) | 86% mulheres, 35-44 dominante | genero + age |
+| 3 | content | Instagram 69%, indicacao 15% | canal |
+| 4 | content | Praticidade 28%, sabor 18% | interesse |
+| 5 | content | Praticidade 40%, gostoso 32% | fatores |
+| 6 | content | Gosto ruim 17%, formato 14% | dificuldade |
+| 7 | dual-chart (barras+barras) | NPS 72, 84% nota 8+ | nps + recomendar |
+| 8 | content | 43% sem objecao, 38% preco | objecoes |
+| 9 | content | 64% medo do sabor | naoRecom |
+| 10 | content | 24% satisfeitos, 35% querem promo | comprarMais |
+| 11 | quotes | Pratica, gostosa, impossivel de esquecer | descricao |
+
+---
+
+## Fluxo de dados
+
+1. No load, faz `fetch` de cada aba do Google Sheets via URL publica (em paralelo)
+2. Parser detecta coluna `Percentage` pelo header (funciona com `Category,Percentage,Count` ou `Category,Count,Percentage`)
+3. Dados ao vivo substituem os fallbacks hardcoded
+4. Se o fetch falhar (offline, CORS), usa dados hardcoded como fallback
+5. Barras sao ordenadas do maior ao menor e limitadas a 7
+6. Citacoes sao filtradas (vazias removidas) e limitadas a 6
+
+**Para atualizar:** edite a planilha no Google Sheets → recarregue a apresentacao
+
+---
+
+## Como adicionar novos slides
+
+### 1. Criar aba no Google Sheets
+
+Adicionar nova aba com formato `Category,Percentage,Count` (ou `Category,Count,Percentage`).
+
+### 2. Descobrir o GID da aba
+
+Abrir a aba no browser e copiar o `gid=` da URL. Ou:
+```bash
+curl -sL "https://docs.google.com/spreadsheets/d/SHEET_ID/htmlview" | grep -oE 'gid=[0-9]+' | sort -u
+```
+
+### 3. Adicionar no HTML
+
+No array `SHEETS`, adicionar a nova chave:
+```javascript
+novaAba: { gid: "123456789" }
+```
+
+No array `slideDefs`, adicionar o slide:
+```javascript
+{
+    type: "content",
+    sheetKey: "novaAba",
+    heading: "Titulo do insight principal",
+    chartTitle: "Pergunta da pesquisa?",
+    conclusions: [
+        "Conclusao 1.",
+        "Conclusao 2."
+    ],
+    fallbackBars: [
+        { label: "Opcao A", value: 50 },
+        { label: "Opcao B", value: 30 }
+    ]
+}
+```
+
+---
+
+## Decisoes de design (Post-Purchase)
+
+| Decisao | Motivo |
+|---------|--------|
+| Barras roxas `#7f56d9` | Consistencia com branding GUDAY |
+| Max 7 barras por grafico | Evitar poluicao visual |
+| Barras ordenadas maior→menor | Facilitar leitura |
+| Labels truncados 130px | Evitar desalinhamento |
+| Pizza so para genero | Melhor para dados binarios (2 opcoes) |
+| Citacoes max 6, grid 2 colunas | Caber no slide sem scroll |
+| Sem em-dashes nos textos | Evitar tom de IA, mais humanizado |
+| Conclusoes sem dados redundantes | Nao repetir o que o grafico ja mostra |
+| Dados ao vivo do Google Sheets | Atualizar sem editar codigo |
+| Fallback hardcoded | Funcionar offline |

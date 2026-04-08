@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Purchase Analysis | GUDAY</title>
+    <link rel="icon" type="image/svg+xml" href="../COMPETITORS/favicon.svg">
+    <link rel="stylesheet" href="https://use.typekit.net/lcw2zgr.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --purple-primary: #b282eb;
+            --purple-deep: #7f56d9;
+            --purple-dark: #1E192A;
+            --purple-muted: #6d6daa;
+            --bg-sidebar: #f9f8f6;
+            --white: #ffffff;
+            --text-dark: #1E192A;
+            --bar-color: #7f56d9;
+            --slide-w: 960px;
+            --slide-h: 540px;
+            --thumb-scale: 0.18;
+        }
+
+        body {
+            font-family: 'degular', 'Inter', system-ui, -apple-system, sans-serif;
+            background: #e8e8e8;
+            color: var(--text-dark);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── TOOLBAR ─────────────────────────────────── */
+        .toolbar {
+            height: 52px;
+            background: var(--white);
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+            position: relative;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toolbar-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--purple-deep);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toolbar-icon svg { width: 18px; height: 18px; }
+
+        .toolbar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+            letter-spacing: -0.3px;
+        }
+
+        .toolbar-title span {
+            color: var(--purple-muted);
+            font-weight: 400;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-present {
+            background: var(--purple-deep);
+            color: white;
+            border: none;
+            padding: 9px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-present:hover { background: #6a47c0; transform: translateY(-1px); }
+        .btn-present:active { transform: translateY(0); }
+        .btn-present svg { width: 16px; height: 16px; }
+
+        .btn-download {
+            background: var(--white);
+            color: var(--text-dark);
+            border: 1px solid #ddd;
+            padding: 9px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, transform 0.1s, border-color 0.2s;
+        }
+
+        .btn-download:hover { background: #f5f5f5; border-color: #bbb; transform: translateY(-1px); }
+        .btn-download:active { transform: translateY(0); }
+        .btn-download svg { width: 16px; height: 16px; }
+        .btn-download:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* ── MAIN LAYOUT ─────────────────────────────── */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 52px);
+        }
+
+        /* ── THUMBNAIL PANEL ─────────────────────────── */
+        .thumbnail-panel {
+            width: 224px;
+            min-width: 224px;
+            background: #f1f1f1;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 10px 10px 10px 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .thumbnail-panel::-webkit-scrollbar { width: 5px; }
+        .thumbnail-panel::-webkit-scrollbar-track { background: transparent; }
+        .thumbnail-panel::-webkit-scrollbar-thumb { background: #c5c5c5; border-radius: 3px; }
+
+        .thumb-wrap {
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+            padding: 3px;
+            border-radius: 4px;
+            transition: background 0.15s;
+            flex-shrink: 0;
+        }
+
+        .thumb-wrap:hover { background: #e2e2e2; }
+
+        .thumb-num {
+            font-size: 10px;
+            color: #999;
+            min-width: 20px;
+            text-align: right;
+            padding-top: 1px;
+            font-weight: 500;
+            line-height: 1;
+        }
+
+        .thumb-frame {
+            width: 172px;
+            height: 97px;
+            overflow: hidden;
+            border-radius: 3px;
+            border: 2px solid transparent;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            position: relative;
+            background: var(--white);
+            flex-shrink: 0;
+        }
+
+        .thumb-wrap.active .thumb-frame {
+            border-color: var(--purple-deep);
+            box-shadow: 0 0 0 1px var(--purple-deep);
+        }
+
+        .thumb-inner {
+            width: var(--slide-w);
+            height: var(--slide-h);
+            transform: scale(var(--thumb-scale));
+            transform-origin: top left;
+            pointer-events: none;
+            position: absolute;
+            top: 0; left: 0;
+        }
+
+        /* ── SLIDE AREA ──────────────────────────────── */
+        .slide-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #d6d6d6;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-viewport {
+            width: var(--slide-w);
+            height: var(--slide-h);
+            position: relative;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            border-radius: 2px;
+            overflow: hidden;
+            background: var(--white);
+        }
+
+        /* ── SLIDES ──────────────────────────────────── */
+        .slide {
+            width: 100%; height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.45s cubic-bezier(.4,0,.2,1),
+                        transform 0.45s cubic-bezier(.4,0,.2,1);
+            will-change: opacity, transform;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+            z-index: 2;
+        }
+
+        .slide.entering-right { transform: translateX(40px); }
+        .slide.entering-left  { transform: translateX(-40px); }
+        .slide.exiting-right  { transform: translateX(40px); opacity: 0; z-index: 1; }
+        .slide.exiting-left   { transform: translateX(-40px); opacity: 0; z-index: 1; }
+
+        /* ── COVER SLIDE ─────────────────────────────── */
+        .slide-cover {
+            width: 100%; height: 100%;
+            background: linear-gradient(145deg, #0f0a1a 0%, var(--purple-dark) 35%, #2a1650 65%, var(--purple-deep) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 50px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-cover::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 600px 400px at 25% 40%, rgba(178,130,235,0.12) 0%, transparent 70%),
+                radial-gradient(ellipse 500px 500px at 80% 70%, rgba(127,86,217,0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .cover-badge {
+            background: rgba(178,130,235,0.15);
+            border: 1px solid rgba(178,130,235,0.3);
+            color: var(--purple-primary);
+            padding: 8px 28px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        .cover-title {
+            font-size: 48px;
+            font-weight: 800;
+            color: white;
+            line-height: 1.05;
+            margin-bottom: 12px;
+            position: relative;
+            letter-spacing: -1px;
+        }
+
+        .cover-subtitle {
+            font-size: 20px;
+            color: rgba(178,130,235,0.7);
+            font-weight: 500;
+            margin-bottom: 40px;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        .cover-divider {
+            width: 60px;
+            height: 3px;
+            background: var(--purple-deep);
+            border-radius: 2px;
+            margin-bottom: 36px;
+            position: relative;
+        }
+
+        .cover-meta {
+            color: rgba(255,255,255,0.3);
+            font-size: 13px;
+            position: relative;
+        }
+
+        /* ── CONTENT SLIDE ───────────────────────────── */
+        .slide-content {
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: var(--white);
+            padding: 36px 44px 24px;
+        }
+
+        .slide-heading {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1.25;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+            padding-right: 20px;
+        }
+
+        .slide-body {
+            flex: 1;
+            display: flex;
+            gap: 36px;
+            min-height: 0;
+        }
+
+        /* Conclusions panel */
+        .conclusions {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-right: 12px;
+        }
+
+        .conclusion-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--purple-deep);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .conclusion-item {
+            font-size: 14px;
+            line-height: 1.55;
+            color: #444;
+            margin-bottom: 14px;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .conclusion-item::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--purple-deep);
+            font-weight: 700;
+        }
+
+        /* Chart panel */
+        .chart-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .bar-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: #555;
+            width: 130px;
+            min-width: 130px;
+            text-align: right;
+            flex-shrink: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 28px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--bar-color);
+            border-radius: 4px;
+            transition: width 0.8s cubic-bezier(.4,0,.2,1);
+            min-width: 2px;
+        }
+
+        .bar-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dark);
+            min-width: 48px;
+            flex-shrink: 0;
+        }
+
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 10px;
+        }
+
+        .slide-source {
+            font-size: 11px;
+            color: #b0b0b0;
+        }
+
+        .slide-brand {
+            display: flex;
+            align-items: center;
+        }
+
+        .slide-brand svg {
+            height: 16px;
+            width: auto;
+        }
+
+        /* ── QUOTES SLIDE ────────────────────────────── */
+        .quotes-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .quotes-question {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .quotes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            align-content: start;
+        }
+
+        .quote-card {
+            background: #f7f6f4;
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-size: 13px;
+            line-height: 1.45;
+            color: #444;
+            display: flex;
+            align-items: flex-start;
+            min-height: 0;
+        }
+
+        .quote-card::before {
+            content: '\201C';
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--purple-deep);
+            margin-right: 8px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        /* ── PIE CHART ────────────────────────────────── */
+        .pie-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .pie-chart {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .pie-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .pie-legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .pie-legend-value {
+            font-weight: 700;
+            margin-left: auto;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        /* ── NAV ARROWS ──────────────────────────────── */
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.92);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+            cursor: pointer;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
+            color: var(--text-dark);
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .nav-arrow:hover {
+            background: white;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+            transform: translateY(-50%) scale(1.08);
+        }
+
+        .nav-arrow.prev { left: 14px; }
+        .nav-arrow.next { right: 14px; }
+        .nav-arrow:disabled { opacity: 0.25; cursor: default; pointer-events: none; }
+
+        /* ── SLIDE COUNTER ───────────────────────────── */
+        .slide-counter {
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.55);
+            color: white;
+            padding: 5px 16px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* ── FULLSCREEN ──────────────────────────────── */
+        body.fullscreen-mode .toolbar { display: none; }
+        body.fullscreen-mode .thumbnail-panel { display: none; }
+        body.fullscreen-mode .main-container { height: 100vh; }
+        body.fullscreen-mode .slide-area { background: #000; }
+
+        body.fullscreen-mode .nav-arrow {
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+
+        body.fullscreen-mode .slide-area:hover .nav-arrow { opacity: 1; }
+        body.fullscreen-mode .slide-counter { background: rgba(0,0,0,0.4); }
+
+        /* ── ANIMATIONS ──────────────────────────────── */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-cover .cover-badge    { animation: fadeInUp 0.6s 0.1s both; }
+        .slide-cover .cover-title    { animation: fadeInUp 0.6s 0.2s both; }
+        .slide-cover .cover-subtitle { animation: fadeInUp 0.6s 0.35s both; }
+        .slide-cover .cover-divider  { animation: fadeInUp 0.6s 0.45s both; }
+        .slide-cover .cover-meta     { animation: fadeInUp 0.6s 0.55s both; }
+
+        @media (max-height: 650px) {
+            .toolbar { height: 44px; }
+            .main-container { height: calc(100vh - 44px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <div class="toolbar-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="3"/>
+                    <path d="M9 3v18M3 9h6"/>
+                </svg>
+            </div>
+            <div class="toolbar-title">
+                Post-Purchase Analysis <span>— GUDAY</span>
+            </div>
+        </div>
+        <div class="toolbar-actions">
+            <button class="btn-download" onclick="downloadPDF()" id="btnDownload">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                PDF
+            </button>
+            <button class="btn-present" onclick="toggleFullscreen()" id="btnPresent">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                Apresentar
+            </button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="thumbnail-panel" id="thumbPanel"></div>
+        <div class="slide-area">
+            <button class="nav-arrow prev" id="btnPrev" aria-label="Slide anterior">&#8249;</button>
+            <div class="slide-viewport" id="slideViewport"></div>
+            <button class="nav-arrow next" id="btnNext" aria-label="Próximo slide">&#8250;</button>
+            <div class="slide-counter" id="counter"></div>
+        </div>
+    </div>
+
+    <script>
+    (async function () {
+        /* ── GOOGLE SHEETS CONFIG ──────────────────── */
+        const SHEET_ID = "1rQ5VjGYa07zwi-utOK4dE2UmhIxVhSi1WqvcVHECgSs";
+        const SHEETS = {
+            genero:      { gid: "397488875" },
+            age:         { gid: "381994185" },
+            canal:       { gid: "2095508115" },
+            interesse:   { gid: "786515145" },
+            fatores:     { gid: "1945302614" },
+            nps:         { gid: "622836116" },
+            recomendar:  { gid: "1933124829" },
+            dificuldade: { gid: "706090509" },
+            objecoes:    { gid: "839143174" },
+            naoRecom:    { gid: "1185308463" },
+            comprarMais: { gid: "1350295206" },
+            descricao:   { gid: "2129416028" }
+        };
+
+        async function fetchSheet(gid) {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+            const resp = await fetch(url);
+            const text = await resp.text();
+            const lines = text.split("\n").filter(l => l.trim());
+            const bars = [];
+            /* Detect which column has percentages by checking header */
+            const headerCols = [];
+            let cur = "", inQ = false;
+            for (const ch of lines[0]) {
+                if (ch === '"') { inQ = !inQ; }
+                else if (ch === ',' && !inQ) { headerCols.push(cur.trim().toLowerCase()); cur = ""; }
+                else { cur += ch; }
+            }
+            headerCols.push(cur.trim().toLowerCase());
+            const pctCol = headerCols.indexOf("percentage") >= 0 ? headerCols.indexOf("percentage") : 1;
+
+            for (let i = 1; i < lines.length; i++) {
+                const cols = [];
+                let c = "", q = false;
+                for (const ch of lines[i]) {
+                    if (ch === '"') { q = !q; }
+                    else if (ch === ',' && !q) { cols.push(c.trim()); c = ""; }
+                    else { c += ch; }
+                }
+                cols.push(c.trim());
+                const label = cols[0] || "";
+                const pct = parseFloat((cols[pctCol] || "0").replace("%", ""));
+                if (label && !isNaN(pct)) bars.push({ label, value: pct });
+            }
+            return bars;
+        }
+
+        async function fetchQuotes(gid) {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+            const resp = await fetch(url);
+            const text = await resp.text();
+            const lines = text.split("\n").filter(l => l.trim());
+            const quotes = [];
+            for (let i = 1; i < lines.length; i++) {
+                const q = lines[i].replace(/^"|"$/g, "").trim();
+                if (q) quotes.push(q);
+            }
+            return quotes;
+        }
+
+        /* Fetch all sheets in parallel */
+        let sheetData = {};
+        try {
+            const results = await Promise.all(
+                Object.entries(SHEETS).map(async ([key, cfg]) => {
+                    if (key === "descricao") {
+                        const quotes = await fetchQuotes(cfg.gid);
+                        return [key, quotes];
+                    }
+                    const bars = await fetchSheet(cfg.gid);
+                    return [key, bars];
+                })
+            );
+            results.forEach(([key, data]) => { sheetData[key] = data; });
+        } catch (e) {
+            console.warn("Failed to fetch from Google Sheets, using fallback data:", e);
+            sheetData = null;
+        }
+
+        const GUDAY_LOGO = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 4000 1304"><path fill="#000" d="M820.889 346.222C820.889 346.222 417.778 346.222 386.667 346.222C361.333 346.222 340.444 366.667 340.444 392.445C340.444 421.778 340.444 1014.67 339.556 1024.89C338.667 1048 320 1064 297.333 1063.11C275.556 1062.22 259.556 1045.33 258.667 1022.67C258.667 1016.89 258.667 304.889 258.667 303.556C258.667 292 264 282.222 272 275.111C278.667 268.889 287.556 264.889 297.778 264.445C298.667 264.445 800.889 264.445 800.889 264.445C879.111 264.445 942.667 200.889 942.667 122.667C942.667 52.0002 896 3.11133 823.111 3.11133H367.111C165.778 3.11133 0 168.889 0 370.222V1003.11C0 1166.67 132.889 1299.56 296.444 1299.56H303.111C466.667 1299.56 599.556 1166.67 599.556 1003.11C599.556 1003.11 600 628.889 600.444 623.111C601.333 600.445 617.778 583.556 639.111 582.667C661.778 581.778 680.444 597.778 680.889 621.333C680.889 625.778 681.333 1149.33 681.333 1149.33C681.333 1226.22 743.555 1288.89 820.889 1288.89C893.778 1288.89 940.444 1240 940.444 1169.33V465.778C940.444 395.111 893.778 346.222 820.889 346.222Z"/><path fill="#000" d="M1970.22 6.6665H1811.11C1738.22 6.6665 1691.56 55.5554 1691.56 126.222V1170.67C1691.56 1241.33 1738.22 1290.22 1811.11 1290.22H1970.22C2147.56 1290.22 2291.11 1146.67 2291.11 969.333V327.555C2291.11 150.222 2147.56 6.6665 1970.22 6.6665ZM2031.56 1026.22C2030.67 1049.33 2012 1065.33 1989.33 1064.44C1967.56 1063.56 1951.56 1046.67 1950.67 1024C1950.67 1010.67 1950.67 288.444 1950.67 275.111C1951.56 252.444 1968 235.555 1989.33 234.667C2012 233.778 2030.67 249.778 2031.11 273.333C2032 296.444 2032 1001.33 2031.11 1026.22H2031.56Z"/><path fill="#000" d="M2613.33 4H2487.11C2414.22 4 2367.56 52.8889 2367.56 123.556C2367.56 194.222 2423.56 257.333 2495.11 264.444C2508.89 264.444 2718.67 264.444 2732 264.444C2754.67 265.333 2771.56 281.778 2772.44 303.111C2773.33 325.778 2757.33 344.444 2733.78 344.889C2730.67 344.889 2678.67 345.778 2678.67 345.778C2499.56 345.778 2380 465.333 2380 646.667V987.555C2380 996.444 2380.89 1021.33 2380.89 1021.33C2389.78 1176.89 2519.11 1300.44 2676.89 1300.44H2683.56C2712.44 1300.44 2740.44 1296.44 2766.67 1288.44L2778.67 1284.44C2895.56 1244.89 2980 1134.22 2980 1003.56V370.667C2980.89 169.333 2815.11 4 2613.33 4ZM2720.44 1013.78C2719.56 1036.89 2700.89 1052.89 2678.22 1052C2656.44 1051.11 2640.44 1034.22 2639.56 1011.56C2639.56 997.778 2639.56 636.889 2639.56 623.111C2640.44 600.444 2656.89 583.555 2678.22 582.667C2700.89 581.778 2719.56 597.778 2720 621.333C2720.89 649.778 2720.89 984.889 2720 1013.78H2720.44Z"/><path fill="#000" d="M3179.11 953.778H3528.89C3550.67 953.778 3582.22 953.778 3613.33 953.778C3638.67 953.778 3659.56 933.333 3659.56 907.556C3659.56 878.222 3659.56 848 3659.56 826.667V338.667C3659.56 310.222 3659.56 285.333 3660.44 275.111C3661.33 252 3680 236 3702.67 236.889C3724.44 237.778 3740.44 254.667 3741.33 277.333C3741.33 283.111 3741.33 309.333 3741.33 338.667C3741.33 338.667 3741.33 995.111 3741.33 996.889C3741.33 1008.44 3736 1018.22 3728 1025.33C3721.33 1031.56 3712.44 1035.56 3702.22 1036C3701.33 1036 3700.89 1036 3700 1036C3682.67 1036 3199.11 1036 3199.11 1036C3120.89 1036 3057.33 1099.56 3057.33 1177.78C3057.33 1248.44 3104 1297.33 3176.89 1297.33H3632.89C3834.67 1297.33 4000 1131.56 4000 930.222V296.444C4000 132.889 3867.11 0 3703.56 0H3696.89C3533.33 0 3400.44 132.889 3400.44 296.444C3400.44 296.444 3400 670.667 3399.56 676.444C3398.67 699.111 3382.22 716 3360.89 716.889C3338.22 717.778 3319.56 701.778 3319.11 678.222C3319.11 673.778 3318.67 150.222 3318.67 150.222C3318.67 73.3333 3256.44 10.6667 3179.11 10.6667C3106.22 10.6667 3059.56 59.5556 3059.56 130.222V833.778C3059.56 904.444 3106.22 953.333 3179.11 953.333V953.778Z"/><path fill="#000" d="M1278.22 148.444C1278.22 71.5553 1216 8.88867 1138.67 8.88867C1065.78 8.88867 1019.11 57.7776 1019.11 128.444L1015.56 1000.89C1012.44 1164.44 1143.11 1299.56 1306.67 1302.67H1313.33C1476.89 1305.78 1612 1175.56 1615.11 1011.56L1618.67 128.444C1618.67 57.7776 1572 8.88867 1499.11 8.88867C1422.22 8.88867 1359.56 71.1109 1359.56 148.444C1359.56 148.444 1359.56 1003.11 1358.67 1028C1357.78 1051.11 1339.11 1067.11 1316.44 1066.22C1294.67 1065.33 1278.67 1048.44 1277.78 1025.78C1277.78 1012 1277.78 148.444 1277.78 148.444H1278.22Z"/></svg>`;
+
+        /* ── SLIDE DATA ────────────────────────────── */
+        /* Slide definitions — bars are overridden by live sheet data when available */
+        const slideDefs = [
+            { type: "cover" },
+            {
+                type: "dual-chart",
+                heading: "86% dos clientes são mulheres, com faixa etária predominante entre 35-44 anos (33%)",
+                leftSheetKey: "genero",
+                usePie: true,
+                leftTitle: "Qual é o seu gênero?",
+                leftFallback: [
+                    { label: "Feminino", value: 86.11 },
+                    { label: "Masculino", value: 13.89 }
+                ],
+                rightSheetKey: "age",
+                rightTitle: "Qual é a sua faixa etária?",
+                rightFallback: [
+                    { label: "35 a 44 anos", value: 33.33 },
+                    { label: "25 a 34 anos", value: 20.83 },
+                    { label: "55 anos ou mais", value: 20.83 },
+                    { label: "45 a 54 anos", value: 18.06 },
+                    { label: "18 a 24 anos", value: 4.17 },
+                    { label: "Menos de 18", value: 2.78 }
+                ]
+            },
+            {
+                type: "content",
+                sheetKey: "canal",
+                heading: "Instagram é o principal canal de descoberta (69%), seguido por indicação de amigos (15%)",
+                chartTitle: "Como você conheceu a Guday pela primeira vez?",
+                conclusions: [
+                    "Instagram domina as descobertas, sendo o canal mais importante para aquisição de novos clientes.",
+                    "Indicação de amigos/familiares é o segundo canal, reforçando a importância do boca-a-boca e prova social.",
+                    "Investir em estratégias de referral pode amplificar o canal de indicação que já é relevante organicamente."
+                ],
+                fallbackBars: [
+                    { label: "Instagram", value: 69.44 },
+                    { label: "Indicação amigo", value: 15.28 },
+                    { label: "Outro", value: 9.72 },
+                    { label: "Influenciador", value: 5.56 },
+                    { label: "TikTok", value: 0 },
+                    { label: "Google", value: 0 }
+                ]
+            },
+            {
+                type: "content",
+                sheetKey: "interesse",
+                heading: "Praticidade (28%) e sabor (18%) são os principais gatilhos de interesse, seguidos pelo formato gummy (18%)",
+                chartTitle: "O que despertou seu interesse na Guday?",
+                conclusions: [
+                    "Praticidade é o maior diferencial percebido, reforçando que a facilidade de consumo é o principal atrativo.",
+                    "Sabor e formato gummy são o segundo maior gatilho, mostrando que a experiência sensorial é decisiva.",
+                    "Influenciadores e a ideia de 'não esquecer de tomar' são gatilhos secundários relevantes.",
+                    "O posicionamento ideal une praticidade + sabor + formato como tríade de valor."
+                ],
+                fallbackBars: [
+                    { label: "Praticidade", value: 27.55 },
+                    { label: "Sabor", value: 18.37 },
+                    { label: "Formato (gummy)", value: 18.37 },
+                    { label: "Creatina/vitaminas", value: 8.16 },
+                    { label: "Influenciadores", value: 6.12 },
+                    { label: "Não esquecer", value: 5.10 },
+                    { label: "Curiosidade", value: 4.08 },
+                    { label: "Benefícios", value: 4.08 },
+                    { label: "Indicação médica", value: 3.06 }
+                ]
+            },
+            {
+                type: "content",
+                sheetKey: "fatores",
+                heading: "Praticidade (40%) e sabor agradável (32%) são os fatores decisivos de compra",
+                chartTitle: "Quais foram os 3 principais fatores que te convenceram a comprar?",
+                conclusions: [
+                    "Praticidade/facilidade lidera, sendo o fator mais citado como decisivo para a conversão.",
+                    "Ser gostoso de ingerir confirma que o sabor não é só atrativo, é fator de compra.",
+                    "Promoção e formato gummy influenciam a decisão final.",
+                    "Indicação de amigos e aparência do produto destacam a importância do branding visual e prova social.",
+                    "Comunicação deve enfatizar: 'prático, gostoso e no formato ideal'."
+                ],
+                fallbackBars: [
+                    { label: "Praticidade", value: 40.26 },
+                    { label: "Gostoso de ingerir", value: 32.47 },
+                    { label: "Promoção", value: 15.58 },
+                    { label: "Formato (gummy)", value: 14.29 },
+                    { label: "Indicação amigos", value: 10.39 },
+                    { label: "Aparência", value: 10.39 },
+                    { label: "Múltiplos sabores", value: 10.39 },
+                    { label: "Qualidade", value: 7.79 },
+                    { label: "Preço", value: 6.49 }
+                ]
+            },
+            {
+                type: "content",
+                sheetKey: "dificuldade",
+                heading: "Antes da Guday, gosto ruim (17%) e formato inadequado (14%) eram as maiores dificuldades com suplementos",
+                chartTitle: "Quais foram as maiores dificuldades que você teve com suplementos antes da Guday?",
+                conclusions: [
+                    "Gosto ruim (16.9%) e formato inadequado como pó/textura (14.1%) são as maiores dores, exatamente o que a gummy resolve.",
+                    "Praticidade (12.7%) e confiança na marca/fórmula (11.3%) aparecem como barreiras relevantes.",
+                    "A Guday ataca diretamente os 3 maiores problemas: sabor, formato e praticidade."
+                ],
+                fallbackBars: [
+                    { label: "Nenhuma", value: 19.72 },
+                    { label: "Gosto ruim", value: 16.90 },
+                    { label: "Formato ruim", value: 14.08 },
+                    { label: "Praticidade", value: 12.68 },
+                    { label: "Confiança", value: 11.27 },
+                    { label: "Qualidade", value: 5.63 },
+                    { label: "Preço", value: 4.23 },
+                    { label: "Escolher marca", value: 4.23 },
+                    { label: "Portabilidade", value: 2.82 }
+                ]
+            },
+            {
+                type: "dual-chart",
+                heading: "NPS de 72 com 84% dando nota 8+, validando investimento em programas de referral e indicação",
+                leftSheetKey: "nps",
+                leftTitle: "Satisfação geral com a Guday (0-10)",
+                leftFallback: [
+                    { label: "10", value: 51.39 },
+                    { label: "9", value: 22.22 },
+                    { label: "8", value: 16.67 },
+                    { label: "7", value: 8.33 },
+                    { label: "3", value: 1.39 }
+                ],
+                rightSheetKey: "recomendar",
+                rightTitle: "Probabilidade de recomendar (0-10)",
+                rightFallback: [
+                    { label: "10", value: 54.29 },
+                    { label: "9", value: 15.71 },
+                    { label: "8", value: 14.29 },
+                    { label: "7", value: 7.14 },
+                    { label: "6", value: 2.86 },
+                    { label: "5", value: 2.86 },
+                    { label: "1", value: 2.86 }
+                ]
+            },
+            {
+                type: "content",
+                sheetKey: "objecoes",
+                heading: "43% não tiveram objeção, mas preço foi barreira para 38% dos clientes",
+                chartTitle: "Você teve alguma objeção ou dúvida antes de finalizar a compra?",
+                conclusions: [
+                    "43% não tiveram nenhuma objeção, indicando que a jornada de compra é fluida para quase metade.",
+                    "Preço é a principal barreira (38.5%), sugerindo que estratégias de ancoragem de valor e parcelamento são importantes.",
+                    "Entrega preocupa 7.7% dos clientes. Transparência no prazo pode reduzir essa fricção.",
+                    "Objeções menores (vegano, textura, pureza) indicam oportunidade de comunicar melhor atributos do produto."
+                ],
+                fallbackBars: [
+                    { label: "Não", value: 43.08 },
+                    { label: "Preço", value: 38.46 },
+                    { label: "Entrega", value: 7.69 },
+                    { label: "Sem promoção", value: 3.08 },
+                    { label: "Não ser vegano", value: 1.54 },
+                    { label: "Textura", value: 1.54 },
+                    { label: "Não ser pura", value: 1.54 },
+                    { label: "Dúvidas", value: 1.54 },
+                    { label: "Bug no site", value: 1.54 }
+                ]
+            },
+            {
+                type: "content",
+                sheetKey: "naoRecom",
+                heading: "64% tinham medo de não gostar dos sabores, sendo a maior preocupação antes de comprar",
+                chartTitle: "Qual era o seu maior medo ou preocupação antes de comprar?",
+                conclusions: [
+                    "Não gostar do sabor (64.3%) é disparado a maior preocupação antes da compra.",
+                    "Preço alto (21.4%) e baixa qualidade (19%) são a segunda e terceira preocupações.",
+                    "Textura (16.7%) também gera insegurança, reforçando que a experiência sensorial é decisiva.",
+                    "21.4% não tinham nenhuma preocupação, compraram com confiança."
+                ],
+                fallbackBars: [
+                    { label: "Sabores ruins", value: 64.29 },
+                    { label: "Preço alto", value: 21.43 },
+                    { label: "Nenhuma", value: 21.43 },
+                    { label: "Baixa qualidade", value: 19.05 },
+                    { label: "Textura", value: 16.67 },
+                    { label: "Sem resultado", value: 9.52 },
+                    { label: "Ser golpe", value: 9.52 },
+                    { label: "Não ser creapure", value: 7.14 }
+                ]
+            },
+            {
+                type: "content",
+                sheetKey: "comprarMais",
+                heading: "24% estão satisfeitos como está, mas 35% querem promoções e melhores preços",
+                chartTitle: "O que te convenceria a comprar mais da Guday?",
+                conclusions: [
+                    "24% disseram 'nada', já estão convencidos e comprariam novamente sem incentivo.",
+                    "Promoções/descontos (19%) e melhor preço (15.5%) somam 34.5%, confirmando que preço é a principal alavanca de recompra.",
+                    "Mais opções de combos (8.6%) e assinatura (5.2%) indicam demanda por modelos de compra recorrente.",
+                    "Clareza nas informações (6.9%) e possibilidade de experimentar (5.2%) sugerem melhorias na comunicação e sampling.",
+                    "Entrega mais rápida (6.9%) reforça a importância da experiência logística."
+                ],
+                fallbackBars: [
+                    { label: "Nada", value: 24.14 },
+                    { label: "Promoções", value: 18.97 },
+                    { label: "Melhor preço", value: 15.52 },
+                    { label: "Mais combos", value: 8.62 },
+                    { label: "Clareza nas infos", value: 6.90 },
+                    { label: "Entrega rápida", value: 6.90 },
+                    { label: "Assinatura", value: 5.17 },
+                    { label: "Experimentar", value: 5.17 }
+                ]
+            },
+            {
+                type: "quotes",
+                sheetKey: "descricao",
+                heading: "Clientes descrevem a Guday como prática, gostosa e impossível de esquecer",
+                question: "Se você fosse descrever a Guday para um amigo, o que diria?",
+                fallbackQuotes: [
+                    "É uma forma muito gostosa de suplementação, e que dá para substituir facilmente pela hora do doce.",
+                    "Parece um docinho e não um suplemento.",
+                    "É impossível de esquecer, vai querer consumir 2x ao dia em vez de 1.",
+                    "É muito prático, fácil de transportar e incluir na rotina diária, por não precisar preparar. Além de ser gostoso.",
+                    "Prático e alivia a vontade de comer doces.",
+                    "Fácil compra, atendimento humanizado. Indicaria a Guday para os meus amigos sem pensar duas vezes."
+                ]
+            }
+        ];
+
+        /* Merge live data into slides */
+        const slides = slideDefs.map(d => {
+            if (d.type === "cover") return d;
+            if (d.type === "quotes") {
+                const liveQuotes = sheetData && d.sheetKey && sheetData[d.sheetKey];
+                return { ...d, quotes: liveQuotes && liveQuotes.length > 0 ? liveQuotes : d.fallbackQuotes };
+            }
+            if (d.type === "dual-chart") {
+                const liveLeft = sheetData && d.leftSheetKey && sheetData[d.leftSheetKey];
+                const liveRight = sheetData && d.rightSheetKey && sheetData[d.rightSheetKey];
+                return {
+                    ...d,
+                    leftBars: liveLeft && liveLeft.length > 0 ? liveLeft : d.leftFallback,
+                    rightBars: liveRight && liveRight.length > 0 ? liveRight : d.rightFallback
+                };
+            }
+            const liveBars = sheetData && d.sheetKey && sheetData[d.sheetKey];
+            return { ...d, bars: liveBars && liveBars.length > 0 ? liveBars : d.fallbackBars };
+        });
+
+        const total = slides.length;
+        let cur = 0;
+
+        /* ── RENDER ────────────────────────────────── */
+        function coverHTML() {
+            return `<div class="slide-cover">
+                <div class="cover-badge">GUDAY</div>
+                <div class="cover-title">Post-Purchase<br>Analysis</div>
+                <div class="cover-subtitle">Pesquisa pós-compra</div>
+                <div class="cover-divider"></div>
+                <div class="cover-meta">72 respostas · Março–Abril 2026</div>
+            </div>`;
+        }
+
+        function contentHTML(d) {
+            const conclusionsHTML = d.conclusions.map(c =>
+                `<div class="conclusion-item">${c}</div>`
+            ).join("");
+
+            const displayBars = [...d.bars].sort((a, b) => b.value - a.value).slice(0, 7);
+            const barsHTML = displayBars.map(b =>
+                `<div class="bar-row">
+                    <div class="bar-label">${b.label}</div>
+                    <div class="bar-track"><div class="bar-fill" style="width:${b.value}%"></div></div>
+                    <div class="bar-value">${b.value}%</div>
+                </div>`
+            ).join("");
+
+            return `<div class="slide-content">
+                <div class="slide-heading">${d.heading}</div>
+                <div class="slide-body">
+                    <div class="conclusions">
+                        <div class="conclusion-label">Conclusões</div>
+                        ${conclusionsHTML}
+                    </div>
+                    <div class="chart-panel">
+                        <div class="chart-title">${d.chartTitle}</div>
+                        ${barsHTML}
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span class="slide-source">Source: Post-purchase survey (n=72)</span>
+                    <span class="slide-brand">${GUDAY_LOGO}</span>
+                </div>
+            </div>`;
+        }
+
+        function quotesHTML(d) {
+            const filtered = d.quotes.filter(q => q && q.trim().length > 3);
+            const cards = filtered.slice(0, 6).map(q =>
+                `<div class="quote-card"><span>${q}</span></div>`
+            ).join("");
+
+            return `<div class="slide-content">
+                <div class="slide-heading">${d.heading}</div>
+                <div class="quotes-container">
+                    <div class="quotes-question">${d.question}</div>
+                    <div class="quotes-grid">${cards}</div>
+                </div>
+                <div class="slide-footer">
+                    <span class="slide-source">Source: Post-purchase survey (n=72)</span>
+                    <span class="slide-brand">${GUDAY_LOGO}</span>
+                </div>
+            </div>`;
+        }
+
+        function renderBars(bars, max) {
+            return [...bars].sort((a, b) => b.value - a.value).slice(0, max || 7).map(b =>
+                `<div class="bar-row">
+                    <div class="bar-label">${b.label}</div>
+                    <div class="bar-track"><div class="bar-fill" style="width:${b.value}%"></div></div>
+                    <div class="bar-value">${b.value}%</div>
+                </div>`
+            ).join("");
+        }
+
+        function renderPie(bars) {
+            const colors = ["#7f56d9", "#b282eb", "#d4b8f0", "#e8daf5", "#f3eefa", "#ccc", "#eee"];
+            let cumDeg = 0;
+            const gradParts = bars.map((b, i) => {
+                const start = cumDeg;
+                const end = cumDeg + (b.value / 100) * 360;
+                cumDeg = end;
+                return `${colors[i] || "#ccc"} ${start}deg ${end}deg`;
+            });
+            const legendHTML = bars.map((b, i) =>
+                `<div class="pie-legend-item">
+                    <div class="pie-legend-dot" style="background:${colors[i] || '#ccc'}"></div>
+                    <span>${b.label}</span>
+                    <span class="pie-legend-value">${b.value}%</span>
+                </div>`
+            ).join("");
+
+            return `<div class="pie-container">
+                <div class="pie-chart" style="background:conic-gradient(${gradParts.join(",")})"></div>
+                <div class="pie-legend">${legendHTML}</div>
+            </div>`;
+        }
+
+        function dualChartHTML(d) {
+            return `<div class="slide-content">
+                <div class="slide-heading">${d.heading}</div>
+                <div class="slide-body">
+                    <div class="chart-panel">
+                        <div class="chart-title">${d.leftTitle}</div>
+                        ${d.usePie ? renderPie(d.leftBars) : renderBars(d.leftBars, 7)}
+                    </div>
+                    <div class="chart-panel">
+                        <div class="chart-title">${d.rightTitle}</div>
+                        ${renderBars(d.rightBars, 7)}
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <span class="slide-source">Source: Post-purchase survey (n=72)</span>
+                    <span class="slide-brand">${GUDAY_LOGO}</span>
+                </div>
+            </div>`;
+        }
+
+        function slideHTML(d) {
+            if (d.type === "cover") return coverHTML();
+            if (d.type === "dual-chart") return dualChartHTML(d);
+            if (d.type === "quotes") return quotesHTML(d);
+            return contentHTML(d);
+        }
+
+        /* ── BUILD DOM ─────────────────────────────── */
+        const viewport = document.getElementById("slideViewport");
+        const panel    = document.getElementById("thumbPanel");
+        const counter  = document.getElementById("counter");
+        const btnPrev  = document.getElementById("btnPrev");
+        const btnNext  = document.getElementById("btnNext");
+
+        slides.forEach((d, i) => {
+            const el = document.createElement("div");
+            el.className = "slide" + (i === 0 ? " active" : "");
+            el.innerHTML = slideHTML(d);
+            viewport.appendChild(el);
+
+            const tw = document.createElement("div");
+            tw.className = "thumb-wrap" + (i === 0 ? " active" : "");
+            tw.onclick = () => goTo(i);
+
+            const tn = document.createElement("div");
+            tn.className = "thumb-num";
+            tn.textContent = i + 1;
+
+            const tf = document.createElement("div");
+            tf.className = "thumb-frame";
+
+            const ti = document.createElement("div");
+            ti.className = "thumb-inner";
+            ti.innerHTML = slideHTML(d);
+
+            tf.appendChild(ti);
+            tw.appendChild(tn);
+            tw.appendChild(tf);
+            panel.appendChild(tw);
+        });
+
+        /* ── NAVIGATION ────────────────────────────── */
+        function goTo(idx) {
+            if (idx === cur || idx < 0 || idx >= total) return;
+            const dir = idx > cur ? 1 : -1;
+            const slideEls = viewport.children;
+            const thumbs = panel.querySelectorAll(".thumb-wrap");
+
+            slideEls[cur].classList.remove("active");
+            slideEls[cur].classList.add(dir > 0 ? "exiting-left" : "exiting-right");
+
+            slideEls[idx].classList.add(dir > 0 ? "entering-right" : "entering-left");
+            void slideEls[idx].offsetWidth;
+            slideEls[idx].classList.remove("entering-right", "entering-left");
+            slideEls[idx].classList.add("active");
+
+            setTimeout(() => { slideEls[cur - (cur > idx ? 0 : 0)]; }, 500);
+            const oldCur = cur;
+            setTimeout(() => { slideEls[oldCur].classList.remove("exiting-left", "exiting-right"); }, 500);
+
+            thumbs[cur].classList.remove("active");
+            thumbs[idx].classList.add("active");
+            thumbs[idx].scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+            cur = idx;
+            updateUI();
+        }
+
+        function next() { goTo(cur + 1); }
+        function prev() { goTo(cur - 1); }
+
+        function updateUI() {
+            counter.textContent = (cur + 1) + " / " + total;
+            btnPrev.disabled = cur === 0;
+            btnNext.disabled = cur === total - 1;
+        }
+
+        btnPrev.onclick = prev;
+        btnNext.onclick = next;
+        updateUI();
+
+        /* ── KEYBOARD ──────────────────────────────── */
+        document.addEventListener("keydown", e => {
+            if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") { e.preventDefault(); next(); }
+            else if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); prev(); }
+            else if (e.key === "Escape") { exitFS(); }
+            else if (e.key === "Home") { e.preventDefault(); goTo(0); }
+            else if (e.key === "End") { e.preventDefault(); goTo(total - 1); }
+        });
+
+        /* ── FULLSCREEN ────────────────────────────── */
+        function toggleFullscreen() { document.fullscreenElement ? exitFS() : enterFS(); }
+        function enterFS() {
+            document.body.classList.add("fullscreen-mode");
+            document.documentElement.requestFullscreen().catch(() => {});
+            setTimeout(resizeSlide, 50);
+        }
+        function exitFS() {
+            document.body.classList.remove("fullscreen-mode");
+            if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+            setTimeout(resizeSlide, 50);
+        }
+        document.addEventListener("fullscreenchange", () => {
+            if (!document.fullscreenElement) { document.body.classList.remove("fullscreen-mode"); resizeSlide(); }
+        });
+        window.toggleFullscreen = toggleFullscreen;
+
+        /* ── PDF ────────────────────────────────────── */
+        async function downloadPDF() {
+            const btn = document.getElementById("btnDownload");
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Gerando...`;
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [960, 540] });
+                const slideEls = viewport.querySelectorAll(".slide");
+                const savedCur = cur;
+                slideEls.forEach(s => { s.style.transition = "none"; s.style.opacity = "1"; s.style.transform = "none"; s.style.pointerEvents = "auto"; });
+                viewport.style.transform = "none";
+                viewport.style.width = "960px";
+                viewport.style.height = "540px";
+                for (let i = 0; i < slideEls.length; i++) {
+                    slideEls.forEach((s, j) => { s.style.display = j === i ? "block" : "none"; });
+                    await new Promise(r => setTimeout(r, 150));
+                    const canvas = await html2canvas(viewport, { width: 960, height: 540, scale: 2, useCORS: true, allowTaint: true, backgroundColor: "#ffffff" });
+                    const imgData = canvas.toDataURL("image/jpeg", 0.92);
+                    if (i > 0) pdf.addPage([960, 540], "landscape");
+                    pdf.addImage(imgData, "JPEG", 0, 0, 960, 540);
+                    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ${i + 1}/${slideEls.length}`;
+                }
+                slideEls.forEach((s, j) => { s.style.display = ""; s.style.transition = ""; s.style.opacity = ""; s.style.transform = ""; s.style.pointerEvents = ""; s.classList.toggle("active", j === savedCur); });
+                resizeSlide();
+                pdf.save("Post-Purchase-Analysis-GUDAY.pdf");
+            } catch (err) { console.error("PDF error:", err); alert("Erro ao gerar PDF."); }
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+        window.downloadPDF = downloadPDF;
+
+        /* ── RESPONSIVE ────────────────────────────── */
+        function resizeSlide() {
+            const area = viewport.parentElement;
+            const aw = area.clientWidth - 100;
+            const ah = area.clientHeight - 50;
+            const sw = 960, sh = 540;
+            const scale = Math.min(aw / sw, ah / sh, 2);
+            viewport.style.transform = `scale(${scale})`;
+            viewport.style.transformOrigin = "center center";
+            viewport.style.width = sw + "px";
+            viewport.style.height = sh + "px";
+        }
+
+        window.addEventListener("resize", resizeSlide);
+        resizeSlide();
+        setTimeout(resizeSlide, 200);
+    })();
+    </script>
+</body>
+</html>
