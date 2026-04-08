@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Concorrentes — Gummy | GUDAY</title>
+    <link rel="stylesheet" href="https://use.typekit.net/lcw2zgr.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --purple-primary: #b282eb;
+            --purple-deep: #7f56d9;
+            --purple-dark: #1E192A;
+            --purple-muted: #6d6daa;
+            --bg-cream: #FAFAF2;
+            --bg-beige: #f4efe5;
+            --bg-sidebar: #f9f8f6;
+            --white: #ffffff;
+            --text-dark: #1E192A;
+            --green-badge: #07a455;
+            --slide-w: 1600px;
+            --slide-h: 600px;
+            --thumb-scale: 0.11;
+        }
+
+        body {
+            font-family: 'degular', 'Inter', system-ui, -apple-system, sans-serif;
+            background: #e8e8e8;
+            color: var(--text-dark);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── TOOLBAR ─────────────────────────────────── */
+        .toolbar {
+            height: 52px;
+            background: var(--white);
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 100;
+            position: relative;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toolbar-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--purple-deep);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toolbar-icon svg { width: 18px; height: 18px; }
+
+        .toolbar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+            letter-spacing: -0.3px;
+        }
+
+        .toolbar-title span {
+            color: var(--purple-muted);
+            font-weight: 400;
+        }
+
+        .btn-present {
+            background: var(--purple-deep);
+            color: white;
+            border: none;
+            padding: 9px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-present:hover {
+            background: #6a47c0;
+            transform: translateY(-1px);
+        }
+
+        .btn-present:active { transform: translateY(0); }
+
+        .btn-present svg { width: 16px; height: 16px; }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-download {
+            background: var(--white);
+            color: var(--text-dark);
+            border: 1px solid #ddd;
+            padding: 9px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, transform 0.1s, border-color 0.2s;
+        }
+
+        .btn-download:hover {
+            background: #f5f5f5;
+            border-color: #bbb;
+            transform: translateY(-1px);
+        }
+
+        .btn-download:active { transform: translateY(0); }
+
+        .btn-download svg { width: 16px; height: 16px; }
+
+        .btn-download:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── MAIN LAYOUT ─────────────────────────────── */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 52px);
+        }
+
+        /* ── THUMBNAIL PANEL ─────────────────────────── */
+        .thumbnail-panel {
+            width: 224px;
+            min-width: 224px;
+            background: #f1f1f1;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 10px 10px 10px 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .thumbnail-panel::-webkit-scrollbar { width: 5px; }
+        .thumbnail-panel::-webkit-scrollbar-track { background: transparent; }
+        .thumbnail-panel::-webkit-scrollbar-thumb { background: #c5c5c5; border-radius: 3px; }
+
+        .thumb-wrap {
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+            padding: 3px;
+            border-radius: 4px;
+            transition: background 0.15s;
+            flex-shrink: 0;
+        }
+
+        .thumb-wrap:hover { background: #e2e2e2; }
+
+        .thumb-num {
+            font-size: 10px;
+            color: #999;
+            min-width: 20px;
+            text-align: right;
+            padding-top: 1px;
+            font-weight: 500;
+            line-height: 1;
+        }
+
+        .thumb-frame {
+            width: 176px;
+            height: 66px; /* 1600*0.11=176, 600*0.11=66 */
+            overflow: hidden;
+            border-radius: 3px;
+            border: 2px solid transparent;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            position: relative;
+            background: var(--white);
+            flex-shrink: 0;
+        }
+
+        .thumb-wrap.active .thumb-frame {
+            border-color: var(--purple-deep);
+            box-shadow: 0 0 0 1px var(--purple-deep);
+        }
+
+        .thumb-inner {
+            width: var(--slide-w);
+            height: var(--slide-h);
+            transform: scale(var(--thumb-scale));
+            transform-origin: top left;
+            pointer-events: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* ── SLIDE AREA ──────────────────────────────── */
+        .slide-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #d6d6d6;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-viewport {
+            width: var(--slide-w);
+            height: var(--slide-h);
+            position: relative;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            border-radius: 2px;
+            overflow: hidden;
+            background: var(--white);
+        }
+
+        /* ── SLIDES ──────────────────────────────────── */
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.45s cubic-bezier(.4,0,.2,1),
+                        transform 0.45s cubic-bezier(.4,0,.2,1);
+            will-change: opacity, transform;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+            z-index: 2;
+        }
+
+        .slide.entering-right { transform: translateX(40px); }
+        .slide.entering-left  { transform: translateX(-40px); }
+        .slide.exiting-right  { transform: translateX(40px); opacity: 0; z-index: 1; }
+        .slide.exiting-left   { transform: translateX(-40px); opacity: 0; z-index: 1; }
+
+        /* ── COVER SLIDE ─────────────────────────────── */
+        .slide-cover {
+            width: 100%; height: 100%;
+            background: linear-gradient(145deg, #0f0a1a 0%, var(--purple-dark) 35%, #2a1650 65%, var(--purple-deep) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 50px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-cover::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 600px 400px at 25% 40%, rgba(178,130,235,0.12) 0%, transparent 70%),
+                radial-gradient(ellipse 500px 500px at 80% 70%, rgba(127,86,217,0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .cover-decoration {
+            position: absolute;
+            width: 300px; height: 300px;
+            border: 1px solid rgba(178,130,235,0.08);
+            border-radius: 50%;
+            top: -80px; right: -80px;
+        }
+
+        .cover-decoration-2 {
+            position: absolute;
+            width: 200px; height: 200px;
+            border: 1px solid rgba(178,130,235,0.06);
+            border-radius: 50%;
+            bottom: -40px; left: -40px;
+        }
+
+        .cover-badge {
+            background: rgba(178,130,235,0.15);
+            border: 1px solid rgba(178,130,235,0.3);
+            color: var(--purple-primary);
+            padding: 8px 28px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        .cover-title {
+            font-size: 64px;
+            font-weight: 800;
+            color: white;
+            line-height: 1.05;
+            margin-bottom: 12px;
+            position: relative;
+            letter-spacing: -1px;
+        }
+
+        .cover-subtitle {
+            font-size: 24px;
+            color: rgba(178,130,235,0.7);
+            font-weight: 500;
+            margin-bottom: 40px;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+
+        .cover-divider {
+            width: 60px;
+            height: 3px;
+            background: var(--purple-deep);
+            border-radius: 2px;
+            margin-bottom: 36px;
+            position: relative;
+        }
+
+        .cover-competitor-card {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 18px 36px;
+            position: relative;
+            backdrop-filter: blur(8px);
+        }
+
+        .cover-competitor-label {
+            color: rgba(255,255,255,0.4);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .cover-competitor-name {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .cover-date {
+            position: absolute;
+            bottom: 24px;
+            right: 30px;
+            color: rgba(255,255,255,0.25);
+            font-size: 13px;
+            font-weight: 500;
+            position: relative;
+            margin-top: auto;
+            padding-top: 20px;
+        }
+
+        .cover-logo {
+            position: absolute;
+            bottom: 24px;
+            left: 30px;
+            color: rgba(255,255,255,0.2);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        /* ── CONTENT SLIDE ───────────────────────────── */
+        .slide-content {
+            width: 100%; height: 100%;
+            display: flex;
+            background: var(--white);
+        }
+
+        /* Sidebar */
+        .slide-sidebar {
+            width: 380px;
+            min-width: 380px;
+            background: var(--bg-sidebar);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-banner {
+            background: var(--purple-deep);
+            color: white;
+            padding: 16px 24px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-list {
+            padding: 14px 22px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-item {
+            padding: 9px 8px;
+            font-size: 14px;
+            line-height: 1.45;
+            color: #999;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            transition: color 0.2s;
+        }
+
+        .sidebar-item.current {
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .sidebar-item-num {
+            min-width: 16px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .sidebar-item-text { flex: 1; }
+
+
+        /* Main content */
+        .slide-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 28px 40px 16px;
+            min-width: 0;
+        }
+
+        .slide-main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .slide-cat-title {
+            font-size: 34px;
+            font-weight: 800;
+            color: var(--text-dark);
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .slide-page-badge {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--purple-deep);
+            background: rgba(127,86,217,0.1);
+            padding: 5px 16px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        .slide-img-area {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 14px 14px 0 0;
+            min-height: 0;
+            position: relative;
+            overflow: visible;
+        }
+
+        .phone-mockup {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-height: 0;
+        }
+
+        .img-source-url {
+            font-size: 10px;
+            color: #000;
+            text-align: left;
+            margin-top: 6px;
+            font-weight: 400;
+            flex-shrink: 0;
+        }
+
+        .phone-mockup img {
+            max-height: calc(100% - 20px);
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            object-position: top left;
+            border: 1px solid #000;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: high-quality;
+        }
+
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            padding-top: 10px;
+        }
+
+        .slide-source {
+            font-size: 12px;
+            color: #b0b0b0;
+            font-weight: 400;
+        }
+
+        .slide-brand {
+            display: flex;
+            align-items: center;
+        }
+
+        .slide-brand svg {
+            height: 18px;
+            width: auto;
+        }
+
+        /* ── NAV ARROWS ──────────────────────────────── */
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.92);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+            cursor: pointer;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
+            color: var(--text-dark);
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .nav-arrow:hover {
+            background: white;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+            transform: translateY(-50%) scale(1.08);
+        }
+
+        .nav-arrow.prev { left: 8px; }
+        .nav-arrow.next { right: 8px; }
+
+        .nav-arrow:disabled {
+            opacity: 0.25;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        /* ── SLIDE COUNTER ───────────────────────────── */
+        .slide-counter {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.55);
+            color: white;
+            padding: 5px 16px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* ── FULLSCREEN MODE ─────────────────────────── */
+        body.fullscreen-mode .toolbar { display: none; }
+        body.fullscreen-mode .thumbnail-panel { display: none; }
+        body.fullscreen-mode .main-container { height: 100vh; }
+        body.fullscreen-mode .slide-area { background: #1a1a1a; }
+        body.fullscreen-mode .slide-viewport {
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        body.fullscreen-mode .nav-arrow {
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+
+        body.fullscreen-mode .slide-area:hover .nav-arrow {
+            opacity: 1;
+        }
+
+        body.fullscreen-mode .slide-counter {
+            background: rgba(0,0,0,0.4);
+        }
+
+        /* ── CATEGORY SEPARATOR (thumbnail) ──────────── */
+        .thumb-separator {
+            padding: 6px 4px 3px 26px;
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--purple-deep);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            flex-shrink: 0;
+        }
+
+        /* ── ANIMATIONS ──────────────────────────────── */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-cover .cover-badge     { animation: fadeInUp 0.6s 0.1s both; }
+        .slide-cover .cover-title     { animation: fadeInUp 0.6s 0.2s both; }
+        .slide-cover .cover-subtitle  { animation: fadeInUp 0.6s 0.35s both; }
+        .slide-cover .cover-divider   { animation: fadeInUp 0.6s 0.45s both; }
+        .slide-cover .cover-competitor-card { animation: fadeInUp 0.6s 0.55s both; }
+
+        /* ── RESPONSIVE ──────────────────────────────── */
+        @media (max-height: 650px) {
+            .toolbar { height: 44px; }
+            .main-container { height: calc(100vh - 44px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <div class="toolbar-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="3"/>
+                    <path d="M9 3v18M3 9h6"/>
+                </svg>
+            </div>
+            <div class="toolbar-title">
+                Análise de Concorrentes <span>— Gummy</span>
+            </div>
+        </div>
+        <div class="toolbar-actions">
+            <button class="btn-download" onclick="downloadPDF()" id="btnDownload">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                PDF
+            </button>
+            <button class="btn-present" onclick="toggleFullscreen()" id="btnPresent">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                Apresentar
+            </button>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main-container">
+        <div class="thumbnail-panel" id="thumbPanel"></div>
+        <div class="slide-area">
+            <button class="nav-arrow prev" id="btnPrev" aria-label="Slide anterior">&#8249;</button>
+            <div class="slide-viewport" id="slideViewport"></div>
+            <button class="nav-arrow next" id="btnNext" aria-label="Próximo slide">&#8250;</button>
+            <div class="slide-counter" id="counter"></div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        /* ── DATA ──────────────────────────────────── */
+        const categories = [
+            {
+                name: "Prova Social",
+                slides: [
+                    { insight: "UGC depoimentos no topo", img: "GUMMY/3.png", page: "Home" },
+                    { insight: "Farmácias parceiras", img: "GUMMY/7.png", page: "Home" },
+                    { insight: "UGC vídeos no topo", img: "GUMMY/10.png", page: "PDP" },
+                    { insight: "Descrição dos vídeos (reviews)", img: "GUMMY/11.png", page: "PDP" },
+                    { insight: "Press logos no topo", img: "GUMMY/12.png", page: "PDP" },
+                    { insight: "Antes e depois", img: "GUMMY/13.png", page: "PDP" },
+                    { insight: "Dados estatísticos", img: "GUMMY/15.png", page: "PDP" },
+                    { insight: "Reviews com vídeos", img: "GUMMY/16.png", page: "PDP" }
+                ]
+            },
+            {
+                name: "Encontrabilidade",
+                slides: [
+                    { insight: "Banners de categorias", img: "GUMMY/4.png", page: "Home" },
+                    { insight: "Mais vendidos com sub-filters", img: "GUMMY/5.png", page: "Home" },
+                    { insight: "Menu com cards visuais", img: "GUMMY/8.png", page: "Menu" },
+                    { insight: "Menu com cards visuais", img: "GUMMY/9.png", page: "Menu" },
+                    { insight: "Botões com sub-filters", img: "GUMMY/20.png", page: "CP" }
+                ]
+            },
+            {
+                name: "Clareza",
+                slides: [
+                    { insight: "Mini FAQ no topo", img: "GUMMY/12.png", page: "PDP" },
+                    { insight: "Benefícios claros em 1 seção", img: "GUMMY/14.png", page: "PDP" },
+                    { insight: "Header nas collections", img: "GUMMY/19.png", page: "CP" }
+                ]
+            },
+            {
+                name: "Ofertas",
+                slides: [
+                    { insight: "Banner de grupo de WhatsApp VIP", img: "GUMMY/6.png", page: "Home" }
+                ]
+            },
+            {
+                name: "Acessibilidade",
+                slides: [
+                    { insight: "Modal para seleção de opções", img: "GUMMY/17.png", page: "Cart" }
+                ]
+            },
+            {
+                name: "AOV Booster",
+                slides: [
+                    { insight: "Recomendação de up-sell no carrinho", img: "GUMMY/18.png", page: "Cart" }
+                ]
+            }
+        ];
+
+        /* Flatten into ordered list: cover + grouped slides */
+        const allSlides = [{ type: "cover" }];
+        let lastCat = "";
+        categories.forEach(cat => {
+            cat.slides.forEach((s, idx) => {
+                allSlides.push({
+                    type: "content",
+                    catName: cat.name,
+                    catSlides: cat.slides,
+                    idx,
+                    ...s,
+                    newCategory: (cat.name !== lastCat)
+                });
+                lastCat = cat.name;
+            });
+        });
+
+        const total = allSlides.length;
+        let cur = 0;
+
+        /* ── RENDER HELPERS ────────────────────────── */
+        function coverHTML() {
+            return `<div class="slide-cover">
+                <div class="cover-decoration"></div>
+                <div class="cover-decoration-2"></div>
+                <div class="cover-badge">GUDAY</div>
+                <div class="cover-title">Análise de<br>Concorrentes</div>
+                <div class="cover-subtitle">Competitor Insights</div>
+                <div class="cover-divider"></div>
+                <div class="cover-competitor-card">
+                    <div class="cover-competitor-label">Concorrente analisado</div>
+                    <div class="cover-competitor-name">Gummy Original</div>
+                </div>
+                <div class="cover-date">Abril 2026</div>
+                <div class="cover-logo">GUDAY</div>
+            </div>`;
+        }
+
+        function contentHTML(d) {
+            const items = d.catSlides.map((s, i) => {
+                const active = i === d.idx ? " current" : "";
+                return `<div class="sidebar-item${active}">
+                    <span class="sidebar-item-num">${i + 1}.</span>
+                    <span class="sidebar-item-text">${s.insight}</span>
+                </div>`;
+            }).join("");
+
+            return `<div class="slide-content">
+                <div class="slide-sidebar">
+                    <div class="sidebar-banner">Competitor Insights</div>
+                    <div class="sidebar-list">${items}</div>
+                </div>
+                <div class="slide-main">
+                    <div class="slide-main-header">
+                        <div class="slide-cat-title">${d.catName}</div>
+                        <div class="slide-page-badge">${d.page}</div>
+                    </div>
+                    <div class="slide-img-area">
+                        <div class="phone-mockup">
+                            <img src="${d.img}" alt="${d.insight}" draggable="false">
+                            <div class="img-source-url">https://www.gummy.com.br/</div>
+                        </div>
+                    </div>
+                    <div class="slide-footer">
+                        <span class="slide-source">Source: Análise heurística</span>
+                        <span class="slide-brand"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 4000 1304"><path fill="#000" d="M820.889 346.222C820.889 346.222 417.778 346.222 386.667 346.222C361.333 346.222 340.444 366.667 340.444 392.445C340.444 421.778 340.444 1014.67 339.556 1024.89C338.667 1048 320 1064 297.333 1063.11C275.556 1062.22 259.556 1045.33 258.667 1022.67C258.667 1016.89 258.667 304.889 258.667 303.556C258.667 292 264 282.222 272 275.111C278.667 268.889 287.556 264.889 297.778 264.445C298.667 264.445 800.889 264.445 800.889 264.445C879.111 264.445 942.667 200.889 942.667 122.667C942.667 52.0002 896 3.11133 823.111 3.11133H367.111C165.778 3.11133 0 168.889 0 370.222V1003.11C0 1166.67 132.889 1299.56 296.444 1299.56H303.111C466.667 1299.56 599.556 1166.67 599.556 1003.11C599.556 1003.11 600 628.889 600.444 623.111C601.333 600.445 617.778 583.556 639.111 582.667C661.778 581.778 680.444 597.778 680.889 621.333C680.889 625.778 681.333 1149.33 681.333 1149.33C681.333 1226.22 743.555 1288.89 820.889 1288.89C893.778 1288.89 940.444 1240 940.444 1169.33V465.778C940.444 395.111 893.778 346.222 820.889 346.222Z"/><path fill="#000" d="M1970.22 6.6665H1811.11C1738.22 6.6665 1691.56 55.5554 1691.56 126.222V1170.67C1691.56 1241.33 1738.22 1290.22 1811.11 1290.22H1970.22C2147.56 1290.22 2291.11 1146.67 2291.11 969.333V327.555C2291.11 150.222 2147.56 6.6665 1970.22 6.6665ZM2031.56 1026.22C2030.67 1049.33 2012 1065.33 1989.33 1064.44C1967.56 1063.56 1951.56 1046.67 1950.67 1024C1950.67 1010.67 1950.67 288.444 1950.67 275.111C1951.56 252.444 1968 235.555 1989.33 234.667C2012 233.778 2030.67 249.778 2031.11 273.333C2032 296.444 2032 1001.33 2031.11 1026.22H2031.56Z"/><path fill="#000" d="M2613.33 4H2487.11C2414.22 4 2367.56 52.8889 2367.56 123.556C2367.56 194.222 2423.56 257.333 2495.11 264.444C2508.89 264.444 2718.67 264.444 2732 264.444C2754.67 265.333 2771.56 281.778 2772.44 303.111C2773.33 325.778 2757.33 344.444 2733.78 344.889C2730.67 344.889 2678.67 345.778 2678.67 345.778C2499.56 345.778 2380 465.333 2380 646.667V987.555C2380 996.444 2380.89 1021.33 2380.89 1021.33C2389.78 1176.89 2519.11 1300.44 2676.89 1300.44H2683.56C2712.44 1300.44 2740.44 1296.44 2766.67 1288.44L2778.67 1284.44C2895.56 1244.89 2980 1134.22 2980 1003.56V370.667C2980.89 169.333 2815.11 4 2613.33 4ZM2720.44 1013.78C2719.56 1036.89 2700.89 1052.89 2678.22 1052C2656.44 1051.11 2640.44 1034.22 2639.56 1011.56C2639.56 997.778 2639.56 636.889 2639.56 623.111C2640.44 600.444 2656.89 583.555 2678.22 582.667C2700.89 581.778 2719.56 597.778 2720 621.333C2720.89 649.778 2720.89 984.889 2720 1013.78H2720.44Z"/><path fill="#000" d="M3179.11 953.778H3528.89C3550.67 953.778 3582.22 953.778 3613.33 953.778C3638.67 953.778 3659.56 933.333 3659.56 907.556C3659.56 878.222 3659.56 848 3659.56 826.667V338.667C3659.56 310.222 3659.56 285.333 3660.44 275.111C3661.33 252 3680 236 3702.67 236.889C3724.44 237.778 3740.44 254.667 3741.33 277.333C3741.33 283.111 3741.33 309.333 3741.33 338.667C3741.33 338.667 3741.33 995.111 3741.33 996.889C3741.33 1008.44 3736 1018.22 3728 1025.33C3721.33 1031.56 3712.44 1035.56 3702.22 1036C3701.33 1036 3700.89 1036 3700 1036C3682.67 1036 3199.11 1036 3199.11 1036C3120.89 1036 3057.33 1099.56 3057.33 1177.78C3057.33 1248.44 3104 1297.33 3176.89 1297.33H3632.89C3834.67 1297.33 4000 1131.56 4000 930.222V296.444C4000 132.889 3867.11 0 3703.56 0H3696.89C3533.33 0 3400.44 132.889 3400.44 296.444C3400.44 296.444 3400 670.667 3399.56 676.444C3398.67 699.111 3382.22 716 3360.89 716.889C3338.22 717.778 3319.56 701.778 3319.11 678.222C3319.11 673.778 3318.67 150.222 3318.67 150.222C3318.67 73.3333 3256.44 10.6667 3179.11 10.6667C3106.22 10.6667 3059.56 59.5556 3059.56 130.222V833.778C3059.56 904.444 3106.22 953.333 3179.11 953.333V953.778Z"/><path fill="#000" d="M1278.22 148.444C1278.22 71.5553 1216 8.88867 1138.67 8.88867C1065.78 8.88867 1019.11 57.7776 1019.11 128.444L1015.56 1000.89C1012.44 1164.44 1143.11 1299.56 1306.67 1302.67H1313.33C1476.89 1305.78 1612 1175.56 1615.11 1011.56L1618.67 128.444C1618.67 57.7776 1572 8.88867 1499.11 8.88867C1422.22 8.88867 1359.56 71.1109 1359.56 148.444C1359.56 148.444 1359.56 1003.11 1358.67 1028C1357.78 1051.11 1339.11 1067.11 1316.44 1066.22C1294.67 1065.33 1278.67 1048.44 1277.78 1025.78C1277.78 1012 1277.78 148.444 1277.78 148.444H1278.22Z"/></svg></span>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function slideHTML(d) {
+            return d.type === "cover" ? coverHTML() : contentHTML(d);
+        }
+
+        /* ── BUILD DOM ─────────────────────────────── */
+        const viewport = document.getElementById("slideViewport");
+        const panel    = document.getElementById("thumbPanel");
+        const counter  = document.getElementById("counter");
+        const btnPrev  = document.getElementById("btnPrev");
+        const btnNext  = document.getElementById("btnNext");
+
+        allSlides.forEach((d, i) => {
+            /* Main slide */
+            const el = document.createElement("div");
+            el.className = "slide" + (i === 0 ? " active" : "");
+            el.innerHTML = slideHTML(d);
+            viewport.appendChild(el);
+
+            /* Thumbnail separator for new category */
+            if (d.type === "content" && d.newCategory) {
+                const sep = document.createElement("div");
+                sep.className = "thumb-separator";
+                sep.textContent = d.catName;
+                panel.appendChild(sep);
+            }
+
+            /* Thumbnail */
+            const tw = document.createElement("div");
+            tw.className = "thumb-wrap" + (i === 0 ? " active" : "");
+            tw.setAttribute("data-i", i);
+            tw.onclick = () => goTo(i);
+
+            const tn = document.createElement("div");
+            tn.className = "thumb-num";
+            tn.textContent = i + 1;
+
+            const tf = document.createElement("div");
+            tf.className = "thumb-frame";
+
+            const ti = document.createElement("div");
+            ti.className = "thumb-inner";
+            ti.innerHTML = slideHTML(d);
+
+            tf.appendChild(ti);
+            tw.appendChild(tn);
+            tw.appendChild(tf);
+            panel.appendChild(tw);
+        });
+
+        /* ── NAVIGATION ────────────────────────────── */
+        function goTo(idx) {
+            if (idx === cur || idx < 0 || idx >= total) return;
+            const dir = idx > cur ? 1 : -1;
+
+            const slides = viewport.children;
+            const thumbs = panel.querySelectorAll(".thumb-wrap");
+
+            /* exit current */
+            const oldSlide = slides[cur];
+            oldSlide.classList.remove("active");
+            oldSlide.classList.add(dir > 0 ? "exiting-left" : "exiting-right");
+
+            /* prepare new */
+            const newSlide = slides[idx];
+            newSlide.classList.add(dir > 0 ? "entering-right" : "entering-left");
+            newSlide.classList.remove("exiting-left", "exiting-right");
+
+            /* force reflow then animate in */
+            void newSlide.offsetWidth;
+            newSlide.classList.remove("entering-right", "entering-left");
+            newSlide.classList.add("active");
+
+            /* clean old after transition */
+            setTimeout(() => {
+                oldSlide.classList.remove("exiting-left", "exiting-right");
+            }, 500);
+
+            /* thumbnails */
+            thumbs[cur].classList.remove("active");
+            thumbs[idx].classList.add("active");
+            thumbs[idx].scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+            cur = idx;
+            updateUI();
+        }
+
+        function next() { goTo(cur + 1); }
+        function prev() { goTo(cur - 1); }
+
+        function updateUI() {
+            counter.textContent = (cur + 1) + " / " + total;
+            btnPrev.disabled = cur === 0;
+            btnNext.disabled = cur === total - 1;
+        }
+
+        btnPrev.onclick = prev;
+        btnNext.onclick = next;
+        updateUI();
+
+        /* ── KEYBOARD ──────────────────────────────── */
+        document.addEventListener("keydown", e => {
+            if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") {
+                e.preventDefault(); next();
+            } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                e.preventDefault(); prev();
+            } else if (e.key === "Escape") {
+                exitFS();
+            } else if (e.key === "Home") {
+                e.preventDefault(); goTo(0);
+            } else if (e.key === "End") {
+                e.preventDefault(); goTo(total - 1);
+            }
+        });
+
+        /* ── FULLSCREEN ────────────────────────────── */
+        function toggleFullscreen() {
+            document.fullscreenElement ? exitFS() : enterFS();
+        }
+
+        function enterFS() {
+            document.body.classList.add("fullscreen-mode");
+            document.documentElement.requestFullscreen().catch(() => {});
+            setTimeout(resizeSlide, 50);
+        }
+
+        function exitFS() {
+            document.body.classList.remove("fullscreen-mode");
+            if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+            setTimeout(resizeSlide, 50);
+        }
+
+        document.addEventListener("fullscreenchange", () => {
+            if (!document.fullscreenElement) {
+                document.body.classList.remove("fullscreen-mode");
+                resizeSlide();
+            }
+        });
+
+        window.toggleFullscreen = toggleFullscreen;
+
+        /* ── PDF DOWNLOAD ──────────────────────────── */
+        async function downloadPDF() {
+            const btn = document.getElementById("btnDownload");
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Gerando...`;
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [1600, 600] });
+
+                const slides = viewport.querySelectorAll(".slide");
+                const savedCur = cur;
+
+                /* show all slides for capture */
+                slides.forEach(s => {
+                    s.style.transition = "none";
+                    s.style.opacity = "1";
+                    s.style.transform = "none";
+                    s.style.pointerEvents = "auto";
+                });
+
+                /* reset viewport transform for accurate capture */
+                viewport.style.transform = "none";
+                viewport.style.width = "1600px";
+                viewport.style.height = "600px";
+
+                for (let i = 0; i < slides.length; i++) {
+                    /* hide all, show only current */
+                    slides.forEach((s, j) => {
+                        s.style.display = j === i ? "block" : "none";
+                    });
+
+                    await new Promise(r => setTimeout(r, 150));
+
+                    const canvas = await html2canvas(viewport, {
+                        width: 1600,
+                        height: 600,
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: "#ffffff"
+                    });
+
+                    const imgData = canvas.toDataURL("image/jpeg", 0.92);
+
+                    if (i > 0) pdf.addPage([1440, 810], "landscape");
+                    pdf.addImage(imgData, "JPEG", 0, 0, 1600, 600);
+
+                    /* update button progress */
+                    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ${i + 1}/${slides.length}`;
+                }
+
+                /* restore slides */
+                slides.forEach((s, j) => {
+                    s.style.display = "";
+                    s.style.transition = "";
+                    s.style.opacity = "";
+                    s.style.transform = "";
+                    s.style.pointerEvents = "";
+                    s.classList.toggle("active", j === savedCur);
+                });
+                resizeSlide();
+
+                pdf.save("Competitor-Analysis-Gummy.pdf");
+            } catch (err) {
+                console.error("PDF error:", err);
+                alert("Erro ao gerar PDF. Verifique o console.");
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+
+        window.downloadPDF = downloadPDF;
+
+        /* ── RESPONSIVE SCALING ────────────────────── */
+        function resizeSlide() {
+            const area = viewport.parentElement;
+            const aw = area.clientWidth;
+            const ah = area.clientHeight;
+            const sw = 1600, sh = 600;
+            const isFS = document.body.classList.contains("fullscreen-mode");
+
+            let scale;
+            if (isFS) {
+                /* In fullscreen: fill height, allow width overflow to be clipped */
+                scale = Math.max(aw / sw, ah / sh);
+                /* But don't exceed width too much */
+                scale = Math.min(scale, aw / sw * 1.15);
+            } else {
+                scale = Math.min(aw / sw, ah / sh);
+            }
+
+            viewport.style.transform = `scale(${scale})`;
+            viewport.style.transformOrigin = "center center";
+            viewport.style.width = "1600px";
+            viewport.style.height = "600px";
+        }
+
+        window.addEventListener("resize", resizeSlide);
+        resizeSlide();
+        setTimeout(resizeSlide, 200);
+    })();
+    </script>
+</body>
+</html>
