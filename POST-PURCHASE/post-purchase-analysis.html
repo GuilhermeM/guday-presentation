@@ -550,6 +550,129 @@
             text-align: right;
         }
 
+        /* ── EDIT MODE ────────────────────────────────── */
+        .btn-edit {
+            background: var(--white);
+            color: var(--text-dark);
+            border: 1px solid #ddd;
+            padding: 9px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, transform 0.1s, border-color 0.2s;
+        }
+
+        .btn-edit:hover { background: #f5f5f5; border-color: #bbb; transform: translateY(-1px); }
+        .btn-edit:active { transform: translateY(0); }
+        .btn-edit svg { width: 16px; height: 16px; }
+
+        body.edit-mode .btn-edit {
+            background: #e00;
+            color: white;
+            border-color: #e00;
+        }
+
+        body.edit-mode .btn-edit:hover { background: #c00; border-color: #c00; }
+
+        .btn-tool {
+            background: var(--white);
+            color: var(--text-dark);
+            border: 1px solid #ddd;
+            padding: 9px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-tool:hover { background: #f5f5f5; border-color: #bbb; }
+        .btn-tool svg { width: 14px; height: 14px; }
+        .btn-tool.active { background: var(--purple-deep); color: white; border-color: var(--purple-deep); }
+
+        /* Annotations */
+        .chart-panel, .slide-body, .conclusions, .quotes-container {
+            position: relative;
+        }
+
+        .annotation-rect {
+            position: absolute;
+            border: 3px solid #e00;
+            background: rgba(255, 0, 0, 0.06);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        body.edit-rect .annotation-rect {
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        body.edit-rect .slide-body,
+        body.edit-rect .quotes-container {
+            cursor: crosshair;
+        }
+
+        body.edit-rect .annotation-rect::after {
+            content: '\2715';
+            position: absolute;
+            top: -10px; right: -10px;
+            width: 20px; height: 20px;
+            background: #e00;
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        body.edit-rect .annotation-rect:hover::after { opacity: 1; }
+
+        .drawing-rect {
+            position: absolute;
+            border: 3px solid #e00;
+            background: rgba(255, 0, 0, 0.08);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Text editing */
+        body.edit-text .slide-heading,
+        body.edit-text .conclusion-item,
+        body.edit-text .chart-title,
+        body.edit-text .quotes-question {
+            cursor: text;
+            outline: 1px dashed rgba(127,86,217,0.3);
+            outline-offset: 4px;
+            border-radius: 4px;
+        }
+
+        body.edit-text .slide-heading:hover,
+        body.edit-text .conclusion-item:hover,
+        body.edit-text .chart-title:hover,
+        body.edit-text .quotes-question:hover {
+            outline-color: var(--purple-deep);
+            background: rgba(127,86,217,0.04);
+        }
+
+        [contenteditable="true"] {
+            outline: 2px solid var(--purple-deep) !important;
+            background: rgba(127,86,217,0.06) !important;
+        }
+
         /* ── NAV ARROWS ──────────────────────────────── */
         .nav-arrow {
             position: absolute;
@@ -650,6 +773,40 @@
             </div>
         </div>
         <div class="toolbar-actions">
+            <button class="btn-tool edit-only" onclick="undoEdit()" title="Desfazer" style="display:none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                </svg>
+            </button>
+            <button class="btn-tool edit-only" onclick="clearSlideEdits()" title="Limpar slide" style="display:none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+            </button>
+            <button class="btn-tool edit-only" id="btnRect" onclick="setEditTool('rect')" title="Retângulo" style="display:none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                </svg>
+                Retângulo
+            </button>
+            <button class="btn-tool edit-only" id="btnText" onclick="setEditTool('text')" title="Texto" style="display:none">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                Texto
+            </button>
+            <button class="btn-edit" onclick="toggleEditMode()" id="btnEdit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/>
+                </svg>
+                Editar
+            </button>
+            <button class="btn-tool" onclick="exportEdits()" title="Exportar edições">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                JSON
+            </button>
             <button class="btn-download" onclick="downloadPDF()" id="btnDownload">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -1206,6 +1363,7 @@
 
         /* ── KEYBOARD ──────────────────────────────── */
         document.addEventListener("keydown", e => {
+            if (document.activeElement && document.activeElement.hasAttribute("contenteditable")) return;
             if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") { e.preventDefault(); next(); }
             else if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); prev(); }
             else if (e.key === "Escape") { exitFS(); }
@@ -1279,6 +1437,259 @@
         window.addEventListener("resize", resizeSlide);
         resizeSlide();
         setTimeout(resizeSlide, 200);
+
+        /* ── EDIT MODE ─────────────────────────────── */
+        const EDIT_KEY = "guday-pp-edits";
+        let editMode = false;
+        let editTool = "rect"; /* "rect" or "text" */
+        let edits = { annotations: {}, texts: {} };
+        let undoStack = [];
+
+        /* Load edits: try JSON file first, then localStorage */
+        async function loadEdits() {
+            try {
+                const resp = await fetch("pp-edits.json");
+                if (resp.ok) {
+                    edits = await resp.json();
+                }
+            } catch(e) {}
+            if (!edits.annotations || !edits.texts) {
+                try {
+                    const saved = localStorage.getItem(EDIT_KEY);
+                    if (saved) {
+                        const local = JSON.parse(saved);
+                        if (!edits.annotations) edits.annotations = local.annotations || {};
+                        if (!edits.texts) edits.texts = local.texts || {};
+                    }
+                } catch(e) {}
+            }
+            if (!edits.annotations) edits.annotations = {};
+            if (!edits.texts) edits.texts = {};
+            renderAnnotations();
+            applyTextEdits();
+        }
+
+        function saveEdits() {
+            localStorage.setItem(EDIT_KEY, JSON.stringify(edits));
+        }
+
+        /* Toggle edit mode */
+        function toggleEditMode() {
+            editMode = !editMode;
+            document.body.classList.toggle("edit-mode", editMode);
+            document.querySelectorAll(".edit-only").forEach(el => {
+                el.style.display = editMode ? "flex" : "none";
+            });
+            const btn = document.getElementById("btnEdit");
+            btn.innerHTML = editMode
+                ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Salvar`
+                : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg> Editar`;
+            if (editMode) {
+                setEditTool("rect");
+            } else {
+                document.body.classList.remove("edit-rect", "edit-text");
+                /* Disable all contenteditable */
+                viewport.querySelectorAll("[contenteditable]").forEach(el => {
+                    el.removeAttribute("contenteditable");
+                });
+            }
+        }
+        window.toggleEditMode = toggleEditMode;
+
+        /* Set edit tool */
+        function setEditTool(tool) {
+            editTool = tool;
+            document.body.classList.toggle("edit-rect", tool === "rect");
+            document.body.classList.toggle("edit-text", tool === "text");
+            document.getElementById("btnRect").classList.toggle("active", tool === "rect");
+            document.getElementById("btnText").classList.toggle("active", tool === "text");
+            /* Disable contenteditable when switching to rect */
+            if (tool === "rect") {
+                viewport.querySelectorAll("[contenteditable]").forEach(el => {
+                    el.removeAttribute("contenteditable");
+                });
+            }
+        }
+        window.setEditTool = setEditTool;
+
+        /* ── ANNOTATIONS (rectangles) ──────────────── */
+        function renderAnnotations() {
+            document.querySelectorAll(".annotation-rect").forEach(el => el.remove());
+            Object.entries(edits.annotations).forEach(([key, rects]) => {
+                const slideIdx = parseInt(key);
+                const slideEl = viewport.children[slideIdx];
+                if (!slideEl) return;
+                const body = slideEl.querySelector(".slide-body, .quotes-container");
+                if (!body) return;
+                rects.forEach((r, ri) => {
+                    const div = document.createElement("div");
+                    div.className = "annotation-rect";
+                    div.style.left = r.x + "%";
+                    div.style.top = r.y + "%";
+                    div.style.width = r.w + "%";
+                    div.style.height = r.h + "%";
+                    div.addEventListener("click", (e) => {
+                        if (!editMode || editTool !== "rect") return;
+                        e.stopPropagation();
+                        edits.annotations[key].splice(ri, 1);
+                        if (edits.annotations[key].length === 0) delete edits.annotations[key];
+                        saveEdits();
+                        renderAnnotations();
+                    });
+                    body.appendChild(div);
+                });
+            });
+        }
+
+        /* Drawing */
+        let drawing = false, drawStart = null, drawTarget = null, drawEl = null;
+
+        function getRelPos(e, target) {
+            const rect = target.getBoundingClientRect();
+            return {
+                x: ((e.clientX - rect.left) / rect.width) * 100,
+                y: ((e.clientY - rect.top) / rect.height) * 100
+            };
+        }
+
+        viewport.addEventListener("mousedown", (e) => {
+            if (!editMode || editTool !== "rect") return;
+            if (e.target.classList.contains("annotation-rect")) return;
+            const body = e.target.closest(".slide-body, .quotes-container");
+            if (!body) return;
+            e.preventDefault();
+            drawing = true;
+            drawTarget = body;
+            drawStart = getRelPos(e, body);
+            drawEl = document.createElement("div");
+            drawEl.className = "drawing-rect";
+            drawEl.style.left = drawStart.x + "%";
+            drawEl.style.top = drawStart.y + "%";
+            body.appendChild(drawEl);
+        });
+
+        viewport.addEventListener("mousemove", (e) => {
+            if (!drawing || !drawEl || !drawTarget) return;
+            const pos = getRelPos(e, drawTarget);
+            drawEl.style.left = Math.min(drawStart.x, pos.x) + "%";
+            drawEl.style.top = Math.min(drawStart.y, pos.y) + "%";
+            drawEl.style.width = Math.abs(pos.x - drawStart.x) + "%";
+            drawEl.style.height = Math.abs(pos.y - drawStart.y) + "%";
+        });
+
+        viewport.addEventListener("mouseup", (e) => {
+            if (!drawing || !drawEl || !drawTarget) return;
+            drawing = false;
+            const pos = getRelPos(e, drawTarget);
+            const x = Math.min(drawStart.x, pos.x);
+            const y = Math.min(drawStart.y, pos.y);
+            const w = Math.abs(pos.x - drawStart.x);
+            const h = Math.abs(pos.y - drawStart.y);
+            drawEl.remove();
+            drawEl = null;
+            if (w < 1.5 || h < 1.5) { drawTarget = null; return; }
+
+            const slideEl = drawTarget.closest(".slide");
+            const slideIdx = Array.from(viewport.children).indexOf(slideEl);
+            const key = String(slideIdx);
+            if (!edits.annotations[key]) edits.annotations[key] = [];
+            const rect = { x: Math.round(x*100)/100, y: Math.round(y*100)/100, w: Math.round(w*100)/100, h: Math.round(h*100)/100 };
+            edits.annotations[key].push(rect);
+            undoStack.push({ type: "rect", key, rect });
+            saveEdits();
+            renderAnnotations();
+            drawTarget = null;
+        });
+
+        /* ── TEXT EDITING ──────────────────────────── */
+        function applyTextEdits() {
+            Object.entries(edits.texts).forEach(([key, text]) => {
+                const [slideIdx, selector] = key.split("|");
+                const slideEl = viewport.children[parseInt(slideIdx)];
+                if (!slideEl) return;
+                const el = slideEl.querySelector(selector);
+                if (el) el.textContent = text;
+            });
+        }
+
+        viewport.addEventListener("click", (e) => {
+            if (!editMode || editTool !== "text") return;
+            const editable = e.target.closest(".slide-heading, .conclusion-item, .chart-title, .quotes-question");
+            if (!editable) return;
+            e.stopPropagation();
+            editable.setAttribute("contenteditable", "true");
+            editable.focus();
+
+            /* Save on blur */
+            const handler = () => {
+                editable.removeAttribute("contenteditable");
+                const slideEl = editable.closest(".slide");
+                const slideIdx = Array.from(viewport.children).indexOf(slideEl);
+                /* Build a selector for this element */
+                let selector = "";
+                if (editable.classList.contains("slide-heading")) selector = ".slide-heading";
+                else if (editable.classList.contains("chart-title")) selector = ".chart-title";
+                else if (editable.classList.contains("quotes-question")) selector = ".quotes-question";
+                else if (editable.classList.contains("conclusion-item")) {
+                    const items = slideEl.querySelectorAll(".conclusion-item");
+                    const idx = Array.from(items).indexOf(editable);
+                    selector = `.conclusion-item:nth-child(${idx + 1})`;
+                }
+                if (selector) {
+                    const key = slideIdx + "|" + selector;
+                    const originalKey = key;
+                    edits.texts[key] = editable.textContent;
+                    undoStack.push({ type: "text", key: originalKey, text: editable.textContent });
+                    saveEdits();
+                }
+                editable.removeEventListener("blur", handler);
+            };
+            editable.addEventListener("blur", handler);
+        });
+
+        /* ── UNDO / CLEAR / EXPORT ─────────────────── */
+        function undoEdit() {
+            if (undoStack.length === 0) return;
+            const last = undoStack.pop();
+            if (last.type === "rect") {
+                const arr = edits.annotations[last.key];
+                if (arr) { arr.pop(); if (arr.length === 0) delete edits.annotations[last.key]; }
+                renderAnnotations();
+            } else if (last.type === "text") {
+                delete edits.texts[last.key];
+                /* Reload to reset text — simplest approach */
+            }
+            saveEdits();
+        }
+        window.undoEdit = undoEdit;
+
+        function clearSlideEdits() {
+            const key = String(cur);
+            delete edits.annotations[key];
+            /* Clear text edits for this slide */
+            Object.keys(edits.texts).forEach(k => {
+                if (k.startsWith(key + "|")) delete edits.texts[k];
+            });
+            saveEdits();
+            renderAnnotations();
+        }
+        window.clearSlideEdits = clearSlideEdits;
+
+        function exportEdits() {
+            const json = JSON.stringify(edits, null, 2);
+            const blob = new Blob([json], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "pp-edits.json";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        window.exportEdits = exportEdits;
+
+        /* Load on startup */
+        loadEdits();
+
     })();
     </script>
 </body>

@@ -67,6 +67,7 @@ PRESENTATION/
 │   └── _maismu/                              # Screenshots Mais Mu
 ├── POST-PURCHASE/
 │   ├── post-purchase-analysis.html           # Apresentacao pos-compra
+│   ├── pp-edits.json                         # Edicoes exportadas (anotacoes + textos)
 │   ├── DB - Post-Purchase - Sheet1.csv       # Dados brutos (backup)
 │   ├── DB - Post-Purchase.xlsx               # Planilha original
 │   └── MYND - Post Purchase Analysis.pdf     # Referencia de formato
@@ -711,3 +712,44 @@ No array `slideDefs`, adicionar o slide:
 | Conclusoes sem dados redundantes | Nao repetir o que o grafico ja mostra |
 | Dados ao vivo do Google Sheets | Atualizar sem editar codigo |
 | Fallback hardcoded | Funcionar offline |
+
+---
+
+## Modo Edicao (Post-Purchase)
+
+Mesmas features do competitor-analysis, com adicao de edicao de texto.
+
+### Como usar
+
+1. Clicar em **"Editar"** — botao fica vermelho, aparecem ferramentas
+2. Dois modos de edicao (botoes "Retangulo" e "Texto"):
+   - **Retangulo**: clicar e arrastar sobre graficos para destacar areas em vermelho
+   - **Texto**: clicar em titulos, conclusoes ou perguntas para editar inline
+3. **↺ Desfazer** — remove ultima acao
+4. **🗑 Limpar** — remove todas edicoes do slide atual
+5. **"Salvar"** — sai do modo edicao
+6. **"JSON"** — exporta todas edicoes como `pp-edits.json`
+
+### Persistencia
+
+- **localStorage** salva automaticamente a cada edicao
+- **`pp-edits.json`** e carregado via fetch no startup (prioridade sobre localStorage)
+- Para compartilhar/deploy: exportar JSON, salvar na pasta `POST-PURCHASE/`, commitar no git
+- No Vercel, o JSON e servido estaticamente e carregado no load
+
+### Formato do pp-edits.json
+
+```json
+{
+  "annotations": {
+    "1": [{ "x": 51.88, "y": 23.22, "w": 49.81, "h": 11.24 }]
+  },
+  "texts": {
+    "8|.conclusion-item:nth-child(1)": "Texto editado do primeiro bullet do slide 8"
+  }
+}
+```
+
+- **annotations**: chave = indice do slide, valor = array de retangulos em percentual
+- **texts**: chave = `slideIdx|selectorCSS`, valor = texto editado
+- Teclado desativado durante edicao de texto (espaco, setas nao navegam)
