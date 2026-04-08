@@ -11,6 +11,20 @@ Sistema de apresentacao interativa no browser que simula o Google Slides, usado 
 **Tipo:** Single-file HTML (CSS + JS inline, zero build step)
 **Requer Live Server** — os dados sao carregados via `fetch()` do CSV, nao funciona com `file://`.
 
+### Repositorios e Deploy
+
+| Repo | URL | Conteudo |
+|------|-----|----------|
+| `_GUDAY` | github.com/GuilhermeM/_GUDAY | Repo completo (privado) |
+| `guday-presentation` | github.com/GuilhermeM/guday-presentation | So a pasta PRESENTATION (publico, conectado ao Vercel) |
+
+**Push duplo (sempre fazer os dois):**
+```bash
+git push origin master && git subtree push --prefix PRESENTATION presentation main
+```
+
+O remote `presentation` ja esta configurado. O segundo comando sincroniza a pasta `PRESENTATION/` com o repo separado que o Vercel usa para deploy.
+
 ### Fluxo de dados (dinamico)
 
 1. Ao carregar a pagina, o JS faz `fetch("DB - Competitors Research - Sheet1.csv")`
