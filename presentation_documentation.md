@@ -15,6 +15,24 @@ Existem **2 apresentacoes** independentes:
 **Fonte de dados:** CSV local (via `fetch`)
 **Requer Live Server** — nao funciona com `file://`
 
+### 3. Stakeholders Analysis (Analise de Stakeholders)
+
+**Arquivo:** `STAKEHOLDERS/stakeholders-analysis.html`
+**Fonte de dados:** Hardcoded no HTML (extraido de `Guday - Stakeholders.pdf`)
+**Edicoes:** `STAKEHOLDERS/stakeholders-edits.json` (exportavel, opcional)
+**Slides:**
+1. Capa
+2. Resumo da Guday pelos C-Levels (frase, valores, desafios, metas)
+3. Leitura da equipe de suporte (reclamacoes, duvidas, insights)
+4. Key Takeaways (9 insights numerados no formato "bold: descricao")
+
+**Features:** PDF export, fullscreen, thumbnails, navegacao por teclado, edicao de texto inline com persistencia (localStorage + JSON export)
+
+**Tipos de slide:**
+- `cover` — capa com gradiente roxo
+- `info` — titulo + card com secoes (label + texto), suporta HTML (ex: `<br>` para quebra de linha)
+- `list` — titulo + itens numerados com bold + descricao na mesma linha
+
 ### 2. Post-Purchase Analysis (Pesquisa Pos-Compra)
 
 **Arquivo:** `POST-PURCHASE/post-purchase-analysis.html`
@@ -65,6 +83,10 @@ PRESENTATION/
 │   ├── _drgood/                              # Screenshots Dr. Good
 │   ├── _bold/                                # Screenshots Bold
 │   └── _maismu/                              # Screenshots Mais Mu
+├── STAKEHOLDERS/
+│   ├── stakeholders-analysis.html            # Analise de stakeholders
+│   ├── stakeholders-edits.json               # Edicoes de texto (opcional)
+│   └── Guday - Stakeholders.pdf              # Fonte de dados (entrevistas)
 ├── POST-PURCHASE/
 │   ├── post-purchase-analysis.html           # Apresentacao pos-compra
 │   ├── pp-edits.json                         # Edicoes exportadas (anotacoes + textos)
