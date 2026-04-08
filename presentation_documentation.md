@@ -4,7 +4,7 @@
 
 Sistema de apresentacao interativa no browser que simula o Google Slides, usado para analise de concorrentes da GUDAY. O formato segue o modelo da WeConvert (MYND - Competitor analysis.pdf) adaptado ao branding da GUDAY.
 
-**Arquivo principal:** `competitor-analysis.html`
+**Arquivo principal:** `COMPETITORS/competitor-analysis.html`
 **Tipo:** Single-file HTML (CSS + JS inline, zero build step)
 **Abre direto no browser** — basta dar duplo clique no arquivo.
 
@@ -14,7 +14,8 @@ Sistema de apresentacao interativa no browser que simula o Google Slides, usado 
 
 ```
 PRESENTATION/
-├── competitor-analysis.html          # Apresentacao principal
+├── COMPETITORS/
+│   └── competitor-analysis.html      # Apresentacao principal
 ├── presentation_documentation.md     # Este arquivo
 ├── Competitors - Sheet1.csv          # Dados fonte (insights + imagens)
 ├── GUMMY/                            # Screenshots do concorrente
@@ -23,6 +24,8 @@ PRESENTATION/
 ├── GUDAY_Reposicionamento_05_03_2026.pdf        # Brand guidelines
 └── GUDAY — BASE DE CONHECIMENTO DO ASSISTENTE CRIATIVO (2).pdf
 ```
+
+**Nota:** As imagens no HTML referenciam `GUMMY/x.png` com caminho relativo a partir de `COMPETITORS/`. Se mover o HTML, ajustar os paths das imagens.
 
 ---
 
@@ -116,7 +119,7 @@ PRESENTATION/
 | Sem page labels no sidebar | Poluia visualmente — info da pagina vai no badge superior direito |
 | Sem linhas divisorias no sidebar | Visual mais limpo |
 | Sem logo GUDAY no sidebar footer | Redundante — logo ja aparece no footer do slide |
-| URL de referencia em preto, 9px | Discreto mas visivel, como no MYND |
+| URL de referencia em `#333`, 10px | Discreto mas visivel, como no MYND |
 | Logo GUDAY como SVG preto (16px) | No footer inferior direito de cada slide |
 | Sidebar bg `#f9f8f6` | Cinza bem claro, quase branco |
 
@@ -325,3 +328,13 @@ O layout dos slides segue o padrao da apresentacao `MYND - Competitor analysis.p
 - Cada sub-ponto da categoria tem seu proprio slide dedicado
 
 A diferenca principal e o branding: MYND usa navy/teal, nos usamos roxo GUDAY (`#7f56d9`).
+
+---
+
+## Notas tecnicas sobre imagens
+
+- As imagens dos screenshots mobile sao renderizadas com `object-fit: contain` e `object-position: top left` para manter proporcao e alinhar a esquerda
+- A imagem usa `flex: 1` + `min-height: 0` dentro do `.phone-mockup` para encolher e sempre deixar espaco para a URL de referencia embaixo
+- Borda preta de 1px (`border: 1px solid #000`) para delimitar claramente o screenshot
+- Sem border-radius, sem sombra — visual limpo e profissional
+- Resolucao base do slide e 960x540 (16:9). Tentativas de aumentar para 1440x810, 1920x1080, 1920x820 e 1600x600 foram revertidas pois degradavam a qualidade visual das imagens (scaling up do browser causa blur). A resolucao 960x540 com scale down e a que produz melhor resultado

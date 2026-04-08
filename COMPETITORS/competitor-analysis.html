@@ -23,9 +23,9 @@
             --white: #ffffff;
             --text-dark: #1E192A;
             --green-badge: #07a455;
-            --slide-w: 1600px;
-            --slide-h: 600px;
-            --thumb-scale: 0.11;
+            --slide-w: 960px;
+            --slide-h: 540px;
+            --thumb-scale: 0.18;
         }
 
         body {
@@ -192,8 +192,8 @@
         }
 
         .thumb-frame {
-            width: 176px;
-            height: 66px; /* 1600*0.11=176, 600*0.11=66 */
+            width: 172px;
+            height: 97px;
             overflow: hidden;
             border-radius: 3px;
             border: 2px solid transparent;
@@ -320,7 +320,7 @@
         }
 
         .cover-title {
-            font-size: 64px;
+            font-size: 48px;
             font-weight: 800;
             color: white;
             line-height: 1.05;
@@ -330,7 +330,7 @@
         }
 
         .cover-subtitle {
-            font-size: 24px;
+            font-size: 20px;
             color: rgba(178,130,235,0.7);
             font-weight: 500;
             margin-bottom: 40px;
@@ -367,7 +367,7 @@
 
         .cover-competitor-name {
             color: white;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
             letter-spacing: -0.5px;
         }
@@ -403,8 +403,8 @@
 
         /* Sidebar */
         .slide-sidebar {
-            width: 380px;
-            min-width: 380px;
+            width: 272px;
+            min-width: 272px;
             background: var(--bg-sidebar);
             display: flex;
             flex-direction: column;
@@ -413,22 +413,22 @@
         .sidebar-banner {
             background: var(--purple-deep);
             color: white;
-            padding: 16px 24px;
-            font-size: 13px;
+            padding: 16px 22px;
+            font-size: 11px;
             font-weight: 700;
             letter-spacing: 2.5px;
             text-transform: uppercase;
         }
 
         .sidebar-list {
-            padding: 14px 22px;
+            padding: 16px 18px;
             flex: 1;
             overflow-y: auto;
         }
 
         .sidebar-item {
             padding: 9px 8px;
-            font-size: 14px;
+            font-size: 12.5px;
             line-height: 1.45;
             color: #999;
             display: flex;
@@ -456,7 +456,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 28px 40px 16px;
+            padding: 28px 36px 20px;
             min-width: 0;
         }
 
@@ -468,7 +468,7 @@
         }
 
         .slide-cat-title {
-            font-size: 34px;
+            font-size: 26px;
             font-weight: 800;
             color: var(--text-dark);
             letter-spacing: -0.5px;
@@ -476,11 +476,11 @@
         }
 
         .slide-page-badge {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--purple-deep);
             background: rgba(127,86,217,0.1);
-            padding: 5px 16px;
+            padding: 5px 14px;
             border-radius: 4px;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -492,14 +492,15 @@
             display: flex;
             align-items: flex-start;
             justify-content: flex-start;
-            padding: 14px 14px 0 0;
+            padding: 14px 14px 14px 0;
             min-height: 0;
             position: relative;
-            overflow: visible;
+            overflow: hidden;
         }
 
         .phone-mockup {
             height: 100%;
+            max-height: 380px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -508,7 +509,7 @@
 
         .img-source-url {
             font-size: 10px;
-            color: #000;
+            color: #333;
             text-align: left;
             margin-top: 6px;
             font-weight: 400;
@@ -516,15 +517,12 @@
         }
 
         .phone-mockup img {
-            max-height: calc(100% - 20px);
+            flex: 1;
+            min-height: 0;
             max-width: 100%;
-            width: auto;
-            height: auto;
             object-fit: contain;
             object-position: top left;
             border: 1px solid #000;
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: high-quality;
         }
 
         .slide-footer {
@@ -536,7 +534,7 @@
         }
 
         .slide-source {
-            font-size: 12px;
+            font-size: 11px;
             color: #b0b0b0;
             font-weight: 400;
         }
@@ -547,7 +545,7 @@
         }
 
         .slide-brand svg {
-            height: 18px;
+            height: 16px;
             width: auto;
         }
 
@@ -580,8 +578,8 @@
             transform: translateY(-50%) scale(1.08);
         }
 
-        .nav-arrow.prev { left: 8px; }
-        .nav-arrow.next { right: 8px; }
+        .nav-arrow.prev { left: 14px; }
+        .nav-arrow.next { right: 14px; }
 
         .nav-arrow:disabled {
             opacity: 0.25;
@@ -592,7 +590,7 @@
         /* ── SLIDE COUNTER ───────────────────────────── */
         .slide-counter {
             position: absolute;
-            bottom: 6px;
+            bottom: 14px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0,0,0,0.55);
@@ -609,11 +607,7 @@
         body.fullscreen-mode .toolbar { display: none; }
         body.fullscreen-mode .thumbnail-panel { display: none; }
         body.fullscreen-mode .main-container { height: 100vh; }
-        body.fullscreen-mode .slide-area { background: #1a1a1a; }
-        body.fullscreen-mode .slide-viewport {
-            box-shadow: none;
-            border-radius: 0;
-        }
+        body.fullscreen-mode .slide-area { background: #000; }
 
         body.fullscreen-mode .nav-arrow {
             opacity: 0;
@@ -981,7 +975,7 @@
 
             try {
                 const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [1600, 600] });
+                const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [960, 540] });
 
                 const slides = viewport.querySelectorAll(".slide");
                 const savedCur = cur;
@@ -996,8 +990,8 @@
 
                 /* reset viewport transform for accurate capture */
                 viewport.style.transform = "none";
-                viewport.style.width = "1600px";
-                viewport.style.height = "600px";
+                viewport.style.width = "960px";
+                viewport.style.height = "540px";
 
                 for (let i = 0; i < slides.length; i++) {
                     /* hide all, show only current */
@@ -1008,8 +1002,8 @@
                     await new Promise(r => setTimeout(r, 150));
 
                     const canvas = await html2canvas(viewport, {
-                        width: 1600,
-                        height: 600,
+                        width: 960,
+                        height: 540,
                         scale: 2,
                         useCORS: true,
                         allowTaint: true,
@@ -1019,7 +1013,7 @@
                     const imgData = canvas.toDataURL("image/jpeg", 0.92);
 
                     if (i > 0) pdf.addPage([1440, 810], "landscape");
-                    pdf.addImage(imgData, "JPEG", 0, 0, 1600, 600);
+                    pdf.addImage(imgData, "JPEG", 0, 0, 960, 540);
 
                     /* update button progress */
                     btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ${i + 1}/${slides.length}`;
@@ -1051,25 +1045,15 @@
         /* ── RESPONSIVE SCALING ────────────────────── */
         function resizeSlide() {
             const area = viewport.parentElement;
-            const aw = area.clientWidth;
-            const ah = area.clientHeight;
-            const sw = 1600, sh = 600;
-            const isFS = document.body.classList.contains("fullscreen-mode");
-
-            let scale;
-            if (isFS) {
-                /* In fullscreen: fill height, allow width overflow to be clipped */
-                scale = Math.max(aw / sw, ah / sh);
-                /* But don't exceed width too much */
-                scale = Math.min(scale, aw / sw * 1.15);
-            } else {
-                scale = Math.min(aw / sw, ah / sh);
-            }
+            const aw = area.clientWidth - 100;
+            const ah = area.clientHeight - 50;
+            const sw = 960, sh = 540;
+            const scale = Math.min(aw / sw, ah / sh, 2);
 
             viewport.style.transform = `scale(${scale})`;
             viewport.style.transformOrigin = "center center";
-            viewport.style.width = "1600px";
-            viewport.style.height = "600px";
+            viewport.style.width = sw + "px";
+            viewport.style.height = sh + "px";
         }
 
         window.addEventListener("resize", resizeSlide);
