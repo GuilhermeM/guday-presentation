@@ -15,6 +15,21 @@ Existem **2 apresentacoes** independentes:
 **Fonte de dados:** CSV local (via `fetch`)
 **Requer Live Server** — nao funciona com `file://`
 
+### 4. User Testing Analysis (Analise de Usabilidade)
+
+**Arquivo:** `USER-TESTING/user-testing-analysis.html`
+**Fonte de dados:** Hardcoded no HTML (extraido de `User Testing - Guday.pdf`)
+**Referencia:** `Tabs - User Testing Analysis.pdf`, `Supplend-User testing.pdf`
+**Slides:**
+1. Capa (6 participantes, 3 mobile, 3 desktop)
+2. Cards: 5 segundos + Primeiras impressoes + O que destaca
+3. Cards: O que falta + O que impede + Compraria?
+4. Cards: Product pages + Carrinho e Checkout (2 colunas)
+5. Key Takeaways (9 insights numerados)
+
+**Tipo de slide `cards`:** Grade de 2-3 cards por slide com summary no topo, cada card com titulo e lista de bullet points com bold. Suporta `cols: 2` para layout de 2 colunas.
+**Features:** PDF export, fullscreen, thumbnails, navegacao por teclado
+
 ### 3. Stakeholders Analysis (Analise de Stakeholders)
 
 **Arquivo:** `STAKEHOLDERS/stakeholders-analysis.html`
@@ -83,6 +98,11 @@ PRESENTATION/
 │   ├── _drgood/                              # Screenshots Dr. Good
 │   ├── _bold/                                # Screenshots Bold
 │   └── _maismu/                              # Screenshots Mais Mu
+├── USER-TESTING/
+│   ├── user-testing-analysis.html            # Analise de usabilidade
+│   ├── User Testing - Guday.pdf              # Dados brutos (sessoes)
+│   ├── Tabs - User Testing Analysis.pdf      # Referencia de formato
+│   └── Supplend-User testing.pdf             # Referencia de formato
 ├── STAKEHOLDERS/
 │   ├── stakeholders-analysis.html            # Analise de stakeholders
 │   ├── stakeholders-edits.json               # Edicoes de texto (opcional)
