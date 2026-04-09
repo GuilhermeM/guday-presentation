@@ -73,6 +73,7 @@
         .cards-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; min-height: 0; }
         .cards-grid.cols-2 { grid-template-columns: 1fr 1fr; }
         .card { background: #f8f7f5; border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; overflow: hidden; }
+        .card-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 18px; }
         .card-title { font-size: 12px; font-weight: 800; color: var(--text-dark); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         .card-items { display: flex; flex-direction: column; gap: 5px; overflow-y: auto; }
         .card-item { font-size: 11.5px; line-height: 1.4; color: #555; display: flex; gap: 6px; align-items: flex-start; }
@@ -149,69 +150,81 @@
                 summary: "Usuários acham o site bonito e atrativo, mas não entendem que são suplementos em gummy na primeira impressão. Falta clareza sobre o que cada produto faz e qual escolher.",
                 cards: [
                     {
+                        icon: "👁",
                         title: "O que notaram em 5 segundos",
                         items: [
-                            "<b>Cores vibrantes</b> e design chamativo foram a primeira coisa notada",
-                            "<b>Gominhas/suplementos</b> identificados pela forma do produto",
-                            "Algumas confundiram com <b>cápsulas</b> ou vitaminas tradicionais",
-                            "Não fica claro que é <b>suplemento alimentar em gummy</b>",
-                            "Tag de <b>15% desconto</b> chamou atenção imediatamente"
+                            "<b>Cores vibrantes e design chamativo</b> foram a primeira coisa notada por todos os participantes",
+                            "Identificaram <b>gominhas/suplementos</b> pela forma do produto, mas algumas confundiram com <b>cápsulas vitamínicas</b> tradicionais",
+                            "Não fica claro que é <b>suplemento alimentar em formato de gummy</b>, parece apenas um catálogo de produtos",
+                            "Tag de <b>15% desconto</b> chamou atenção imediatamente e acompanha toda a navegação",
+                            "Uma participante achou que eram <b>gelatinas de melatonina</b>, outra pensou em <b>produtos naturais</b>",
+                            "Os nomes passando em baixo chamaram mais atenção do que os próprios banners"
                         ]
                     },
                     {
+                        icon: "💬",
                         title: "Primeiras impressões da Home",
                         items: [
-                            "Site <b>bonito, profissional e confiável</b>",
-                            "Cores transmitem <b>leveza</b> e são bem organizadas por produto",
-                            "<b>Combos e objetivos</b> claros na navegação",
-                            "Produtos parecem <b>naturais e interessantes</b>",
-                            "Falta deixar claro <b>o que é o produto</b> logo de cara"
+                            "Site <b>bonito, leve, profissional e confiável</b>, todas as participantes elogiaram o visual",
+                            "Cores atribuídas a cada sabor tornam tudo <b>organizado e visualmente atrativo</b>",
+                            "<b>Combos e objetivos</b> claros na navegação, seção 'Qual seu objetivo' foi elogiada",
+                            "Produtos parecem <b>naturais e interessantes</b>, B12 e creatina chamaram atenção",
+                            "Falta deixar claro <b>o que é o produto</b> logo de cara: 'Eu mudaria o início, mostraria que se trata de suplemento alimentar'",
+                            "'Achei bonito, mas <b>não dá pra perceber o que é realmente</b>, o que é o produto'"
                         ]
                     },
                     {
+                        icon: "⭐",
                         title: "O que se destaca",
                         items: [
-                            "<b>Design visual e cores</b> atribuídas a cada sabor",
-                            "<b>Desconto de 15%</b> acompanha a navegação",
-                            "<b>Zero açúcar, vegano, benefícios</b> bem comunicados",
-                            "<b>Avaliações</b> quando disponíveis (notas médias geram confiança)",
-                            "Creatina em <b>gummy vs pó</b> é muito atrativo"
+                            "<b>Design visual e cores</b> são o grande diferencial, site jovem e funcional",
+                            "<b>Desconto de 15%</b> acompanhando a navegação chama bastante atenção",
+                            "<b>Zero açúcar, vegano, sem calorias</b>, muitos benefícios para quem malha",
+                            "<b>Avaliações com notas médias</b> geram confiança (só notas altas gera desconfiança)",
+                            "Creatina em <b>gummy ao invés de pó</b> é muito atrativo para quem treina",
+                            "'Parece um produto <b>superior</b> aos que já vi no mercado'"
                         ]
                     }
                 ]
             },
             {
                 type: "cards",
-                summary: "Usuários comprariam por curiosidade e novidade, mas falta de informação sobre sabores, produtos e frete gera dúvidas que podem impedir a compra.",
+                summary: "Usuários comprariam por curiosidade e novidade, mas falta de informação sobre sabores, produtos e frete gera dúvidas que podem impedir a conversão.",
                 cards: [
                     {
+                        icon: "❓",
                         title: "O que está faltando",
                         items: [
-                            "Não está claro que é <b>suplemento em gummies</b> na homepage",
-                            "Falta informação sobre <b>sabores</b> (confusão: tipos de creatina vs sabores)",
-                            "<b>Tabela nutricional</b> ausente em combos",
-                            "<b>Avaliações</b> ausentes em vários produtos",
-                            "Vídeos da Guday Live <b>sem áudio</b>"
+                            "Não está claro que é <b>suplemento em gummies</b> na homepage, deveria estar escrito logo no início",
+                            "Falta informação sobre <b>sabores</b>: usuários acharam que tipos de creatina = composições diferentes, não só sabores",
+                            "<b>Tabela nutricional</b> ausente nos combos, e combos são os mais destacados",
+                            "<b>Avaliações</b> ausentes em vários produtos (matcha, COQ10), perdem credibilidade",
+                            "Vídeos da Guday Live <b>sem áudio</b>, não se sabe se são dicas ou depoimentos",
+                            "'O que é <b>matcha</b>? É folha? Fruta? Que sabor? Deveria explicar mais'"
                         ]
                     },
                     {
+                        icon: "🚫",
                         title: "O que impede de comprar",
                         items: [
-                            "<b>Falta de clareza</b> sobre o que cada produto faz",
-                            "Não saber o <b>sabor</b> ou tipo do produto",
-                            "<b>Frete</b> não mostrado no carrinho",
-                            "<b>Parcelamento</b> só aparece no checkout final",
-                            "Textos que parecem <b>ChatGPT</b> (travessão e emojis)"
+                            "<b>Falta de clareza</b> sobre o que cada produto faz e qual escolher",
+                            "Não saber o <b>sabor</b> ou tipo do produto gera insegurança: 'Eu ficaria na dúvida no que comprar'",
+                            "<b>Frete</b> não mostrado no carrinho, maior fricção reportada",
+                            "<b>Parcelamento</b> só aparece no checkout final, não no carrinho",
+                            "Textos que parecem <b>ChatGPT</b> (travessão e emojis) reduzem confiança",
+                            "Uma participante <b>não compraria</b> porque só podia pagar em 1x"
                         ]
                     },
                     {
+                        icon: "🛒",
                         title: "Compraria?",
                         items: [
-                            "<b>Sim</b>, por curiosidade e novidade do formato gummy",
-                            "Creatina em gummy é <b>muito atrativo</b> vs pó",
-                            "<b>Combos com desconto</b> motivam a compra",
-                            "Site passa <b>confiança e profissionalismo</b>",
-                            "Mas <b>falta de info</b> gera dúvida sobre o que comprar"
+                            "<b>Sim</b>, por curiosidade e novidade do formato gummy. 'Uma forma de dar uma enganada no cérebro'",
+                            "Creatina em gummy é <b>muito atrativo</b> vs pó: 'Acho muito difícil consumir creatina em pó'",
+                            "<b>Combos com desconto</b> motivam, R$85 à vista parece um bom preço para começar",
+                            "Site passa <b>confiança e profissionalismo</b>, cores transmitem leveza",
+                            "Mas <b>falta de informação</b> impede decisão: 'Não compraria porque não tem especificando o que é na homepage'",
+                            "'Comendo uma bala mas <b>não é calórica com calorias vazias</b>'"
                         ]
                     }
                 ]
@@ -222,25 +235,30 @@
                 summary: "Páginas de produto variam muito em qualidade de informação. O carrinho e checkout têm fricções evitáveis com frete, cupom e parcelamento.",
                 cards: [
                     {
+                        icon: "📄",
                         title: "Product Pages",
                         items: [
-                            "<b>Combos</b> são as PDPs com menos informação",
-                            "Diferença entre creatinas <b>não é clara</b> (é só sabor)",
-                            "Algumas PDPs completas (creatina), outras não (matcha, COQ10)",
-                            "<b>Avaliações ausentes</b> em vários produtos",
-                            "Falta info sobre <b>sabores, ingredientes e benefícios</b> por produto",
-                            "<b>Fotos</b> poderiam mostrar como o produto chega"
+                            "<b>Combos</b> são as PDPs com menos informação, mas são os mais destacados na home",
+                            "Diferença entre creatinas <b>não é clara</b>: 'Achei que talvez tivesse composição diferente para ser tipos de creatina'",
+                            "Algumas PDPs completas (creatina com avaliações), outras não (matcha, COQ10 sem nada)",
+                            "<b>Avaliações ausentes</b> em vários produtos, participantes clicaram e não encontraram nenhuma",
+                            "Falta info sobre <b>sabores, ingredientes e benefícios</b> por produto: 'O que é radicais livres? Poder antioxidante?'",
+                            "<b>Fotos</b> poderiam mostrar como o produto chega (embalagem, unboxing)",
+                            "'Poderia ser melhor explorado <b>a parte em branco</b> embaixo da foto' (desktop)"
                         ]
                     },
                     {
+                        icon: "💳",
                         title: "Carrinho e Checkout",
                         items: [
-                            "<b>Frete não mostrado</b> no carrinho (maior reclamação)",
-                            "<b>Cupom muito proeminente</b>, quem não tem sente FOMO",
-                            "Barra de frete grátis <b>confusa</b> quando desconto é aplicado",
-                            "<b>Parcelamento</b> aparece só no final do checkout",
-                            "CEP não reconhecido automaticamente em alguns casos",
-                            "Frete grátis aparece mesmo em compras abaixo do limite"
+                            "<b>Frete não mostrado</b> no carrinho: maior reclamação, quase todos pediram isso",
+                            "<b>Cupom muito proeminente</b>, quem não tem sente FOMO. Mover para checkout",
+                            "Barra de frete grátis <b>confusa</b> quando desconto é aplicado: 'Parece golpe'",
+                            "<b>Parcelamento</b> aparece só no último passo, deveria estar visível antes",
+                            "CEP <b>não reconhecido</b> automaticamente em alguns casos, teve que digitar na mão",
+                            "Frete grátis aparece mesmo em compras abaixo do limite, gerando confusão",
+                            "'Qual tipo de <b>transportadora</b>? Dependendo eu não compraria'",
+                            "Faltam informações de <b>prazo de postagem e reembolso</b>"
                         ]
                     }
                 ]
@@ -276,11 +294,14 @@
             </div>`;
         }
 
+        const CARD_COLORS = ["#c96b6b","#7f56d9","#d4a843","#4a9e6f","#5b8dc9","#c96bb0"];
+
         function cardsHTML(d) {
             const colClass = d.cols === 2 ? " cols-2" : "";
-            const cardsContent = d.cards.map(c => {
+            const cardsContent = d.cards.map((c, ci) => {
                 const items = c.items.map(it => `<div class="card-item">${it}</div>`).join("");
-                return `<div class="card"><div class="card-title">${c.title}</div><div class="card-items">${items}</div></div>`;
+                const iconHTML = c.icon ? `<div class="card-icon" style="background:${CARD_COLORS[ci % CARD_COLORS.length]}22;color:${CARD_COLORS[ci % CARD_COLORS.length]}">${c.icon}</div>` : "";
+                return `<div class="card">${iconHTML}<div class="card-title">${c.title}</div><div class="card-items">${items}</div></div>`;
             }).join("");
             return `<div class="slide-cards">
                 <div class="slide-cards-summary">${d.summary}</div>
