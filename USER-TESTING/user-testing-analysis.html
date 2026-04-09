@@ -69,15 +69,15 @@
 
         /* ── CARDS SLIDE ── */
         .slide-cards { width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--white); padding: 28px 36px 20px; }
-        .slide-cards-summary { font-size: 16px; font-weight: 600; color: #444; line-height: 1.45; margin-bottom: 16px; font-style: italic; padding: 0 4px; }
-        .cards-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; min-height: 0; }
+        .slide-cards-summary { font-size: 22px; font-weight: 800; color: var(--text-dark); line-height: 1.25; margin-bottom: 20px; letter-spacing: -0.5px; }
+        .cards-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; min-height: 0; align-content: start; }
         .cards-grid.cols-2 { grid-template-columns: 1fr 1fr; }
         .card { background: #f8f7f5; border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; overflow: hidden; }
         .card-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 18px; }
         .card-title { font-size: 12px; font-weight: 800; color: var(--text-dark); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .card-items { display: flex; flex-direction: column; gap: 5px; overflow-y: auto; }
-        .card-item { font-size: 11.5px; line-height: 1.4; color: #555; display: flex; gap: 6px; align-items: flex-start; }
-        .card-item::before { content: '→'; color: var(--purple-deep); font-weight: 700; flex-shrink: 0; font-size: 10px; margin-top: 1px; }
+        .card-items { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+        .card-item { font-size: 11px; line-height: 1.35; color: #555; padding-left: 12px; position: relative; text-align: left; }
+        .card-item::before { content: '→'; color: var(--purple-deep); font-weight: 700; position: absolute; left: 0; font-size: 10px; }
         .card-item b { color: var(--text-dark); }
         .slide-cards-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 8px; }
         .slide-source { font-size: 11px; color: #b0b0b0; }
@@ -92,6 +92,32 @@
         .list-item-num { min-width: 22px; font-size: 12px; font-weight: 700; color: var(--purple-deep); flex-shrink: 0; }
         .list-item-bold { font-weight: 700; color: var(--text-dark); }
         .slide-list-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 10px; }
+
+        /* ── EDIT MODE ── */
+        .btn-edit { background: var(--white); color: var(--text-dark); border: 1px solid #ddd; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.1s, border-color 0.2s; }
+        .btn-edit:hover { background: #f5f5f5; border-color: #bbb; transform: translateY(-1px); }
+        .btn-edit svg { width: 16px; height: 16px; }
+        body.edit-mode .btn-edit { background: #e00; color: white; border-color: #e00; }
+        body.edit-mode .btn-edit:hover { background: #c00; border-color: #c00; }
+        .btn-tool { background: var(--white); color: var(--text-dark); border: 1px solid #ddd; padding: 9px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn-tool:hover { background: #f5f5f5; border-color: #bbb; }
+        .btn-tool svg { width: 14px; height: 14px; }
+
+        body.edit-text .slide-cards-summary,
+        body.edit-text .card-title,
+        body.edit-text .card-item,
+        body.edit-text .slide-list-heading,
+        body.edit-text .list-item span:last-child {
+            cursor: text; outline: 1px dashed rgba(127,86,217,0.3); outline-offset: 3px; border-radius: 3px;
+        }
+        body.edit-text .slide-cards-summary:hover,
+        body.edit-text .card-title:hover,
+        body.edit-text .card-item:hover,
+        body.edit-text .slide-list-heading:hover,
+        body.edit-text .list-item span:last-child:hover {
+            outline-color: var(--purple-deep); background: rgba(127,86,217,0.04);
+        }
+        [contenteditable="true"] { outline: 2px solid var(--purple-deep) !important; background: rgba(127,86,217,0.06) !important; }
 
         /* ── NAV ── */
         .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.92); box-shadow: 0 2px 10px rgba(0,0,0,0.12); cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10; color: var(--text-dark); font-weight: 300; line-height: 1; }
@@ -125,6 +151,14 @@
             <div class="toolbar-title">User Testing Analysis <span>— GUDAY</span></div>
         </div>
         <div class="toolbar-actions">
+            <button class="btn-edit" onclick="toggleEditMode()" id="btnEdit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Editar
+            </button>
+            <button class="btn-tool" onclick="exportEdits()" title="Exportar edições">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                JSON
+            </button>
             <button class="btn-download" onclick="downloadPDF()" id="btnDownload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF</button>
             <button class="btn-present" onclick="toggleFullscreen()" id="btnPresent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Apresentar</button>
         </div>
@@ -156,8 +190,7 @@
                             "<b>Cores vibrantes e design chamativo</b> foram a primeira coisa notada por todos os participantes",
                             "Identificaram <b>gominhas/suplementos</b> pela forma do produto, mas algumas confundiram com <b>cápsulas vitamínicas</b> tradicionais",
                             "Não fica claro que é <b>suplemento alimentar em formato de gummy</b>, parece apenas um catálogo de produtos",
-                            "Tag de <b>15% desconto</b> chamou atenção imediatamente e acompanha toda a navegação",
-                            "Uma participante achou que eram <b>gelatinas de melatonina</b>, outra pensou em <b>produtos naturais</b>",
+                            "Tag de <b>15% desconto</b> chamou atenção imediatamente",
                             "Os nomes passando em baixo chamaram mais atenção do que os próprios banners"
                         ]
                     },
@@ -180,7 +213,7 @@
                             "<b>Design visual e cores</b> são o grande diferencial, site jovem e funcional",
                             "<b>Desconto de 15%</b> acompanhando a navegação chama bastante atenção",
                             "<b>Zero açúcar, vegano, sem calorias</b>, muitos benefícios para quem malha",
-                            "<b>Avaliações com notas médias</b> geram confiança (só notas altas gera desconfiança)",
+                            "<b>Avaliações com notas médias</b> geram confiança",
                             "Creatina em <b>gummy ao invés de pó</b> é muito atrativo para quem treina",
                             "'Parece um produto <b>superior</b> aos que já vi no mercado'"
                         ]
@@ -199,7 +232,7 @@
                             "Falta informação sobre <b>sabores</b>: usuários acharam que tipos de creatina = composições diferentes, não só sabores",
                             "<b>Tabela nutricional</b> ausente nos combos, e combos são os mais destacados",
                             "<b>Avaliações</b> ausentes em vários produtos (matcha, COQ10), perdem credibilidade",
-                            "Vídeos da Guday Live <b>sem áudio</b>, não se sabe se são dicas ou depoimentos",
+                            "Vídeos da Guday Live <b>sem áudio</b>",
                             "'O que é <b>matcha</b>? É folha? Fruta? Que sabor? Deveria explicar mais'"
                         ]
                     },
@@ -210,9 +243,7 @@
                             "<b>Falta de clareza</b> sobre o que cada produto faz e qual escolher",
                             "Não saber o <b>sabor</b> ou tipo do produto gera insegurança: 'Eu ficaria na dúvida no que comprar'",
                             "<b>Frete</b> não mostrado no carrinho, maior fricção reportada",
-                            "<b>Parcelamento</b> só aparece no checkout final, não no carrinho",
-                            "Textos que parecem <b>ChatGPT</b> (travessão e emojis) reduzem confiança",
-                            "Uma participante <b>não compraria</b> porque só podia pagar em 1x"
+                            "<b>Parcelamento</b> só aparece no checkout final, não no carrinho"
                         ]
                     },
                     {
@@ -223,8 +254,7 @@
                             "Creatina em gummy é <b>muito atrativo</b> vs pó: 'Acho muito difícil consumir creatina em pó'",
                             "<b>Combos com desconto</b> motivam, R$85 à vista parece um bom preço para começar",
                             "Site passa <b>confiança e profissionalismo</b>, cores transmitem leveza",
-                            "Mas <b>falta de informação</b> impede decisão: 'Não compraria porque não tem especificando o que é na homepage'",
-                            "'Comendo uma bala mas <b>não é calórica com calorias vazias</b>'"
+                            "Mas <b>falta de informação</b> impede decisão: 'Não compraria porque não tem especificando o que é na homepage'"
                         ]
                     }
                 ]
@@ -240,11 +270,8 @@
                         items: [
                             "<b>Combos</b> são as PDPs com menos informação, mas são os mais destacados na home",
                             "Diferença entre creatinas <b>não é clara</b>: 'Achei que talvez tivesse composição diferente para ser tipos de creatina'",
-                            "Algumas PDPs completas (creatina com avaliações), outras não (matcha, COQ10 sem nada)",
                             "<b>Avaliações ausentes</b> em vários produtos, participantes clicaram e não encontraram nenhuma",
-                            "Falta info sobre <b>sabores, ingredientes e benefícios</b> por produto: 'O que é radicais livres? Poder antioxidante?'",
-                            "<b>Fotos</b> poderiam mostrar como o produto chega (embalagem, unboxing)",
-                            "'Poderia ser melhor explorado <b>a parte em branco</b> embaixo da foto' (desktop)"
+                            "Falta info sobre <b>sabores, ingredientes e benefícios</b> por produto: 'O que é radicais livres? Poder antioxidante?'"
                         ]
                     },
                     {
@@ -253,11 +280,8 @@
                         items: [
                             "<b>Frete não mostrado</b> no carrinho: maior reclamação, quase todos pediram isso",
                             "<b>Cupom muito proeminente</b>, quem não tem sente FOMO. Mover para checkout",
-                            "Barra de frete grátis <b>confusa</b> quando desconto é aplicado: 'Parece golpe'",
                             "<b>Parcelamento</b> aparece só no último passo, deveria estar visível antes",
                             "CEP <b>não reconhecido</b> automaticamente em alguns casos, teve que digitar na mão",
-                            "Frete grátis aparece mesmo em compras abaixo do limite, gerando confusão",
-                            "'Qual tipo de <b>transportadora</b>? Dependendo eu não compraria'",
                             "Faltam informações de <b>prazo de postagem e reembolso</b>"
                         ]
                     }
@@ -274,7 +298,6 @@
                     { bold: "Parcelamento visível:", text: "mostrar opções de parcelamento antes do último passo do checkout" },
                     { bold: "Reduzir destaque do cupom:", text: "cupom gera FOMO em quem não tem. Mover para o checkout" },
                     { bold: "Avaliações em todos os produtos:", text: "importar reviews de outros canais. Produtos sem avaliação perdem credibilidade" },
-                    { bold: "Corrigir textos:", text: "remover tom de ChatGPT (travessões, emojis). Renomear 'Oakbery' para 'Acaí'" },
                     { bold: "Cross-sell inteligente:", text: "recomendar produtos complementares no carrinho para atingir frete grátis" }
                 ]
             }
@@ -419,6 +442,84 @@
             viewport.style.width=sw+"px"; viewport.style.height=sh+"px";
         }
         window.addEventListener("resize", resizeSlide); resizeSlide(); setTimeout(resizeSlide,200);
+
+        /* ── TEXT EDITING ── */
+        const EDIT_KEY = "guday-ut-edits";
+        let editMode = false;
+        let textEdits = {};
+
+        async function loadEdits() {
+            try { const r = await fetch("ut-edits.json"); if (r.ok) textEdits = await r.json(); } catch(e) {}
+            if (!textEdits || typeof textEdits !== "object") {
+                try { const s = localStorage.getItem(EDIT_KEY); if (s) textEdits = JSON.parse(s); } catch(e) {}
+            }
+            if (!textEdits) textEdits = {};
+            Object.entries(textEdits).forEach(([key, text]) => {
+                const [si, sel] = key.split("|");
+                const sl = viewport.children[parseInt(si)];
+                if (sl) { const el = sl.querySelector(sel); if (el) el.innerHTML = text; }
+            });
+        }
+
+        function saveEdits() { localStorage.setItem(EDIT_KEY, JSON.stringify(textEdits)); }
+
+        function toggleEditMode() {
+            editMode = !editMode;
+            document.body.classList.toggle("edit-mode", editMode);
+            document.body.classList.toggle("edit-text", editMode);
+            const btn = document.getElementById("btnEdit");
+            btn.innerHTML = editMode
+                ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Salvar`
+                : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Editar`;
+            if (!editMode) viewport.querySelectorAll("[contenteditable]").forEach(el => el.removeAttribute("contenteditable"));
+        }
+        window.toggleEditMode = toggleEditMode;
+
+        viewport.addEventListener("click", (e) => {
+            if (!editMode) return;
+            const editable = e.target.closest(".slide-cards-summary, .card-title, .card-item, .slide-list-heading, .list-item span:last-child");
+            if (!editable) return;
+            e.stopPropagation();
+            editable.setAttribute("contenteditable", "true");
+            editable.focus();
+            const handler = () => {
+                editable.removeAttribute("contenteditable");
+                const sl = editable.closest(".slide");
+                const si = Array.from(viewport.children).indexOf(sl);
+                let sel = "";
+                if (editable.classList.contains("slide-cards-summary")) sel = ".slide-cards-summary";
+                else if (editable.classList.contains("slide-list-heading")) sel = ".slide-list-heading";
+                else if (editable.classList.contains("card-title")) {
+                    const cards = sl.querySelectorAll(".card");
+                    for (let i = 0; i < cards.length; i++) { if (cards[i].contains(editable)) { sel = `.card:nth-child(${i+1}) .card-title`; break; } }
+                } else if (editable.classList.contains("card-item")) {
+                    const cards = sl.querySelectorAll(".card");
+                    for (let ci = 0; ci < cards.length; ci++) {
+                        const items = cards[ci].querySelectorAll(".card-item");
+                        for (let ii = 0; ii < items.length; ii++) { if (items[ii] === editable) { sel = `.card:nth-child(${ci+1}) .card-item:nth-child(${ii+1})`; break; } }
+                        if (sel) break;
+                    }
+                } else {
+                    const listItems = sl.querySelectorAll(".list-item");
+                    for (let i = 0; i < listItems.length; i++) { if (listItems[i].contains(editable)) { sel = `.list-item:nth-child(${i+1}) span:last-child`; break; } }
+                }
+                if (sel) { textEdits[si + "|" + sel] = editable.innerHTML; saveEdits(); }
+                editable.removeEventListener("blur", handler);
+            };
+            editable.addEventListener("blur", handler);
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (document.activeElement && document.activeElement.hasAttribute("contenteditable")) e.stopImmediatePropagation();
+        }, true);
+
+        function exportEdits() {
+            const blob = new Blob([JSON.stringify(textEdits, null, 2)], { type: "application/json" });
+            const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "ut-edits.json"; a.click();
+        }
+        window.exportEdits = exportEdits;
+
+        loadEdits();
     })();
     </script>
 </body>

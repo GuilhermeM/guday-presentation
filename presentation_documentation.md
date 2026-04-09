@@ -27,8 +27,18 @@ Existem **2 apresentacoes** independentes:
 4. Cards: Product pages + Carrinho e Checkout (2 colunas)
 5. Key Takeaways (9 insights numerados)
 
-**Tipo de slide `cards`:** Grade de 2-3 cards por slide com summary no topo, cada card com titulo e lista de bullet points com bold. Suporta `cols: 2` para layout de 2 colunas.
-**Features:** PDF export, fullscreen, thumbnails, navegacao por teclado
+**Edicoes:** `USER-TESTING/ut-edits.json` (exportavel, opcional)
+
+**Tipo de slide `cards`:** Grade de 2-3 cards por slide com summary bold no topo, cada card com icone, titulo e lista de bullet points com bold. Suporta `cols: 2` para layout de 2 colunas. Icones: emoji coloridos com fundo circular.
+
+**Features:** PDF export, fullscreen, thumbnails, navegacao por teclado, edicao de texto inline (titulos, cards, bullets, key takeaways) com persistencia localStorage + JSON export
+
+**Slides atuais (5):**
+1. Capa (6 participantes, 3 mobile, 3 desktop)
+2. Cards 3 colunas: 5 segundos (👁) + Primeiras impressoes (💬) + O que destaca (⭐)
+3. Cards 3 colunas: O que falta (❓) + O que impede (🚫) + Compraria? (🛒)
+4. Cards 2 colunas: Product pages (📄) + Carrinho/Checkout (💳)
+5. Key Takeaways: 8 insights numerados (clareza, sabores, info PDPs, frete, parcelamento, cupom, avaliacoes, cross-sell)
 
 ### 3. Stakeholders Analysis (Analise de Stakeholders)
 
@@ -100,6 +110,7 @@ PRESENTATION/
 │   └── _maismu/                              # Screenshots Mais Mu
 ├── USER-TESTING/
 │   ├── user-testing-analysis.html            # Analise de usabilidade
+│   ├── ut-edits.json                         # Edicoes de texto (opcional)
 │   ├── User Testing - Guday.pdf              # Dados brutos (sessoes)
 │   ├── Tabs - User Testing Analysis.pdf      # Referencia de formato
 │   └── Supplend-User testing.pdf             # Referencia de formato
