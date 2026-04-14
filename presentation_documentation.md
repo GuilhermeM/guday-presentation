@@ -4,7 +4,7 @@
 
 Sistema de apresentacoes interativas no browser que simula o Google Slides, usado para analises da GUDAY. O formato segue o branding da GUDAY e o modelo da WeConvert.
 
-Existem **5 apresentacoes** independentes:
+Existem **7 apresentações** independentes:
 
 ### 1. Competitor Analysis (Analise de Concorrentes)
 
@@ -97,6 +97,78 @@ Existem **5 apresentacoes** independentes:
 
 **Features:** PDF export, fullscreen, thumbnails, navegacao por teclado, edicao de texto inline (titulos, conclusoes) com persistencia localStorage + JSON export, anotacoes com retangulos
 
+### 6. Retention Analysis (Análise de Retenção)
+
+**Arquivo:** `ANALYTICS/retention-analysis.html`
+**Fonte de dados:** JSONs hardcoded (extraidos de `ANÁLISE RFM/Análise RFM History/`)
+**Edições:** `ANALYTICS/retention-edits.json` (exportável, opcional)
+**Funciona direto no browser** — dados hardcoded, não precisa de Live Server nem Google Sheets
+
+**Slides atuais (9):**
+1. Capa — "Como seus clientes estão recomprando?" (estilo WeConvert: fundo verde/teal, logo GUDAY)
+2. Tempo entre compras — 5 gap cards (1a→2a: 64d, 2a→3a: 70d, 3a→4a: 68d, 4a→5a: 66d, 5a→6a: 63d) + card insight "Janela crítica: Dias 45-75"
+3. LTV x Potes — barras horizontais de LTV (R$442→R$1.680) e recompra (31%→63%) por qtd de potes no 1o pedido
+4. Desconto — 2 cards comparativos: Com cupom (81,7%, roxo) vs Sem cupom (18,3%, cinza) com métricas: Clientes, LTV, AOV, Avg Purchases, Returning destaque
+5. Idade — barras horizontais: LTV por Faixa Etária + Taxa de Recompra por Faixa Etária (degradê roxo)
+6. Canais — tabela-split: Manu Cit (45,3%), Instagram Ads (22,7%), Influenciadores (16,7%), Indicação (8%), Nutricionistas (1,7%), Outros (5,6%)
+7. Consumiu creatina antes? — tabela-split: Sim (71,6%, 36% ret) vs Primeira vez (28,4%, 20,1% ret)
+8. Frete — tabela-split: Econômico (92,1%, R$391 LTV) vs Rápido (7,9%, R$289 LTV)
+9. Cross-sell — 2 cards comparativos: Same Product (62,9%, cinza) vs Cross-sell (37,1%, teal) com métricas + Returning destaque
+
+**Tipos de slide:**
+- `cover` — capa com gradiente teal (estilo WeConvert)
+- `gap-cards` — 5 cards em linha com gap mediano por etapa + card insight
+- `bars-table` — barras horizontais lado a lado (LTV + recompra) + conclusões
+- `coupon-compare` / `crosssell-compare` — 2 cards grandes com métricas centralizadas + Returning featured
+- `table-split` — tabela + painel de conclusões ao lado
+
+**Fontes de dados (JSONs do RFM):**
+- `history_dashboard_data.json` — gaps, frequência, LTV, receita mensal
+- `okendo_data.json` — idade, canais (origem), creatina antes
+- `basket_data.json` — same product vs cross-sell, combos
+- `basket_data_final.json` — LTV por produto e quantidade de potes
+- `coupon_categories.json` — tipos de cupom
+- `coupons_data.json` — com cupom vs sem cupom
+- Dados de frete extraidos de `dashboard_shipping.html`
+
+**Features:** PDF export, fullscreen, thumbnails, navegação por teclado, edição de texto inline (títulos, conclusões, subtítulos) com persistência localStorage + JSON export, anotações com retângulos
+
+### 7. Review Mining Analysis (Análise de Reviews)
+
+**Arquivo:** `REVIEW MINING/review-mining-analysis.html`
+**Fonte de dados:** Hardcoded (extraído de `REVIEW MINING/guday-review-mining.html`)
+**Edições:** `REVIEW MINING/reviewmining-edits.json` (exportável, opcional)
+**Funciona direto no browser** — dados hardcoded, não precisa de Live Server
+**Referência estética:** `REVIEW MINING/tmrw - Review Mining Analysis.pdf` (slides WeConvert para tmrw)
+
+**Slides atuais (11):**
+1. Capa — "O Que Seus Clientes Realmente Pensam da Guday" (Review Mining Intelligence)
+2. KPIs Gerais — 823 reviews, 4.15 nota, 77,2% positivo, 85,2% recomenda + Amazon vs Okendo (2 boxes)
+3. Sentimento — Sentimento por Produto (tabela): Maçã Verde 78%, Morning 87%, Combo 45%
+4. Drivers de Compra — Barras: Sabor (41,1%), Praticidade (33,9%), Substituir pó (11,2%), etc.
+5. O Que Amam — Keywords positivas (chips) + quotes reais lado a lado
+6. Textura — 64% positiva vs 26% negativa + quotes positivas/negativas lado a lado
+7. Frustrações — Barras vermelhas: Entrega (28), Textura (20), Embalagem (16) + keywords negativas
+8. Barreiras de Compra — 4 cards dark: Funciona? Preço? Textura? Vai chegar?
+9. Red Flags — 6 cards com severity badges (Crítico/Alto/Médio): Derretido, Atraso, Atendimento, Lacre, Lotes, Envio errado
+10. CRO & Copy — Voice of Customer (cards verdes) + Objeções para a página (cards laranja)
+11. Key Takeaways — 7 insights numerados com conclusões
+
+**Tipos de slide:**
+- `cover` — capa estilo WeConvert
+- KPI cards + compare boxes (Amazon vs Okendo)
+- Tabela de sentimento por produto
+- Barras horizontais (drivers, frustrações, textura)
+- Quotes grid (positivos vs negativos)
+- Objection cards (estilo tmrw dark cards)
+- Red flag cards com severity badges
+- CRO cards (verde = copy, laranja = objeção)
+- Takeaway list numerada
+
+**Features:** PDF export, fullscreen, thumbnails, navegação por teclado, edição de texto inline com persistência localStorage + JSON export
+
+---
+
 **Paleta de cores (estilo WeConvert):**
 ```css
 --weconvert-teal: #0ea5a0;    /* Verde teal (capa, badges CVR) */
@@ -170,8 +242,14 @@ PRESENTATION/
 ├── ANALYTICS/
 │   ├── analytics-analysis.html               # Apresentacao de funil (analytics)
 │   ├── analytics-edits.json                  # Edicoes exportadas (opcional)
-│   ├── Analytics Analysis.pptx               # Referencia original (WeConvert)
-│   └── Analytics Analysis (1).pdf            # Referencia estetica (PDF)
+│   ├── retention-analysis.html               # Apresentacao de retencao (6a apresentacao)
+│   ├── retention-edits.json                  # Edicoes exportadas (opcional)
+│   ├── Analytics Analysis (2).pptx           # Referencia original (WeConvert)
+│   └── Analytics Analysis (3).pdf            # Referencia estetica (PDF)
+├── REVIEW MINING/
+│   ├── review-mining-analysis.html           # Apresentação de review mining (7a)
+│   ├── reviewmining-edits.json               # Edições exportadas (opcional)
+│   └── tmrw - Review Mining Analysis.pdf     # Referência estética (WeConvert/tmrw)
 ├── presentation_documentation.md             # Este arquivo
 ├── GUDAY_Reposicionamento_05_03_2026.pdf     # Brand guidelines
 └── GUDAY — BASE DE CONHECIMENTO DO ASSISTENTE CRIATIVO (2).pdf

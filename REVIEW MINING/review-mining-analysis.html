@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Mining Analysis | GUDAY</title>
+    <link rel="icon" type="image/svg+xml" href="../COMPETITORS/favicon.svg">
+    <link rel="stylesheet" href="https://use.typekit.net/lcw2zgr.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --purple-primary: #b282eb;
+            --purple-deep: #7f56d9;
+            --purple-dark: #1E192A;
+            --purple-muted: #6d6daa;
+            --bg-sidebar: #f9f8f6;
+            --white: #ffffff;
+            --text-dark: #1E192A;
+            --slide-w: 960px;
+            --slide-h: 540px;
+            --thumb-scale: 0.18;
+            --weconvert-teal: #0ea5a0;
+            --weconvert-dark: #0c2340;
+            --weconvert-coral: #e8524f;
+            --green: #4CAF50;
+            --warn: #E8882F;
+            --danger: #E05454;
+        }
+
+        body {
+            font-family: 'degular', 'Inter', system-ui, -apple-system, sans-serif;
+            background: #e8e8e8;
+            color: var(--text-dark);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── TOOLBAR ─────────────────────────────────── */
+        .toolbar { height: 52px; background: var(--white); border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; position: relative; }
+        .toolbar-left { display: flex; align-items: center; gap: 12px; }
+        .toolbar-icon { width: 32px; height: 32px; background: var(--weconvert-dark); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .toolbar-icon svg { width: 18px; height: 18px; }
+        .toolbar-title { font-size: 16px; font-weight: 600; color: var(--text-dark); letter-spacing: -0.3px; }
+        .toolbar-title span { color: var(--purple-muted); font-weight: 400; }
+        .toolbar-actions { display: flex; gap: 8px; align-items: center; }
+        .btn-present { background: var(--weconvert-dark); color: white; border: none; padding: 9px 20px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.1s; }
+        .btn-present:hover { background: #091b33; transform: translateY(-1px); }
+        .btn-present:active { transform: translateY(0); }
+        .btn-present svg { width: 16px; height: 16px; }
+        .btn-download { background: var(--white); color: var(--text-dark); border: 1px solid #ddd; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.1s, border-color 0.2s; }
+        .btn-download:hover { background: #f5f5f5; border-color: #bbb; transform: translateY(-1px); }
+        .btn-download:active { transform: translateY(0); }
+        .btn-download svg { width: 16px; height: 16px; }
+        .btn-download:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .edit-only { display: none; }
+
+        /* ── MAIN LAYOUT ─────────────────────────────── */
+        .main-container { display: flex; height: calc(100vh - 52px); }
+
+        /* ── THUMBNAIL PANEL ─────────────────────────── */
+        .thumbnail-panel { width: 224px; min-width: 224px; background: #f1f1f1; border-right: 1px solid #ddd; overflow-y: auto; overflow-x: hidden; padding: 10px 10px 10px 6px; display: flex; flex-direction: column; gap: 4px; }
+        .thumbnail-panel::-webkit-scrollbar { width: 5px; }
+        .thumbnail-panel::-webkit-scrollbar-track { background: transparent; }
+        .thumbnail-panel::-webkit-scrollbar-thumb { background: #c5c5c5; border-radius: 3px; }
+        .thumb-wrap { cursor: pointer; display: flex; align-items: flex-start; gap: 4px; padding: 3px; border-radius: 4px; transition: background 0.15s; flex-shrink: 0; }
+        .thumb-wrap:hover { background: #e2e2e2; }
+        .thumb-num { font-size: 10px; color: #999; min-width: 20px; text-align: right; padding-top: 1px; font-weight: 500; line-height: 1; }
+        .thumb-frame { width: 172px; height: 97px; overflow: hidden; border-radius: 3px; border: 2px solid transparent; transition: border-color 0.2s, box-shadow 0.2s; position: relative; background: var(--white); flex-shrink: 0; }
+        .thumb-wrap.active .thumb-frame { border-color: var(--weconvert-dark); box-shadow: 0 0 0 1px var(--weconvert-dark); }
+        .thumb-inner { width: var(--slide-w); height: var(--slide-h); transform: scale(var(--thumb-scale)); transform-origin: top left; pointer-events: none; position: absolute; top: 0; left: 0; }
+
+        /* ── SLIDE AREA ──────────────────────────────── */
+        .slide-area { flex: 1; display: flex; align-items: center; justify-content: center; background: #d6d6d6; position: relative; overflow: hidden; }
+        .slide-viewport { width: var(--slide-w); height: var(--slide-h); position: relative; box-shadow: 0 4px 24px rgba(0,0,0,0.18); border-radius: 2px; overflow: hidden; background: var(--white); }
+
+        /* ── SLIDES ──────────────────────────────────── */
+        .slide { width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none; transition: opacity 0.45s cubic-bezier(.4,0,.2,1), transform 0.45s cubic-bezier(.4,0,.2,1); will-change: opacity, transform; }
+        .slide.active { opacity: 1; transform: translateX(0); pointer-events: auto; z-index: 2; }
+        .slide.entering-right { transform: translateX(40px); }
+        .slide.entering-left  { transform: translateX(-40px); }
+        .slide.exiting-right  { transform: translateX(40px); opacity: 0; z-index: 1; }
+        .slide.exiting-left   { transform: translateX(-40px); opacity: 0; z-index: 1; }
+
+        /* ── COVER ───────────────────────────────────── */
+        .slide-cover { width: 100%; height: 100%; background: linear-gradient(135deg, #f0faf9 0%, #e8f7f6 30%, #f5fbfa 60%, #eaf8f0 100%); display: flex; flex-direction: column; justify-content: center; padding: 60px 80px; position: relative; overflow: hidden; }
+        .slide-cover::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(160deg, rgba(14,165,160,0.06) 0%, transparent 50%), linear-gradient(200deg, transparent 50%, rgba(14,165,160,0.03) 100%); pointer-events: none; }
+        .slide-cover::after { content: ''; position: absolute; left: 20px; top: 50%; transform: translateY(-50%); width: 200px; height: 300px; background: linear-gradient(180deg, rgba(14,165,160,0.06) 0%, rgba(14,165,160,0.02) 100%); clip-path: polygon(15% 0%, 35% 100%, 50% 40%, 65% 100%, 85% 0%); pointer-events: none; }
+        .cover-pre-title { font-size: 16px; font-weight: 800; color: var(--weconvert-teal); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; position: relative; }
+        .cover-title { font-size: 42px; font-weight: 800; color: var(--weconvert-dark); line-height: 1.08; margin-bottom: 16px; position: relative; letter-spacing: -1px; }
+        .cover-underline { width: 280px; height: 4px; background: linear-gradient(90deg, var(--weconvert-teal), #2b7fd4); border-radius: 2px; margin-bottom: 16px; position: relative; }
+        .cover-meta { color: #7a8a9a; font-size: 15px; position: relative; font-weight: 400; }
+        .cover-logo { position: absolute; bottom: 30px; right: 40px; }
+        .cover-logo svg { height: 24px; width: auto; }
+
+        /* ── GENERIC SLIDE ───────────────────────────── */
+        .slide-content { width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--white); padding: 28px 36px 20px; }
+        .slide-heading { font-size: 20px; font-weight: 800; color: var(--purple-dark); line-height: 1.2; margin-bottom: 16px; }
+        .slide-body { flex: 1; display: flex; gap: 20px; position: relative; }
+        .slide-left { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .slide-right { width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+        .slide-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 10px; }
+        .slide-footer .src { font-size: 10px; color: #bbb; }
+        .slide-footer .brand svg { height: 16px; width: auto; }
+
+        /* ── CONCLUSION ITEMS ────────────────────────── */
+        .conclusion { font-size: 12px; line-height: 1.6; color: #444; padding: 10px 14px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid var(--purple-deep); }
+        .conclusion strong { color: var(--purple-dark); }
+
+        /* ── KPI CARDS ───────────────────────────────── */
+        .kpi-row { display: flex; gap: 10px; margin-bottom: 14px; }
+        .kpi { flex: 1; background: #f8f9fa; border-radius: 10px; padding: 12px 10px; text-align: center; }
+        .kpi-val { font-size: 24px; font-weight: 800; color: var(--weconvert-dark); }
+        .kpi-val.green { color: var(--green); }
+        .kpi-val.teal { color: var(--weconvert-teal); }
+        .kpi-val.warn { color: var(--warn); }
+        .kpi-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.8px; color: #aaa; font-weight: 600; margin-top: 2px; }
+
+        /* ── COMPARE BOXES ───────────────────────────── */
+        .compare-boxes { display: flex; gap: 14px; flex: 1; align-items: center; }
+        .cbox { flex: 1; border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+        .cbox.amazon { background: #fff8f0; }
+        .cbox.okendo { background: #f0f5ff; }
+        .cbox-title { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .cbox.amazon .cbox-title { color: var(--warn); }
+        .cbox.okendo .cbox-title { color: #3b82f6; }
+        .cbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; width: 100%; }
+        .cbox-metric { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+        .cbox-metric-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.8px; color: #bbb; font-weight: 600; }
+        .cbox-metric-value { font-size: 18px; font-weight: 800; color: var(--weconvert-dark); }
+        .cbox-metric-value.green { color: var(--green); }
+        .cbox-metric-value.danger { color: var(--danger); }
+
+        /* ── TABLE ────────────────────────────────────── */
+        .tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .tbl thead tr { background: var(--weconvert-dark); }
+        .tbl th { color: white; font-weight: 600; padding: 8px 10px; text-align: center; font-size: 10.5px; letter-spacing: 0.3px; }
+        .tbl th:first-child { text-align: left; padding-left: 14px; }
+        .tbl td { padding: 7px 10px; text-align: center; border-bottom: 1px solid #eee; font-size: 12px; font-weight: 500; }
+        .tbl td:first-child { text-align: left; font-weight: 600; padding-left: 14px; }
+        .tbl tbody tr:nth-child(even) { background: #f8fcfc; }
+        .tbl .pos { color: var(--green); font-weight: 700; }
+        .tbl .neg { color: var(--danger); font-weight: 700; }
+
+        /* ── HORIZONTAL BARS ─────────────────────────── */
+        .hbar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .hbar-label { width: 140px; font-size: 11px; font-weight: 500; color: #555; text-align: right; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .hbar-track { flex: 1; height: 28px; background: #f0f0f0; border-radius: 4px; overflow: hidden; position: relative; }
+        .hbar-fill { height: 100%; border-radius: 4px; transition: width 0.8s cubic-bezier(.4,0,.2,1); min-width: 2px; }
+        .hbar-val { width: 50px; font-size: 13px; font-weight: 700; color: var(--text-dark); flex-shrink: 0; }
+
+        .chart-panel { flex: 1; min-width: 0; }
+        .chart-title { font-size: 13px; font-weight: 700; color: var(--weconvert-dark); margin-bottom: 14px; }
+
+        .conclusions-panel { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+        .conclusions-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; margin-bottom: 4px; }
+
+        /* ── QUOTE CARDS ─────────────────────────────── */
+        .quotes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .quote { font-size: 11px; line-height: 1.5; color: #555; padding: 10px 12px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; font-style: italic; }
+        .quote.neg { background: #fef8f8; border-color: #f0e0e0; }
+        .quote-star { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; font-style: normal; color: var(--purple-muted); }
+        .quote-star.pos { color: var(--purple-deep); }
+        .quote-star.neg { color: var(--weconvert-coral); }
+        .quote-author { font-size: 9px; color: #aaa; margin-top: 4px; font-style: normal; }
+
+        /* ── OBJECTION CARDS ─────────────────────────── */
+        .obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .obj-card { background: #f8f9fa; border-radius: 12px; padding: 16px 18px; border: 1px solid #eee; }
+        .obj-card-title { font-size: 13px; font-weight: 800; color: var(--purple-dark); margin-bottom: 6px; }
+        .obj-card-text { font-size: 11px; line-height: 1.6; color: #555; }
+        .obj-card-quote { font-size: 10px; font-style: italic; color: var(--purple-muted); margin-top: 8px; padding: 6px 10px; background: rgba(178,130,235,0.06); border-radius: 6px; }
+
+        /* ── RED FLAG CARDS ───────────────────────────── */
+        .rf-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .rf-card { border-radius: 10px; padding: 10px 12px; border: 1px solid #eee; }
+        .rf-badge { display: inline-block; font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; }
+        .rf-badge.critical { background: rgba(224,84,84,0.12); color: var(--danger); }
+        .rf-badge.high { background: rgba(232,136,47,0.12); color: var(--warn); }
+        .rf-badge.medium { background: rgba(155,143,194,0.12); color: var(--purple-muted); }
+        .rf-title { font-size: 11px; font-weight: 800; color: var(--weconvert-dark); margin-bottom: 4px; }
+        .rf-text { font-size: 10px; line-height: 1.5; color: #777; }
+
+        /* ── CRO CARDS ───────────────────────────────── */
+        .cro-section-title { font-size: 12px; font-weight: 700; color: var(--weconvert-dark); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 6px; }
+        .cro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        .cro-card { padding: 10px 12px; border-radius: 8px; font-size: 11px; line-height: 1.5; }
+        .cro-card.green { background: rgba(178,130,235,0.06); border-left: 3px solid var(--purple-deep); color: #444; }
+        .cro-card.green strong { color: var(--purple-deep); }
+        .cro-card.warn { background: #f8f9fa; border-left: 3px solid var(--purple-muted); color: #444; }
+        .cro-card.warn strong { color: var(--purple-dark); }
+
+        /* ── TAKEAWAY LIST ───────────────────────────── */
+        .takeaway-list { display: flex; flex-direction: column; gap: 8px; }
+        .takeaway-item { display: flex; gap: 12px; align-items: flex-start; }
+        .takeaway-num { width: 28px; height: 28px; border-radius: 50%; background: rgba(178,130,235,0.12); color: var(--purple-deep); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+        .takeaway-text { font-size: 12px; line-height: 1.55; color: #444; }
+        .takeaway-text strong { color: var(--weconvert-dark); }
+
+        /* ── CHIP/KEYWORD ────────────────────────────── */
+        .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+        .chip { font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 8px; }
+        .chip.pos { background: var(--purple-dark); color: var(--purple-primary); }
+        .chip.pos:nth-child(2) { background: var(--purple-deep); color: white; }
+        .chip.pos:nth-child(3) { background: var(--purple-deep); color: white; }
+        .chip.pos:nth-child(n+4) { background: rgba(178,130,235,0.12); color: var(--purple-deep); }
+        .chip.neg { background: var(--purple-dark); color: var(--weconvert-coral); }
+        .chip.neg:nth-child(2) { background: var(--weconvert-coral); color: white; }
+        .chip.neg:nth-child(3) { background: rgba(232,82,79,0.12); color: var(--weconvert-coral); }
+        .chip.neg:nth-child(n+4) { background: rgba(232,82,79,0.08); color: var(--weconvert-coral); }
+
+        /* ── NAV ─────────────────────────────────────── */
+        .slide-nav { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; z-index: 10; }
+        .nav-btn { width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(255,255,255,0.8); color: var(--text-dark); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; backdrop-filter: blur(4px); }
+        .nav-btn:hover { background: rgba(255,255,255,1); }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .nav-btn svg { width: 16px; height: 16px; }
+        .slide-counter { font-size: 12px; color: #666; font-weight: 600; min-width: 50px; text-align: center; }
+
+        /* ── FULLSCREEN ──────────────────────────────── */
+        .fullscreen-mode .toolbar, .fullscreen-mode .thumbnail-panel { display: none; }
+        .fullscreen-mode .main-container { height: 100vh; }
+        .fullscreen-mode .slide-area { background: #000; }
+
+        /* ── EDITABLE ────────────────────────────────── */
+        [contenteditable="true"] { outline: 2px dashed rgba(14,165,160,0.4); outline-offset: 2px; border-radius: 3px; min-height: 1em; }
+        [contenteditable="true"]:focus { outline-color: var(--weconvert-teal); background: rgba(14,165,160,0.03); }
+
+        /* ── ANNOTATIONS ─────────────────────────────── */
+        .annotation-rect { position: absolute; border: 3px solid #e00; background: rgba(238,0,0,0.06); border-radius: 3px; cursor: pointer; z-index: 5; }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="toolbar">
+    <div class="toolbar-left">
+        <div class="toolbar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg></div>
+        <div class="toolbar-title">Review Mining Analysis <span>— GUDAY</span></div>
+    </div>
+    <div class="toolbar-actions">
+        <button class="btn-download" id="btnEdit" onclick="toggleEditMode()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg> Editar</button>
+        <button class="btn-download edit-only" id="btnRect" onclick="setEditTool('rect')">Retângulo</button>
+        <button class="btn-download edit-only" id="btnText" onclick="setEditTool('text')">Texto</button>
+        <button class="btn-download" onclick="exportJSON()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> JSON</button>
+        <button class="btn-download" id="btnDownload" onclick="downloadPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF</button>
+        <button class="btn-present" onclick="toggleFullscreen()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polygon points="5 3 19 12 5 21 5 3"/></svg> Apresentar</button>
+    </div>
+</div>
+
+<div class="main-container">
+    <div class="thumbnail-panel" id="thumbPanel"></div>
+    <div class="slide-area">
+        <div class="slide-viewport" id="slideViewport"></div>
+        <div class="slide-nav">
+            <button class="nav-btn" id="btnPrev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <span class="slide-counter" id="counter">1 / 11</span>
+            <button class="nav-btn" id="btnNext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+    </div>
+</div>
+
+<script>
+(async function() {
+
+    const GUDAY_LOGO = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 4000 1304"><path fill="#000" d="M820.889 346.222C820.889 346.222 417.778 346.222 386.667 346.222C361.333 346.222 340.444 366.667 340.444 392.445C340.444 421.778 340.444 1014.67 339.556 1024.89C338.667 1048 320 1064 297.333 1063.11C275.556 1062.22 259.556 1045.33 258.667 1022.67C258.667 1016.89 258.667 304.889 258.667 303.556C258.667 292 264 282.222 272 275.111C278.667 268.889 287.556 264.889 297.778 264.445C298.667 264.445 800.889 264.445 800.889 264.445C879.111 264.445 942.667 200.889 942.667 122.667C942.667 52.0002 896 3.11133 823.111 3.11133H367.111C165.778 3.11133 0 168.889 0 370.222V1003.11C0 1166.67 132.889 1299.56 296.444 1299.56H303.111C466.667 1299.56 599.556 1166.67 599.556 1003.11C599.556 1003.11 600 628.889 600.444 623.111C601.333 600.445 617.778 583.556 639.111 582.667C661.778 581.778 680.444 597.778 680.889 621.333C680.889 625.778 681.333 1149.33 681.333 1149.33C681.333 1226.22 743.555 1288.89 820.889 1288.89C893.778 1288.89 940.444 1240 940.444 1169.33V465.778C940.444 395.111 893.778 346.222 820.889 346.222Z"/><path fill="#000" d="M1970.22 6.6665H1811.11C1738.22 6.6665 1691.56 55.5554 1691.56 126.222V1170.67C1691.56 1241.33 1738.22 1290.22 1811.11 1290.22H1970.22C2147.56 1290.22 2291.11 1146.67 2291.11 969.333V327.555C2291.11 150.222 2147.56 6.6665 1970.22 6.6665ZM2031.56 1026.22C2030.67 1049.33 2012 1065.33 1989.33 1064.44C1967.56 1063.56 1951.56 1046.67 1950.67 1024C1950.67 1010.67 1950.67 288.444 1950.67 275.111C1951.56 252.444 1968 235.555 1989.33 234.667C2012 233.778 2030.67 249.778 2031.11 273.333C2032 296.444 2032 1001.33 2031.11 1026.22H2031.56Z"/><path fill="#000" d="M2613.33 4H2487.11C2414.22 4 2367.56 52.8889 2367.56 123.556C2367.56 194.222 2423.56 257.333 2495.11 264.444C2508.89 264.444 2718.67 264.444 2732 264.444C2754.67 265.333 2771.56 281.778 2772.44 303.111C2773.33 325.778 2757.33 344.444 2733.78 344.889C2730.67 344.889 2678.67 345.778 2678.67 345.778C2499.56 345.778 2380 465.333 2380 646.667V987.555C2380 996.444 2380.89 1021.33 2380.89 1021.33C2389.78 1176.89 2519.11 1300.44 2676.89 1300.44H2683.56C2712.44 1300.44 2740.44 1296.44 2766.67 1288.44L2778.67 1284.44C2895.56 1244.89 2980 1134.22 2980 1003.56V370.667C2980.89 169.333 2815.11 4 2613.33 4ZM2720.44 1013.78C2719.56 1036.89 2700.89 1052.89 2678.22 1052C2656.44 1051.11 2640.44 1034.22 2639.56 1011.56C2639.56 997.778 2639.56 636.889 2639.56 623.111C2640.44 600.444 2656.89 583.555 2678.22 582.667C2700.89 581.778 2719.56 597.778 2720 621.333C2720.89 649.778 2720.89 984.889 2720 1013.78H2720.44Z"/><path fill="#000" d="M3179.11 953.778H3528.89C3550.67 953.778 3582.22 953.778 3613.33 953.778C3638.67 953.778 3659.56 933.333 3659.56 907.556C3659.56 878.222 3659.56 848 3659.56 826.667V338.667C3659.56 310.222 3659.56 285.333 3660.44 275.111C3661.33 252 3680 236 3702.67 236.889C3724.44 237.778 3740.44 254.667 3741.33 277.333C3741.33 283.111 3741.33 309.333 3741.33 338.667C3741.33 338.667 3741.33 995.111 3741.33 996.889C3741.33 1008.44 3736 1018.22 3728 1025.33C3721.33 1031.56 3712.44 1035.56 3702.22 1036C3701.33 1036 3700.89 1036 3700 1036C3682.67 1036 3199.11 1036 3199.11 1036C3120.89 1036 3057.33 1099.56 3057.33 1177.78C3057.33 1248.44 3104 1297.33 3176.89 1297.33H3632.89C3834.67 1297.33 4000 1131.56 4000 930.222V296.444C4000 132.889 3867.11 0 3703.56 0H3696.89C3533.33 0 3400.44 132.889 3400.44 296.444C3400.44 296.444 3400 670.667 3399.56 676.444C3398.67 699.111 3382.22 716 3360.89 716.889C3338.22 717.778 3319.56 701.778 3319.11 678.222C3319.11 673.778 3318.67 150.222 3318.67 150.222C3318.67 73.3333 3256.44 10.6667 3179.11 10.6667C3106.22 10.6667 3059.56 59.5556 3059.56 130.222V833.778C3059.56 904.444 3106.22 953.333 3179.11 953.333V953.778Z"/><path fill="#000" d="M1278.22 148.444C1278.22 71.5553 1216 8.88867 1138.67 8.88867C1065.78 8.88867 1019.11 57.7776 1019.11 128.444L1015.56 1000.89C1012.44 1164.44 1143.11 1299.56 1306.67 1302.67H1313.33C1476.89 1305.78 1612 1175.56 1615.11 1011.56L1618.67 128.444C1618.67 57.7776 1572 8.88867 1499.11 8.88867C1422.22 8.88867 1359.56 71.1109 1359.56 148.444C1359.56 148.444 1359.56 1003.11 1358.67 1028C1357.78 1051.11 1339.11 1067.11 1316.44 1066.22C1294.67 1065.33 1278.67 1048.44 1277.78 1025.78C1277.78 1012 1277.78 148.444 1277.78 148.444H1278.22Z"/></svg>`;
+    const COVER_LOGO = `<div class="cover-logo"><span class="brand">${GUDAY_LOGO}</span></div>`;
+    const FOOTER = (src) => `<div class="slide-footer"><span class="src">${src}</span><span class="brand">${GUDAY_LOGO}</span></div>`;
+    const SRC = "Fonte: 823 reviews · Amazon + Okendo · Dez 2025 – Mar 2026";
+
+    /* ── SLIDE BUILDERS ────────────────────────── */
+    function coverSlide() {
+        return `<div class="slide-cover">
+            <div class="cover-pre-title">REVIEW MINING INTELLIGENCE</div>
+            <div class="cover-title">O Que Seus Clientes<br>Realmente Pensam da Guday</div>
+            <div class="cover-underline"></div>
+            <div class="cover-meta">823 reviews analisadas · Amazon + Okendo · Dez 2025 – Mar 2026</div>
+            ${COVER_LOGO}
+        </div>`;
+    }
+
+    function kpisSlide() {
+        return `<div class="slide-content">
+            <div class="slide-heading">77,2% de sentimento positivo e 85,2% de recomendação — o produto funciona, os problemas são operacionais</div>
+            <div class="slide-body">
+                <div class="slide-left">
+                    <div class="kpi-row">
+                        <div class="kpi"><div class="kpi-val teal">823</div><div class="kpi-label">Reviews</div></div>
+                        <div class="kpi"><div class="kpi-val teal">4.15</div><div class="kpi-label">Nota Média</div></div>
+                        <div class="kpi"><div class="kpi-val green">77,2%</div><div class="kpi-label">Positivo</div></div>
+                        <div class="kpi"><div class="kpi-val green">85,2%</div><div class="kpi-label">Recomendam</div></div>
+                        <div class="kpi"><div class="kpi-val warn">8,4%</div><div class="kpi-label">Taxa Resposta</div></div>
+                    </div>
+                    <div class="compare-boxes">
+                        <div class="cbox amazon">
+                            <div class="cbox-title">Amazon</div>
+                            <div class="cbox-grid">
+                                <div class="cbox-metric"><div class="cbox-metric-label">Reviews</div><div class="cbox-metric-value">119</div></div>
+                                <div class="cbox-metric"><div class="cbox-metric-label">Nota</div><div class="cbox-metric-value">3,68</div></div>
+                                <div class="cbox-metric"><div class="cbox-metric-label">5 estrelas</div><div class="cbox-metric-value">59,7%</div></div>
+                                <div class="cbox-metric"><div class="cbox-metric-label">1 estrela</div><div class="cbox-metric-value danger">25,2%</div></div>
+                            </div>
+                        </div>
+                        <div class="cbox okendo">
+                            <div class="cbox-title">Okendo</div>
+                            <div class="cbox-grid">
+                                <div class="cbox-metric"><div class="cbox-metric-label">Reviews</div><div class="cbox-metric-value">704</div></div>
+                                <div class="cbox-metric"><div class="cbox-metric-label">Nota</div><div class="cbox-metric-value">4,31</div></div>
+                                <div class="cbox-metric"><div class="cbox-metric-label">5 estrelas</div><div class="cbox-metric-value green">73,3%</div></div>
+                                <div class="cbox-metric"><div class="cbox-metric-label">1 estrela</div><div class="cbox-metric-value">10,1%</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-right">
+                    <div class="conclusion"><strong>Product-market fit comprovado:</strong> 77% positivo e 85% recomendação. A proposta "creatina gostosa e prática em formato gummy" ressoa fortemente.</div>
+                    <div class="conclusion">Amazon tem nota mais baixa (3,68 vs 4,31) e <strong>25% de 1 estrela</strong>, possivelmente por problemas logísticos (derretimento, lacre violado) no envio.</div>
+                    <div class="conclusion">Taxa de resposta de apenas <strong>8,4%</strong> é incompatível com marca DTC premium. Cada review negativa sem resposta é oportunidade perdida.</div>
+                </div>
+            </div>
+            ${FOOTER(SRC)}
+        </div>`;
+    }
+
+    function sentimentoSlide() {
+        return `<div class="slide-content">
+            <div class="slide-heading">Combo Guday tem o pior sentimento (38% negativo) — possível reflexo de problemas logísticos acumulados em pedidos maiores</div>
+            <div class="slide-body">
+                <div class="slide-left">
+                    <table class="tbl">
+                        <thead><tr><th>Produto</th><th>Reviews</th><th>Nota</th><th>Positivo</th><th>Negativo</th><th>Misto</th></tr></thead>
+                        <tbody>
+                            <tr><td>Creatina Maçã Verde</td><td>529</td><td>4,36</td><td class="pos">78%</td><td class="neg">13%</td><td>8%</td></tr>
+                            <tr><td>Creatina + Morning Gummy</td><td>52</td><td>4,58</td><td class="pos">87%</td><td class="neg">12%</td><td>2%</td></tr>
+                            <tr><td>Morning Gummy</td><td>39</td><td>4,56</td><td class="pos">87%</td><td class="neg">10%</td><td>3%</td></tr>
+                            <tr><td>Creatina Frutas Vermelhas</td><td>34</td><td>3,85</td><td class="pos">68%</td><td class="neg">26%</td><td>3%</td></tr>
+                            <tr><td>Combo Guday</td><td>29</td><td>3,28</td><td>45%</td><td class="neg">38%</td><td>14%</td></tr>
+                            <tr><td>Creatina Laranja</td><td>7</td><td>4,43</td><td class="pos">86%</td><td class="neg">14%</td><td>0%</td></tr>
+                            <tr><td>Melatonina</td><td>3</td><td>4,33</td><td>67%</td><td class="neg">33%</td><td>0%</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="slide-right">
+                    <div class="conclusion"><strong>Morning Gummy</strong> e <strong>Creatina + Morning</strong> têm o melhor sentimento (87% positivo). O combo creatina + morning é um caso de sucesso de cross-sell.</div>
+                    <div class="conclusion"><strong>Frutas Vermelhas</strong> tem nota mais baixa (3,85) apesar de ser o sabor favorito — 26% negativo sugere problemas pontuais de lote ou textura.</div>
+                    <div class="conclusion"><strong>Combo Guday</strong> é o produto com pior sentimento (38% negativo, nota 3,28). Provável acúmulo de problemas logísticos em pedidos maiores.</div>
+                </div>
+            </div>
+            ${FOOTER(SRC)}
+        </div>`;
+    }
+
+    function driversSlide() {
+        return `<div class="slide-content">
+            <div class="slide-heading">As pessoas compram Guday por 2 grandes motivos: sabor (41%) e formato gummy (34%) — juntos representam 75% de todas as menções</div>
+            <div class="slide-body">
+                <div class="chart-panel">
+                    <div class="chart-title">Por que compram Guday?</div>
+                    <div class="hbar"><div class="hbar-label">Sabor / Gosto</div><div class="hbar-track"><div class="hbar-fill" style="width:85%;background:var(--purple-deep)"></div></div><div class="hbar-val">41,1%</div></div>
+                    <div class="hbar"><div class="hbar-label">Praticidade / Gummy</div><div class="hbar-track"><div class="hbar-fill" style="width:70%;background:var(--purple-primary)"></div></div><div class="hbar-val">33,9%</div></div>
+                    <div class="hbar"><div class="hbar-label">Substituir creatina em pó</div><div class="hbar-track"><div class="hbar-fill" style="width:23%;background:var(--purple-muted)"></div></div><div class="hbar-val">11,2%</div></div>
+                    <div class="hbar"><div class="hbar-label">Indicação / Influenciador</div><div class="hbar-track"><div class="hbar-fill" style="width:10.5%;background:var(--purple-muted)"></div></div><div class="hbar-val">5,1%</div></div>
+                    <div class="hbar"><div class="hbar-label">Preço / Custo-benefício</div><div class="hbar-track"><div class="hbar-fill" style="width:9.5%;background:#c4b5fd"></div></div><div class="hbar-val">4,6%</div></div>
+                    <div class="hbar"><div class="hbar-label">Resultados / Performance</div><div class="hbar-track"><div class="hbar-fill" style="width:8.3%;background:#c4b5fd"></div></div><div class="hbar-val">4,0%</div></div>
+                    <div style="margin-top:12px;">
+                        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb;margin-bottom:6px;">Top menções positivas</div>
+                        <div class="chips">
+                            <span class="chip pos">sabor (77)</span><span class="chip pos">textura (23)</span><span class="chip pos">praticidade (20)</span><span class="chip pos">frutas vermelhas (11)</span><span class="chip pos">qualidade (10)</span><span class="chip pos">creatina (8)</span><span class="chip pos">maçã verde (7)</span><span class="chip pos">facilidade (6)</span><span class="chip pos">vegana (4)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="conclusions-panel">
+                    <div class="conclusions-label">Conclusões</div>
+                    <div class="conclusion"><strong>Sabor</strong> (41%) e <strong>formato gummy</strong> (34%) são os 2 pilares. A proposta "creatina gostosa e prática" é o que vende — não ingredientes, não resultados.</div>
+                    <div class="conclusion"><strong>"Não esqueço um dia"</strong> é o insight de aderência mais poderoso para copy. Resolve a dor real de consistência com suplementação.</div>
+                    <div class="conclusion">Apenas <strong>4% mencionam resultados</strong>. O produto é comprado pela experiência (sabor + conveniência). O copy deve liderar com sabor e formato.</div>
+                </div>
+            </div>
+            ${FOOTER(SRC)}
+        </div>`;
+    }
+
+    function amamSlide() {
+        return `<div class="slide-content">
+            <div class="slide-heading">"Nunca foi tão gostoso tomar creatina" — sabor lidera com 77 menções positivas, seguido de textura (23) e praticidade (20)</div>
+            <div class="slide-body">
+                <div class="slide-left">
+                    <div class="chips">
+                        <span class="chip pos">sabor (77)</span><span class="chip pos">textura (23)</span><span class="chip pos">praticidade (20)</span><span class="chip pos">frutas vermelhas (11)</span><span class="chip pos">qualidade (10)</span><span class="chip pos">creatina (8)</span><span class="chip pos">maçã verde (7)</span><span class="chip pos">facilidade (6)</span><span class="chip pos">vegana (4)</span>
+                    </div>
+                    <div class="quotes-grid">
+                        <div class="quote"><div class="quote-star pos">5★ — PRATICIDADE</div>"Tomar creatina sempre foi um desafio para mim. Mas tudo mudou quando experimentei as gummies da Guday. Agora, tomar creatina se tornou algo que eu realmente gosto de fazer."<div class="quote-author">— Letícia, Okendo</div></div>
+                        <div class="quote"><div class="quote-star pos">5★ — SABOR</div>"Me surpreendi com a qualidade das gummys, você sente o gosto dos princípios ativos."<div class="quote-author">— Maria Helena F., Okendo</div></div>
+                        <div class="quote"><div class="quote-star pos">5★ — NÃO ESQUECE</div>"Amei a gummy. Eu sempre esquecia de tomar, agora com a minha Guday, não esqueço um dia."<div class="quote-author">— Catarine L., Okendo</div></div>
+                        <div class="quote"><div class="quote-star pos">5★ — RESULTADOS</div>"Já estou no meu 3º pote. Me sinto mais forte e melhorei muito meu desempenho na academia."<div class="quote-author">— Evelyn M., Okendo</div></div>
+                    </div>
+                </div>
+                <div class="slide-right">
+                    <div class="conclusion">O elogio mais frequente é <strong>"realmente lembra uma bala de goma"</strong> — a expectativa do formato é atendida para a maioria dos clientes.</div>
+                    <div class="conclusion"><strong>"Não esqueço um dia"</strong> é o insight de aderência mais poderoso para copy. Resolve a dor real de consistência com suplementação.</div>
+                    <div class="conclusion">Reviews de 5★ mencionam <strong>resultados reais</strong> (força, desempenho) após 2-3 potes. Prova social de eficácia existe mas precisa ser destacada.</div>
+                </div>
+            </div>
+            ${FOOTER(SRC)}
+        </div>`;
+    }
+
+    function texturaSlide() {
+        return `<div class="slide-content">
+            <div class="slide-heading">Textura é a maior barreira sensorial: 64% positiva vs 26% negativa — a sensação "arenosa" da creatina é a reclamação #1</div>
+            <div class="slide-body">
+                <div class="slide-left">
+                    <div style="display:flex;gap:14px;margin-bottom:10px;">
+                        <div style="flex:1">
+                            <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Textura Positiva (64%)</div>
+                            <div class="hbar"><div class="hbar-label" style="width:100px">Positiva (+1)</div><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:var(--green)"></div></div><div class="hbar-val">147</div></div>
+                            <div class="hbar"><div class="hbar-label" style="width:100px">Lev. positiva</div><div class="hbar-track"><div class="hbar-fill" style="width:16%;background:#81C784"></div></div><div class="hbar-val">24</div></div>
+                        </div>
+                        <div style="flex:1">
+                            <div style="font-size:11px;font-weight:700;color:var(--danger);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Textura Negativa (26%)</div>
+                            <div class="hbar"><div class="hbar-label" style="width:100px">Negativa (-1)</div><div class="hbar-track"><div class="hbar-fill" style="width:73%;background:var(--danger)"></div></div><div class="hbar-val">53</div></div>
+                            <div class="hbar"><div class="hbar-label" style="width:100px">Lev. negativa</div><div class="hbar-track"><div class="hbar-fill" style="width:22%;background:var(--warn)"></div></div><div class="hbar-val">16</div></div>
+                        </div>
+                    </div>
+                    <div class="quotes-grid">
+                        <div class="quote"><div class="quote-star pos">5★ — POSITIVA</div>"Boas! Elas não tem aqueles açúcar em volta, só textura de goma (mais gelatinosa). O sabor é bom também."<div class="quote-author">— Edi, Amazon</div></div>
+                        <div class="quote neg"><div class="quote-star neg">1★ — NEGATIVA</div>"A textura não é de goma, parece areia molhada com gosto artificial. No final deixa um amargor péssimo."<div class="quote-author">— Bianca Yumi, Amazon</div></div>
+                        <div class="quote"><div class="quote-star pos">5★ — POSITIVA</div>"A goma é gostosa, tem aroma e consistência boas."<div class="quote-author">— Amazon (105 votos úteis)</div></div>
+                        <div class="quote neg"><div class="quote-star neg">1★ — NEGATIVA</div>"A textura é pior parte, parece que estou comendo areia. Achei que seria como goma, igual mostra nas imagens."<div class="quote-author">— Mel, Okendo</div></div>
+                    </div>
+                </div>
+                <div class="slide-right">
+                    <div class="conclusion"><strong>Textura é a keyword negativa #1</strong> no Okendo (39 menções), superando até "sabor" como reclamação.</div>
+                    <div class="conclusion">A sensação "arenosa" é <strong>intrínseca à creatina em gummy</strong>. A comunicação deve gerenciar expectativas: "partículas = creatina real, não só açúcar".</div>
+                    <div class="conclusion">Mesmo reviews de 5★ mencionam "aquela areinha". É uma <strong>limitação do formato</strong>, não um defeito — o trade-off praticidade > textura perfeita precisa ser comunicado.</div>
+                </div>
+            </div>
+            ${FOOTER(SRC)}
+        </div>`;
+    }
+
+    function frustracoesSlide() {
+        return `<div class="slide-content">
+            <div class="slide-heading">Entrega e logística lideram as frustrações (28 menções), seguidas de textura arenosa (20) e problemas de embalagem (16)</div>
+            <div class="slide-body">
+                <div class="chart-panel">
+                    <div class="chart-title">Principais frustrações</div>
+                    <div class="hbar"><div class="hbar-label">Entrega / Logística</div><div class="hbar-track"><div class="hbar-fill" style="width:100%;background:var(--danger)"></div></div><div class="hbar-val">28</div></div>
+                    <div class="hbar"><div class="hbar-label">Textura Arenosa</div><div class="hbar-track"><div class="hbar-fill" style="width:71%;background:var(--danger)"></div></div><div class="hbar-val">20</div></div>
+                    <div class="hbar"><div class="hbar-label">Embalagem / Lacre</div><div class="hbar-track"><div class="hbar-fill" style="width:57%;background:var(--warn)"></div></div><div class="hbar-val">16</div></div>
+                    <div class="hbar"><div class="hbar-label">Sabor Ruim / Artificial</div><div class="hbar-track"><div class="hbar-fill" style="width:54%;background:var(--warn)"></div></div><div class="hbar-val">15</div></div>
+                    <div class="hbar"><div class="hbar-label">Produto Derretido</div><div class="hbar-track"><div class="hbar-fill" style="width:39%;background:var(--danger)"></div></div><div class="hbar-val">11</div></div>
+                    <div class="hbar"><div class="hbar-label">Atendimento Ruim</div><div class="hbar-track"><div class="hbar-fill" style="width:39%;background:var(--warn)"></div></div><div class="hbar-val">11</div></div>
+                    <div class="hbar"><div class="hbar-label">Preço Alto</div><div class="hbar-track"><div class="hbar-fill" style="width:29%;background:var(--purple-deep)"></div></div><div class="hbar-val">8</div></div>
+                    <div class="hbar"><div class="hbar-label">Qtd Insuficiente</div><div class="hbar-track"><div class="hbar-fill" style="width:11%;background:var(--purple-muted)"></div></div><div class="hbar-val">3</div></div>
+                    <div class="chips" style="margin-top:10px;">
+                        <span class="chip neg">textura (39)</span><span class="chip neg">sabor (27)</span><span class="chip neg">preço (11)</span><span class="chip neg">embalagem (9)</span><span class="chip neg">umidade (5)</span><span class="chip neg">consistência (3)</span><span class="chip neg">derretimento (2)</span>
+                    </div>
+                </div>
+                <div class="conclusions-panel">
+                    <div class="conclusions-label">Conclusões</div>
+                    <div class="conclusion"><strong>Logística é o maior detrator</strong> da marca: entrega atrasada, produto derretido e lacre violado são responsáveis pela maioria das reviews 1★.</div>
+                    <div class="conclusion">Resolver problemas logísticos sozinho <strong>elevaria a nota média significativamente</strong>. São problemas operacionais, não de produto.</div>
+                    <div class="conclusion">Top keywords negativas confirmam: <strong>textura (39) e sabor (27)</strong> são as percepções sensoriais a gerenciar na comunicação.</div>
+                </div>
+            </div>
+            ${FOOTER(SRC)}
+        </div>`;
+    }
+
+    function barreirasSlide() {
+        return `<div class="slide-content">
+            <div class="slide-heading">4 objeções principais que a página de produto deve responder para aumentar a conversão</div>
+            <div class="slide-body">
+                <div class="slide-left">
+                    <div class="obj-grid">
+                        <div class="obj-card">
+                            <div class="obj-card-title">1. "Funciona igual creatina em pó?"</div>
+                            <div class="obj-card-text">Clientes questionam se a gummy tem a mesma eficácia. Comparação de dosagem (3g na gummy vs. 5g recomendados). Reviews positivas confirmam resultados.</div>
+                            <div class="obj-card-quote">"Será que funciona mesmo ou é só marketing?"</div>
+                        </div>
+                        <div class="obj-card">
+                            <div class="obj-card-title">2. "O preço é muito alto"</div>
+                            <div class="obj-card-text">R$ 160 por 30 doses vs. R$ 40-60 por 60 doses de pó. Review mais votada da Amazon (105 votos) critica o preço. Reframe para custo diário (~R$ 5/dia).</div>
+                            <div class="obj-card-quote">"Cobra absurdamente mais caro pelo mesmo princípio ativo"</div>
+                        </div>
+                        <div class="obj-card">
+                            <div class="obj-card-title">3. "A textura não é o que eu esperava"</div>
+                            <div class="obj-card-text">Expectativa de "bala Fini" vs. realidade de goma com partículas de creatina. Gap entre promessa visual e experiência sensorial real.</div>
+                            <div class="obj-card-quote">"Achei que seria como goma, igual mostra nas imagens"</div>
+                        </div>
+                        <div class="obj-card">
+                            <div class="obj-card-title">4. "Vou receber o produto intacto?"</div>
+                            <div class="obj-card-text">Múltiplos relatos de gummies derretidos, grudados ou em "pasta". Clientes têm receio especialmente no verão. Problema logístico, não de produto.</div>
+                            <div class="obj-card-quote">"Dentro do pote veio uma pasta compacta, não gummies"</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-right">
+                    <div class="conclusion">Cada objeção pode ser transformada em <strong>seção na LP</strong>: comparativo pó vs gummy, custo diário, transparência sobre textura, garantia de entrega.</div>
+                    <div class="conclusion">A objeção de <strong>preço</strong> é a mais crítica. Reframe: "R$ 5/dia para nunca mais esquecer de tomar creatina" é mais poderoso que listar ingredientes.</div>
+                    <div class="conclusion">A objeção de <strong>textura</strong> pode virar prova de qualidade: "você sente as partículas porque tem creatina real, não só açúcar".</div>
+                </div>
+            </div>
+            ${FOOTER(SRC)}
+        </div>`;
+    }
+
+    function redflagsSlide() {
+        return `<div class="slide-content">
+            <div class="slide-heading">6 red flags que exigem atenção imediata — produto derretido e atrasos de entrega são os mais críticos</div>
+            <div class="slide-body">
+                <div class="slide-left">
+                    <div class="rf-grid">
+                        <div class="rf-card"><div class="rf-badge critical">CRÍTICO</div><div class="rf-title">Produto Derretido</div><div class="rf-text">11+ relatos de gummies formando "pasta" no pote. Reviews mais votadas da Amazon são sobre isso. Gera 1★ irrecuperáveis.</div></div>
+                        <div class="rf-card"><div class="rf-badge critical">CRÍTICO</div><div class="rf-title">Atrasos de Entrega</div><div class="rf-text">28 menções a problemas logísticos. 108 reviews rejeitadas no Okendo por reclamações de não-entrega. Suporte lento.</div></div>
+                        <div class="rf-card"><div class="rf-badge high">ALTO</div><div class="rf-title">Atendimento Lento</div><div class="rf-text">8,4% de taxa de resposta nas reviews Okendo. "Suporte demorou mais de uma semana." Incompatível com marca DTC premium.</div></div>
+                        <div class="rf-card"><div class="rf-badge high">ALTO</div><div class="rf-title">Lacre Violado</div><div class="rf-text">16 menções. Review mais votada negativa (18 votos) é sobre lacre aberto. Gera desconfiança sobre autenticidade.</div></div>
+                        <div class="rf-card"><div class="rf-badge medium">MÉDIO</div><div class="rf-title">Inconsistência de Lotes</div><div class="rf-text">"Comprei antes e adorei, mas essa última compra foi decepcionante. Muito gosto de adoçante." Corrói confiança de clientes fiéis.</div></div>
+                        <div class="rf-card"><div class="rf-badge medium">MÉDIO</div><div class="rf-title">Envio de Produto Errado</div><div class="rf-text">"Comprei Creatina, recebi Melatonina" e "Paguei por 2, recebi 1." Erros de fulfillment que geram 1★.</div></div>
+                    </div>
+                </div>
+                <div class="slide-right">
+                    <div class="conclusion">Os 2 red flags <strong>críticos</strong> (derretido + atraso) são 100% operacionais. Resolver logística sozinho elevaria a nota média em ~0,3 pontos.</div>
+                    <div class="conclusion"><strong>Inconsistência entre lotes</strong> é o mais perigoso para retenção: clientes que já amavam o produto passam a desconfiar.</div>
+                    <div class="conclusion">Prioridade: <strong>packaging térmico</strong> para verão, monitoramento de fulfillment, e resposta ativa a reviews negativas.</div>
+                </div>
+            </div>
+            ${FOOTER(SRC)}
+        </div>`;
+    }
+
+    function croSlide() {
+        return `<div class="slide-content">
+            <div class="slide-heading">Voice of Customer — frases reais dos clientes para usar em copy, ads e landing pages + objeções que a página deve responder</div>
+            <div class="slide-body">
+                <div class="slide-left">
+                    <div class="cro-section-title">Frases para Copy (Voice of Customer)</div>
+                    <div class="cro-grid">
+                        <div class="cro-card green"><strong>Hero / Headline:</strong> "Nunca foi tão gostoso tomar creatina" — "Realmente lembra uma bala de goma" — "Tomar creatina se tornou algo que eu realmente gosto de fazer"</div>
+                        <div class="cro-card green"><strong>Praticidade:</strong> "Eu sempre esquecia de tomar, agora com a Guday, não esqueço um dia" — "Fica dentro do meu carro, muito prática!"</div>
+                        <div class="cro-card green"><strong>Resultados:</strong> "Já estou no 3º pote. Me sinto mais forte e melhorei muito meu desempenho" — "Há 6 meses eu só uso ele como creatina"</div>
+                        <div class="cro-card green"><strong>Hook principal:</strong> "Não esqueço um dia" resolve dor real de consistência. Ângulo mais forte que "sabor de goma".</div>
+                    </div>
+                    <div class="cro-section-title">Objeções que a Página Deve Responder</div>
+                    <div class="cro-grid">
+                        <div class="cro-card warn"><strong>"Funciona igual pó?"</strong> Dosagem exata (3g), depoimentos de resultados. Consistência diária compensa diferença.</div>
+                        <div class="cro-card warn"><strong>"Preço muito alto"</strong> Reframe: ~R$ 5/dia. Comparar com café especial. Valor: sabor + praticidade + não desperdiçar.</div>
+                        <div class="cro-card warn"><strong>"Textura de areia"</strong> Ser transparente: "partículas = creatina real, não só açúcar". Transformar objeção em prova.</div>
+                        <div class="cro-card warn"><strong>"Vai chegar inteiro?"</strong> Garantia de troca. Packaging reforçado. Prova social de entrega rápida.</div>
+                    </div>
+                </div>
+                <div class="slide-right">
+                    <div class="conclusion"><strong>"Não esqueço um dia"</strong> é o melhor hook para copy. Resolve dor de consistência — mais poderoso que "sabor bom" para conversão.</div>
+                    <div class="conclusion">Criar seção <strong>"Creatina em Pó vs Gummy"</strong> na LP. 11% das reviews mencionam essa transição. Comparação visual capturaria esse segmento.</div>
+                    <div class="conclusion"><strong>Frutas Vermelhas como sabor destaque:</strong> melhor nota (4,05★ Amazon), "realmente lembra bala de goma". Default em todas as LPs.</div>
+                </div>
+            </div>
+            ${FOOTER(SRC)}
+        </div>`;
+    }
+
+    function takeawaysSlide() {
+        return `<div class="slide-content">
+            <div class="slide-heading">Key Takeaways — 7 insights principais da análise de 823 reviews</div>
+            <div class="slide-body">
+                <div class="slide-left">
+                    <div class="takeaway-list">
+                        <div class="takeaway-item"><div class="takeaway-num">1</div><div class="takeaway-text"><strong>Product-market fit comprovado:</strong> 77% positivo e 85% recomendação. "Creatina gostosa e prática em gummy" ressoa. O produto funciona — os problemas são operacionais.</div></div>
+                        <div class="takeaway-item"><div class="takeaway-num">2</div><div class="takeaway-text"><strong>Logística é o maior detrator:</strong> Entrega atrasada, derretimento e lacre violado geram a maioria das 1★. Resolver isso sozinho elevaria a nota significativamente.</div></div>
+                        <div class="takeaway-item"><div class="takeaway-num">3</div><div class="takeaway-text"><strong>Textura arenosa: limitação do formato, não defeito.</strong> 39 menções negativas. Intrínseco à creatina em gummy. Comunicação deve gerenciar expectativas e reframing.</div></div>
+                        <div class="takeaway-item"><div class="takeaway-num">4</div><div class="takeaway-text"><strong>Frutas Vermelhas é o sabor vencedor:</strong> 4,05★ na Amazon (melhor nota). Deve ser destaque em todas as comunicações.</div></div>
+                        <div class="takeaway-item"><div class="takeaway-num">5</div><div class="takeaway-text"><strong>"Não esqueço um dia" é o melhor ângulo de venda:</strong> Múltiplos clientes mencionam que a gummy resolveu o problema de consistência. Mais poderoso que "sabor bom" para copy.</div></div>
+                        <div class="takeaway-item"><div class="takeaway-num">6</div><div class="takeaway-text"><strong>Atendimento precisa de upgrade urgente:</strong> 8,4% de taxa de resposta é incompatível com marca DTC premium. Cada review sem resposta é oportunidade perdida.</div></div>
+                        <div class="takeaway-item"><div class="takeaway-num">7</div><div class="takeaway-text"><strong>Influenciadores geram trial, produto gera retenção:</strong> 5% mencionam influenciadores como motivo da 1ª compra, mas 85% recomendam pelo produto em si.</div></div>
+                    </div>
+                </div>
+                <div class="slide-right">
+                    <div class="conclusion">A estratégia deve ser: <strong>resolver logística</strong> (operacional), <strong>gerenciar expectativa de textura</strong> (comunicação) e <strong>usar VoC no copy</strong> (conversão).</div>
+                    <div class="conclusion">O funil funciona: influenciador → trial → produto bom → recomendação orgânica. Foco agora deve ser <strong>experiência pós-compra</strong> e retenção.</div>
+                </div>
+            </div>
+            ${FOOTER(SRC)}
+        </div>`;
+    }
+
+    /* ── ALL SLIDES ────────────────────────────── */
+    const builders = [coverSlide, kpisSlide, driversSlide, texturaSlide, frustracoesSlide, barreirasSlide, croSlide, takeawaysSlide];
+    const total = builders.length;
+    let cur = 0;
+
+    const viewport = document.getElementById("slideViewport");
+    const panel = document.getElementById("thumbPanel");
+    const counter = document.getElementById("counter");
+    const btnPrev = document.getElementById("btnPrev");
+    const btnNext = document.getElementById("btnNext");
+
+    builders.forEach((fn, i) => {
+        const el = document.createElement("div");
+        el.className = "slide" + (i === 0 ? " active" : "");
+        el.innerHTML = fn();
+        viewport.appendChild(el);
+
+        const tw = document.createElement("div");
+        tw.className = "thumb-wrap" + (i === 0 ? " active" : "");
+        tw.onclick = () => goTo(i);
+        const tn = document.createElement("div");
+        tn.className = "thumb-num";
+        tn.textContent = i + 1;
+        const tf = document.createElement("div");
+        tf.className = "thumb-frame";
+        const ti = document.createElement("div");
+        ti.className = "thumb-inner";
+        ti.innerHTML = fn();
+        tf.appendChild(ti);
+        tw.appendChild(tn);
+        tw.appendChild(tf);
+        panel.appendChild(tw);
+    });
+
+    function goTo(idx) {
+        if (idx === cur || idx < 0 || idx >= total) return;
+        const dir = idx > cur ? 1 : -1;
+        const slideEls = viewport.children;
+        const thumbs = panel.querySelectorAll(".thumb-wrap");
+        slideEls[cur].classList.remove("active");
+        slideEls[cur].classList.add(dir > 0 ? "exiting-left" : "exiting-right");
+        slideEls[idx].classList.add(dir > 0 ? "entering-right" : "entering-left");
+        void slideEls[idx].offsetWidth;
+        slideEls[idx].classList.remove("entering-right", "entering-left");
+        slideEls[idx].classList.add("active");
+        const oldCur = cur;
+        setTimeout(() => { slideEls[oldCur].classList.remove("exiting-left", "exiting-right"); }, 500);
+        thumbs[cur].classList.remove("active");
+        thumbs[idx].classList.add("active");
+        thumbs[idx].scrollIntoView({ behavior: "smooth", block: "nearest" });
+        cur = idx;
+        updateUI();
+    }
+    function next() { goTo(cur + 1); }
+    function prev() { goTo(cur - 1); }
+    function updateUI() { counter.textContent = (cur + 1) + " / " + total; btnPrev.disabled = cur === 0; btnNext.disabled = cur === total - 1; }
+    btnPrev.onclick = prev;
+    btnNext.onclick = next;
+    updateUI();
+
+    document.addEventListener("keydown", e => {
+        if (document.activeElement && document.activeElement.hasAttribute("contenteditable")) return;
+        if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") { e.preventDefault(); next(); }
+        else if (e.key === "ArrowLeft" || e.key === "ArrowUp") { e.preventDefault(); prev(); }
+        else if (e.key === "Escape") { exitFS(); }
+        else if (e.key === "Home") { e.preventDefault(); goTo(0); }
+        else if (e.key === "End") { e.preventDefault(); goTo(total - 1); }
+    });
+
+    function toggleFullscreen() { document.fullscreenElement ? exitFS() : enterFS(); }
+    function enterFS() { document.body.classList.add("fullscreen-mode"); document.documentElement.requestFullscreen().catch(() => {}); setTimeout(resizeSlide, 50); }
+    function exitFS() { document.body.classList.remove("fullscreen-mode"); if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); setTimeout(resizeSlide, 50); }
+    document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement) { document.body.classList.remove("fullscreen-mode"); resizeSlide(); } });
+    window.toggleFullscreen = toggleFullscreen;
+
+    async function downloadPDF() {
+        const btn = document.getElementById("btnDownload");
+        const orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Gerando...`;
+        try {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [960, 540] });
+            const slideEls = viewport.querySelectorAll(".slide");
+            const saved = cur;
+            slideEls.forEach(s => { s.style.transition = "none"; s.style.opacity = "1"; s.style.transform = "none"; s.style.pointerEvents = "auto"; });
+            viewport.style.transform = "none"; viewport.style.width = "960px"; viewport.style.height = "540px";
+            for (let i = 0; i < slideEls.length; i++) {
+                slideEls.forEach((s, j) => { s.style.display = j === i ? "block" : "none"; });
+                await new Promise(r => setTimeout(r, 150));
+                const canvas = await html2canvas(viewport, { width: 960, height: 540, scale: 2, useCORS: true, allowTaint: true, backgroundColor: "#ffffff" });
+                if (i > 0) pdf.addPage([960, 540], "landscape");
+                pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, 960, 540);
+                btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ${i+1}/${slideEls.length}`;
+            }
+            slideEls.forEach((s, j) => { s.style.display = ""; s.style.transition = ""; s.style.opacity = ""; s.style.transform = ""; s.style.pointerEvents = ""; s.classList.toggle("active", j === saved); });
+            resizeSlide();
+            pdf.save("Review-Mining-GUDAY.pdf");
+        } catch (err) { console.error(err); alert("Erro ao gerar PDF."); }
+        btn.disabled = false; btn.innerHTML = orig;
+    }
+    window.downloadPDF = downloadPDF;
+
+    function resizeSlide() {
+        const area = viewport.parentElement;
+        const aw = area.clientWidth - 100, ah = area.clientHeight - 50;
+        const scale = Math.min(aw / 960, ah / 540, 2);
+        viewport.style.transform = `scale(${scale})`;
+        viewport.style.transformOrigin = "center center";
+        viewport.style.width = "960px"; viewport.style.height = "540px";
+    }
+    window.addEventListener("resize", resizeSlide);
+    resizeSlide();
+    setTimeout(resizeSlide, 200);
+
+    /* ── EDIT MODE ─────────────────────────────── */
+    const EDIT_KEY = "guday-reviewmining-edits";
+    let editMode = false, editTool = "text";
+    let edits = { annotations: {}, texts: {} };
+
+    async function loadEdits() {
+        try { const r = await fetch("reviewmining-edits.json"); if (r.ok) edits = await r.json(); } catch(e) {}
+        if (!edits.annotations || !edits.texts) { try { const s = localStorage.getItem(EDIT_KEY); if (s) { const l = JSON.parse(s); if (!edits.annotations) edits.annotations = l.annotations || {}; if (!edits.texts) edits.texts = l.texts || {}; } } catch(e) {} }
+        if (!edits.annotations) edits.annotations = {};
+        if (!edits.texts) edits.texts = {};
+        applyTextEdits();
+    }
+    function saveEdits() { localStorage.setItem(EDIT_KEY, JSON.stringify(edits)); }
+
+    function toggleEditMode() {
+        editMode = !editMode;
+        document.body.classList.toggle("edit-mode", editMode);
+        document.querySelectorAll(".edit-only").forEach(el => { el.style.display = editMode ? "flex" : "none"; });
+        const btn = document.getElementById("btnEdit");
+        btn.innerHTML = editMode ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Salvar` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg> Editar`;
+        if (editMode) { setEditTool("text"); enableTextEditing(); } else { viewport.querySelectorAll("[contenteditable]").forEach(el => el.removeAttribute("contenteditable")); saveAllTexts(); }
+    }
+    window.toggleEditMode = toggleEditMode;
+
+    function setEditTool(tool) {
+        editTool = tool;
+        const r = document.getElementById("btnRect"), t = document.getElementById("btnText");
+        if (r) r.classList.toggle("active", tool === "rect");
+        if (t) t.classList.toggle("active", tool === "text");
+        if (tool === "text") enableTextEditing();
+        else viewport.querySelectorAll("[contenteditable]").forEach(el => el.removeAttribute("contenteditable"));
+    }
+    window.setEditTool = setEditTool;
+
+    const EDITABLE_SEL = ".slide-heading, .conclusion, .cover-title, .cover-pre-title, .cover-meta, .obj-card-title, .obj-card-text, .obj-card-quote, .rf-title, .rf-text, .takeaway-text, .cro-card, .cro-section-title, .quote";
+    function enableTextEditing() { viewport.querySelectorAll(EDITABLE_SEL).forEach(el => el.setAttribute("contenteditable", "true")); }
+    function saveAllTexts() {
+        viewport.querySelectorAll(".slide").forEach((s, si) => {
+            s.querySelectorAll(EDITABLE_SEL).forEach((el, ei) => { edits.texts[si + "-" + ei] = el.innerHTML; });
+        });
+        saveEdits();
+    }
+    function applyTextEdits() {
+        if (!edits.texts) return;
+        viewport.querySelectorAll(".slide").forEach((s, si) => {
+            s.querySelectorAll(EDITABLE_SEL).forEach((el, ei) => { const k = si + "-" + ei; if (edits.texts[k]) el.innerHTML = edits.texts[k]; });
+        });
+        panel.querySelectorAll(".thumb-inner").forEach((s, si) => {
+            s.querySelectorAll(EDITABLE_SEL).forEach((el, ei) => { const k = si + "-" + ei; if (edits.texts[k]) el.innerHTML = edits.texts[k]; });
+        });
+    }
+
+    function exportJSON() { saveAllTexts(); const b = new Blob([JSON.stringify(edits, null, 2)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "reviewmining-edits.json"; a.click(); URL.revokeObjectURL(a.href); }
+    window.exportJSON = exportJSON;
+
+    const urlSlide = new URLSearchParams(window.location.search).get("slide");
+    if (urlSlide) { const idx = parseInt(urlSlide) - 1; if (idx >= 0 && idx < total) goTo(idx); }
+    loadEdits();
+})();
+</script>
+</body>
+</html>
