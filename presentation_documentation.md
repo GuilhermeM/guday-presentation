@@ -4,7 +4,7 @@
 
 Sistema de apresentacoes interativas no browser que simula o Google Slides, usado para analises da GUDAY. O formato segue o branding da GUDAY e o modelo da WeConvert.
 
-Existem **7 apresentações** independentes:
+Existem **8 apresentações** independentes:
 
 ### 1. Competitor Analysis (Analise de Concorrentes)
 
@@ -14,6 +14,28 @@ Existem **7 apresentações** independentes:
 **Anotacoes:** `COMPETITORS/annotations.json`
 **Fonte de dados:** CSV local (via `fetch`)
 **Requer Live Server** — nao funciona com `file://`
+
+### 5. Desk Research (Pesquisa de Mercado)
+
+**Arquivo:** `DESK RESEARCH/desk-research.html`
+**Fonte de dados:** Hardcoded no HTML (extraido de `Desk Research.pdf`)
+**Edicoes:** `DESK RESEARCH/dr-edits.json` (exportavel, opcional)
+**Slides atuais (4 — Wellness):**
+1. Capa (Wellness + Gummies)
+2. Dados do mercado (layout imagem + KPI cards escuros + bullet points)
+3. Timeline com 3 marcos (1990 Hipertrofia → 2000 Wellness → 2020+ Longevidade)
+4. Perfil de publico (layout imagem mockup + dados estatisticos)
+
+**Tipos de slide:**
+- `cover` — capa com gradiente roxo
+- `market/profile` — imagem HD na esquerda (mockup cinza para substituir) + KPI cards e/ou bullet points na direita
+- `timeline` — 3 dots conectados por linha horizontal com ano, titulo e descricao
+
+**Features:** PDF export, fullscreen, thumbnails, navegacao por teclado, edicao de texto inline (localStorage + JSON export)
+
+**KPI cards:** Fundo escuro (`#1E192A`) com valor em roxo claro e label em branco, alto contraste
+
+**Planejado:** Slides adicionais para Creatina, Melatonina, B12 + Vinagre de Maca, CoQ10 + Matcha (dados ja extraidos do PDF)
 
 ### 4. User Testing Analysis (Analise de Usabilidade)
 
@@ -229,6 +251,10 @@ PRESENTATION/
 │   ├── User Testing - Guday.pdf              # Dados brutos (sessoes)
 │   ├── Tabs - User Testing Analysis.pdf      # Referencia de formato
 │   └── Supplend-User testing.pdf             # Referencia de formato
+├── DESK RESEARCH/
+│   ├── desk-research.html                    # Pesquisa de mercado (wellness + gummies)
+│   ├── dr-edits.json                         # Edicoes de texto (opcional)
+│   └── Desk Research.pdf                     # Fonte de dados
 ├── STAKEHOLDERS/
 │   ├── stakeholders-analysis.html            # Analise de stakeholders
 │   ├── stakeholders-edits.json               # Edicoes de texto (opcional)

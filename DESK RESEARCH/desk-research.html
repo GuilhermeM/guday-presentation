@@ -70,9 +70,9 @@ body { font-family: 'degular','Inter',system-ui,sans-serif; background: #e8e8e8;
 .slide-market { width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--white); padding: 32px 44px 20px; }
 .slide-market-heading { font-size: 22px; font-weight: 800; color: var(--text-dark); line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.5px; }
 .kpi-row { display: flex; gap: 14px; margin-bottom: 24px; }
-.kpi-box { flex: 1; background: #f8f7f5; border-radius: 10px; padding: 14px 16px; text-align: center; }
-.kpi-box .kpi-value { font-size: 22px; font-weight: 800; color: var(--purple-deep); margin-bottom: 4px; }
-.kpi-box .kpi-label { font-size: 10px; color: var(--purple-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.3; }
+.kpi-box { flex: 1; background: var(--purple-dark); border-radius: 10px; padding: 14px 16px; text-align: center; }
+.kpi-box .kpi-value { font-size: 22px; font-weight: 800; color: var(--purple-primary); margin-bottom: 4px; }
+.kpi-box .kpi-label { font-size: 10px; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.3; }
 
 /* Timeline */
 .timeline { display: flex; align-items: flex-start; justify-content: center; gap: 0; margin-bottom: 16px; position: relative; padding: 0 20px; }
@@ -100,11 +100,47 @@ body { font-family: 'degular','Inter',system-ui,sans-serif; background: #e8e8e8;
 .profile-heading { font-size: 22px; font-weight: 800; color: var(--text-dark); line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.5px; }
 .profile-body { flex: 1; display: flex; gap: 28px; min-height: 0; }
 .profile-image { width: 380px; min-width: 380px; background: #e8e6e2; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 14px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
-.profile-data { flex: 1; display: flex; flex-direction: column; gap: 7px; overflow-y: auto; }
-.profile-item { font-size: 12.5px; line-height: 1.45; color: #555; padding-left: 14px; position: relative; }
-.profile-item::before { content: '→'; color: var(--purple-deep); font-weight: 700; position: absolute; left: 0; font-size: 11px; }
-.profile-item b { color: var(--text-dark); }
-.profile-section { font-size: 10px; font-weight: 700; color: var(--purple-deep); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 6px; margin-bottom: 2px; }
+.profile-data { flex: 1; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+.profile-item { font-size: 15px; line-height: 1.6; color: #444; padding-left: 18px; position: relative; }
+.profile-item::before { content: '→'; color: var(--purple-deep); font-weight: 700; position: absolute; left: 0; font-size: 14px; }
+.profile-item b { color: var(--text-dark); font-weight: 700; }
+.profile-section { font-size: 11px; font-weight: 700; color: var(--purple-deep); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 10px; margin-bottom: 2px; }
+
+/* ── EDIT MODE ── */
+.btn-edit { background: var(--white); color: var(--text-dark); border: 1px solid #ddd; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.1s, border-color 0.2s; }
+.btn-edit:hover { background: #f5f5f5; border-color: #bbb; transform: translateY(-1px); }
+.btn-edit svg { width: 16px; height: 16px; }
+body.edit-mode .btn-edit { background: #e00; color: white; border-color: #e00; }
+body.edit-mode .btn-edit:hover { background: #c00; border-color: #c00; }
+.btn-tool { background: var(--white); color: var(--text-dark); border: 1px solid #ddd; padding: 9px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+.btn-tool:hover { background: #f5f5f5; border-color: #bbb; }
+.btn-tool svg { width: 14px; height: 14px; }
+
+body.edit-text .slide-market-heading,
+body.edit-text .profile-heading,
+body.edit-text .profile-item,
+body.edit-text .profile-section,
+body.edit-text .kpi-box .kpi-value,
+body.edit-text .kpi-box .kpi-label,
+body.edit-text .timeline-title,
+body.edit-text .timeline-desc,
+body.edit-text .gummies-box .gummies-value,
+body.edit-text .gummies-box .gummies-label {
+    cursor: text; outline: 1px dashed rgba(127,86,217,0.3); outline-offset: 3px; border-radius: 3px;
+}
+body.edit-text .slide-market-heading:hover,
+body.edit-text .profile-heading:hover,
+body.edit-text .profile-item:hover,
+body.edit-text .profile-section:hover,
+body.edit-text .kpi-box .kpi-value:hover,
+body.edit-text .kpi-box .kpi-label:hover,
+body.edit-text .timeline-title:hover,
+body.edit-text .timeline-desc:hover,
+body.edit-text .gummies-box .gummies-value:hover,
+body.edit-text .gummies-box .gummies-label:hover {
+    outline-color: var(--purple-deep); background: rgba(127,86,217,0.04);
+}
+[contenteditable="true"] { outline: 2px solid var(--purple-deep) !important; background: rgba(127,86,217,0.06) !important; }
 
 /* ── NAV ── */
 .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.92); box-shadow: 0 2px 10px rgba(0,0,0,0.12); cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10; color: var(--text-dark); font-weight: 300; line-height: 1; }
@@ -138,6 +174,14 @@ body.fullscreen-mode .slide-area:hover .nav-arrow { opacity: 1; }
         <div class="toolbar-title">Desk Research <span>— Wellness + Gummies</span></div>
     </div>
     <div class="toolbar-actions">
+        <button class="btn-edit" onclick="toggleEditMode()" id="btnEdit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Editar
+        </button>
+        <button class="btn-tool" onclick="exportEdits()" title="Exportar edições">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            JSON
+        </button>
         <button class="btn-download" onclick="downloadPDF()" id="btnDownload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF</button>
         <button class="btn-present" onclick="toggleFullscreen()" id="btnPresent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Apresentar</button>
     </div>
@@ -177,11 +221,11 @@ body.fullscreen-mode .slide-area:hover .nav-arrow { opacity: 1; }
                         <div class="kpi-box" style="flex:1;min-width:120px"><div class="kpi-value" style="font-size:18px">R$ 4.6B</div><div class="kpi-label">Suplementos BR<br>→ R$ 10.8B projetado</div></div>
                     </div>
                     <div class="kpi-row" style="flex-wrap:wrap;gap:10px;margin-bottom:14px">
-                        <div class="kpi-box" style="flex:1;min-width:120px"><div class="kpi-value" style="font-size:18px">50%</div><div class="kpi-label">Brasileiros praticam<br>atividade física regular</div></div>
-                        <div class="kpi-box" style="flex:1;min-width:120px"><div class="kpi-value" style="font-size:18px">74.1%</div><div class="kpi-label">Usuários de suplementos<br>consomem creatina</div></div>
+                        <div class="kpi-box" style="flex:1;min-width:120px"><div class="kpi-value" style="font-size:18px">40%</div><div class="kpi-label">Brasileiros praticam<br>atividade física regular</div></div>
+                        <div class="kpi-box" style="flex:1;min-width:120px"><div class="kpi-value" style="font-size:18px">19.8%</div><div class="kpi-label">Da população usa<br>suplementos esportivos</div></div>
                     </div>
                     <div class="profile-item"><b>Mercado wellness BR:</b> R$ 82.3 bi (2024) → R$ 209.5 bi (2033), crescimento de 10.9%</div>
-                    <div class="profile-item"><b>19.8%</b> da população usa suplementos esportivos</div>
+
                     <div class="profile-item"><b>Brasil é o maior</b> mercado de academias da América Latina</div>
                     <div class="profile-item" style="margin-top:8px"><b>Gummies global:</b> US$ 42B até 2028</div>
                     <div class="profile-item"><b>Gummies Brasil:</b> US$ 468M até 2035 (crescimento de 13.5%)</div>
@@ -255,11 +299,378 @@ body.fullscreen-mode .slide-area:hover .nav-arrow { opacity: 1; }
         </div>`;
     }
 
+    /* ── CREATINA SLIDES ── */
+    function creatinaPerfilHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">Perfil do consumidor de creatina no Brasil</div>
+            <div class="profile-body">
+                <div style="width:380px;min-width:380px;display:flex;flex-direction:column;justify-content:center">
+                    <div style="font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:16px">Motivos de uso</div>
+                    <div style="display:flex;flex-direction:column;gap:10px">
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Massa magra</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:40%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">40%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Saúde e bem estar</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:23%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">23%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Emagrecimento</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:22%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">22%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Performance</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:15%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">15%</div>
+                        </div>
+                    </div>
+                    <div style="font-size:10px;color:#aaa;margin-top:12px">Foco cerebral e longevidade em idosos também são motivos crescentes</div>
+                </div>
+                <div class="profile-data">
+                    <div class="profile-section">Quem consome</div>
+                    <div class="profile-item"><b>74% dos usuários de suplementos</b> consomem creatina, com jovens de 20-30 anos sendo predominantes (objetivos de hipertrofia)</div>
+                    <div class="profile-item">Cresce entre <b>mulheres e adultos de 35-44 anos</b>, principalmente idosos +40 para saúde óssea e cerebral</div>
+                    <div class="profile-item">Estima-se que <b>14% da população brasileira</b> já usou creatina</div>
+                    <div class="profile-section">Hábitos de uso</div>
+                    <div class="profile-item"><b>45% usam diariamente</b> (sem ciclos) entre quem frequenta academia 3-5x por semana</div>
+                    <div class="profile-item">Concentração nas <b>classes A e B</b>, mas o acesso tem democratizado (30% dos consumidores das classes CDE começando a treinar em 2025)</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: ABIAD, Euromonitor, RBNE, IBOPE Repucom</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    /* ── MELATONINA SLIDES ── */
+    function melatoninaHistoriaHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">Melatonina: do sono ao mercado de US$ 3,3 bilhões</div>
+            <div class="profile-body">
+                <div class="profile-image">IMAGEM HD</div>
+                <div class="profile-data">
+                    <div class="profile-section">Descoberta</div>
+                    <div class="profile-item">Descoberta em <b>1958</b> por Aaron Lerner. Na década de 90 se popularizou como sonífero, com patente do MIT em 1995</div>
+                    <div class="profile-item">Em <b>2021 a Anvisa liberou</b> como suplemento para maiores de 19 anos com dose máxima de 0.21mg/dia (muito menor que EUA/Europa)</div>
+                    <div class="profile-item">Volume de buscas <b>explodiu 6x</b> após liberação (+150% de alta)</div>
+                    <div class="profile-section">Mercado global</div>
+                    <div class="profile-item">Mercado de <b>US$ 3,3 bilhões</b> em 2025, com crescimento de <b>14.9%</b></div>
+                    <div class="profile-item"><b>US$ 560M</b> em melatonina no formato de gummy (22% do mercado)</div>
+                    <div class="profile-item">Combinação com outros ativos é tendência: gummies de melatonina + extratos herbais lideram com <b>41.2% do mercado</b></div>
+                    <div class="profile-item"><b>17.5 milhões</b> de buscas anuais por melatonina no Google no último ano</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: Anvisa, Fortune Business Insights, Google Trends, NIH</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function melatoninaPerfilHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">Adesão brasileira e eficiência da melatonina</div>
+            <div class="profile-body">
+                <div style="width:380px;min-width:380px;display:flex;flex-direction:column;justify-content:center">
+                    <div style="font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:16px">Problemas de sono no Brasil</div>
+                    <div style="display:flex;flex-direction:column;gap:10px">
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:110px;text-align:right;flex-shrink:0">Distúrbio de sono</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:72%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">72%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:110px;text-align:right;flex-shrink:0">Dormem mal</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:65%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">65%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:110px;text-align:right;flex-shrink:0">Alteração pós-pandemia</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:50%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">50%+</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:110px;text-align:right;flex-shrink:0">Queixas de insônia</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:36%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">36%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:110px;text-align:right;flex-shrink:0">Usam remédios</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:8.5%;height:100%;background:var(--purple-deep);border-radius:4px;min-width:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">8.5%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-data">
+                    <div class="profile-section">Adesão</div>
+                    <div class="profile-item"><b>8.5%</b> da população usa remédios para dormir, com predominância nas classes B e C entre 25-54 anos</div>
+                    <div class="profile-item"><b>72% dos brasileiros</b> tem algum distúrbio de sono</div>
+                    <div class="profile-item">Mais de <b>50% das pessoas</b> tiveram alterações no sono pós-pandemia</div>
+                    <div class="profile-section">Eficiência</div>
+
+                    <div class="profile-item"><b>Segura</b> em curtos prazos e <b>não causa dependência</b></div>
+                    <div class="profile-item">Alternativa <b>mais natural e menos agressiva</b> comparada com remédios para dormir (que 7.6% da população já usa)</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: Fiocruz, ABIAD, Anvisa, Qualibest, NIH</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    /* ── COQ10 + MATCHA SLIDES ── */
+    function coq10HistoriaHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">CoQ10 + Matcha: de suplemento cardíaco a superfood funcional</div>
+            <div class="profile-body">
+                <div class="profile-image">IMAGEM HD</div>
+                <div class="profile-data">
+                    <div class="profile-section">CoQ10</div>
+                    <div class="profile-item">Descoberto em <b>1957</b>. Nos anos 70 virou suplemento para cardíacos, e nos 2000 ganhou boom com evidências de <b>anti-envelhecimento</b></div>
+
+                    <div class="profile-item">Em maio 2025 a EFSA (Europa) concedeu a <b>primeira alegação de saúde aprovada</b> para CoQ10 na manutenção da função cardíaca</div>
+                    <div class="profile-item">Mercado global de <b>US$ 760-840 milhões</b> (crescimento de 9.7%-16%)</div>
+                    <div class="profile-section">Matcha</div>
+                    <div class="profile-item">História milenar japonesa ligada a cerimônias do chá budistas</div>
+                    <div class="profile-item"><b>2015-2020:</b> explosão global via redes sociais, matcha lattes e smoothies se tornam instagramáveis</div>
+                    <div class="profile-item"><b>2024:</b> consumo em bebidas/alimentos funcionais cresceu <b>19% YoY</b></div>
+                    <div class="profile-item">Mercado global de <b>US$ 3.4-4.5 bilhões</b> com crescimento de 6-8.7%</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: Grand View Research, Fortune Business Insights, EFSA</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function coq10PerfilHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">CoQ10 + Matcha no Brasil: perfil e motivos de uso</div>
+            <div class="profile-body">
+                <div style="width:380px;min-width:380px;display:flex;flex-direction:column;justify-content:center">
+                    <div style="font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:16px">Motivos de uso</div>
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                        <div style="font-size:11px;font-weight:700;color:var(--purple-deep);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">CoQ10</div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Saúde cardíaca</div>
+                            <div style="flex:1;height:22px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:30%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:12px;font-weight:700;color:var(--text-dark);min-width:32px">30%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Energia celular</div>
+                            <div style="flex:1;height:22px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:25%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:12px;font-weight:700;color:var(--text-dark);min-width:32px">25%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Anti-idade</div>
+                            <div style="flex:1;height:22px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:25%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:12px;font-weight:700;color:var(--text-dark);min-width:32px">25%</div>
+                        </div>
+                        <div style="font-size:11px;font-weight:700;color:var(--purple-deep);text-transform:uppercase;letter-spacing:1px;margin-top:8px;margin-bottom:2px">Matcha</div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Antioxidantes</div>
+                            <div style="flex:1;height:22px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:35%;height:100%;background:var(--purple-primary);border-radius:4px"></div></div>
+                            <div style="font-size:12px;font-weight:700;color:var(--text-dark);min-width:32px">35%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Foco mental</div>
+                            <div style="flex:1;height:22px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:30%;height:100%;background:var(--purple-primary);border-radius:4px"></div></div>
+                            <div style="font-size:12px;font-weight:700;color:var(--text-dark);min-width:32px">30%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Metabolismo</div>
+                            <div style="flex:1;height:22px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:25%;height:100%;background:var(--purple-primary);border-radius:4px"></div></div>
+                            <div style="font-size:12px;font-weight:700;color:var(--text-dark);min-width:32px">25%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-data">
+                    <div class="profile-section">No Brasil</div>
+                    <div class="profile-item"><b>CoQ10:</b> 90s para coração/energia, popular nos 2020s com longevidade</div>
+                    <div class="profile-item"><b>Matcha:</b> chegou nos 2010s via cafés premium (SP/RJ), pandemia acelerou (+200% buscas). <b>84%</b> já provaram em nicho jovem urbano</div>
+                    <div class="profile-section">Perfil do consumidor</div>
+                    <div class="profile-item">Adultos <b>30-55 anos</b> (60%), <b>mulheres</b> (65%), classes A/B urbanas, fitness/veganos</div>
+                    <div class="profile-item">Ao menos <b>10% da população</b> focada no nicho wellness</div>
+                    <div class="profile-section">Dados relevantes</div>
+                    <div class="profile-item">Principal causa de morte no Brasil são <b>doenças cardiovasculares</b></div>
+                    <div class="profile-item"><b>12.9%</b> dos adultos são diabéticos, CoQ10 ajuda no controle glicêmico</div>
+                    <div class="profile-item"><b>68%</b> dos brasileiros tem excesso de peso, matcha é natural</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: ABIAD, Euromonitor, Anvisa, WHO, Qualibest</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    /* ── B12 + ACV SLIDES ── */
+    function acvHistoriaHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">B12 + Vinagre de Maçã: de remédio para anemia a suplemento wellness</div>
+            <div class="profile-body">
+                <div class="profile-image">IMAGEM HD</div>
+                <div class="profile-data">
+                    <div class="profile-section">Vitamina B12</div>
+                    <div class="profile-item">Isolada em <b>1948</b>, inicialmente usada contra anemia perniciosa (Nobel 1934). Popularizou nos anos 50 para deficiência de veganos e idosos</div>
+                    <div class="profile-item">Mercado global de <b>US$ 216-350 milhões</b> com crescimento de 7%</div>
+                    <div class="profile-item"><b>15% dos adultos +65 anos</b> possuem deficiência de B12. <b>14.2% das crianças</b> também têm deficiência</div>
+                    <div class="profile-section">Vinagre de Maçã (ACV)</div>
+                    <div class="profile-item">Produzido desde <b>400 a.C.</b> (Hipócrates). Boom nos anos 2010 com explosão no wellness. Em <b>2019 a Goli Nutrition</b> lança o primeiro suplemento de ACV em gummy no mundo, viralizando nas redes</div>
+                    <div class="profile-item">Mercado global de <b>US$ 1,5-2,18 bilhões</b> com crescimento de 6-9%. Formato gummy representa <b>30-50% do share</b></div>
+                    <div class="profile-item">O formato gummy <b>eliminou a principal barreira</b> de consumo: o sabor forte e ácido do vinagre</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: Goli Nutrition, Fortune Business Insights, Mordor Intelligence, NIH</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function acvPerfilHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">Perfil do consumidor de B12 + Vinagre de Maçã no Brasil</div>
+            <div class="profile-body">
+                <div class="profile-image">IMAGEM HD</div>
+                <div class="profile-data">
+                    <div class="profile-section">Perfil do consumidor</div>
+                    <div class="profile-item"><b>Mulheres 24-54 anos</b> (70-80%) em classes B/C urbanas</div>
+                    <div class="profile-item"><b>Diabéticos e obesos (11%)</b> também impulsionam o consumo de ACV</div>
+                    <div class="profile-section">No Brasil</div>
+                    <div class="profile-item">ACV se popularizou nos <b>2010 com dietas de emagrecimento</b> (detox), e explodiu pós-pandemia com combos B12</div>
+                    <div class="profile-item">Crescimento de <b>8.57%</b> no mercado entre 2024-2029</div>
+                    <div class="profile-section">Obesidade no Brasil</div>
+                    <div class="profile-item"><b>68% da população</b> sofre com excesso de peso</div>
+                    <div class="profile-item">Nos últimos 18 anos o excesso de peso <b>aumentou 20 p.p.</b></div>
+                    <div class="profile-item">Até 2044 estima-se que <b>metade da população</b> terá obesidade e mais de 27% sobrepeso</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: ABRAN, Fiocruz, WHO, Anvisa, Euromonitor</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function creatinaTimelineHTML() {
+        return `<div class="slide-market">
+            <div class="slide-market-heading">Marcos da creatina: de descoberta científica ao suplemento #1 do Brasil</div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:24px">
+            <div class="timeline" style="width:100%">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                    <div class="timeline-year">1832</div>
+                    <div class="timeline-title">Descoberta</div>
+                    <div class="timeline-desc">Isolada da carne pelo químico francês Michel Eugène Chevreul</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                    <div class="timeline-year">1920</div>
+                    <div class="timeline-title">Pesquisas</div>
+                    <div class="timeline-desc">Estudos científicos sobre creatina se intensificam</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                    <div class="timeline-year">1992</div>
+                    <div class="timeline-title">Popularização</div>
+                    <div class="timeline-desc">Atletas medalhistas de ouro usaram nas Olimpíadas de Barcelona</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2010</div>
+                    <div class="timeline-title">Liberada no Brasil</div>
+                    <div class="timeline-desc">Anvisa regulariza como suplemento alimentar</div>
+                </div>
+            </div>
+            <div class="timeline" style="width:100%;padding:0 80px">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                    <div class="timeline-year">2020</div>
+                    <div class="timeline-title">Boom pós-pandemia</div>
+                    <div class="timeline-desc">+48% no consumo de suplementos durante a quarentena</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                    <div class="timeline-year">2023</div>
+                    <div class="timeline-title">Supera whey</div>
+                    <div class="timeline-desc">+30% nas buscas, ultrapassa whey protein pela primeira vez</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2024</div>
+                    <div class="timeline-title">Top e-commerce</div>
+                    <div class="timeline-desc">Figura entre os itens mais vendidos do Mercado Livre</div>
+                </div>
+            </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: Google Trends, Anvisa, CNN Brasil, Mercado Livre</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function creatinaCoverHTML() {
+        return `<div class="slide-cover">
+            <div class="cover-badge">GUDAY</div>
+            <div class="cover-title">Creatina</div>
+            <div class="cover-subtitle">Desk Research</div>
+            <div class="cover-divider"></div>
+            <div class="cover-meta">Mercado global de US$ 4.12 bilhões até 2030 (CAGR 25.2%)</div>
+        </div>`;
+    }
+
+    function creatinaHistoriaHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">Creatina: de descoberta científica ao suplemento mais consumido do Brasil</div>
+            <div class="profile-body">
+                <div class="profile-image">IMAGEM HD</div>
+                <div class="profile-data">
+                    <div class="profile-section">Descoberta</div>
+                    <div class="profile-item">Descoberta em <b>1832</b> pelo químico francês Michel Eugène Chevreul ao analisar tecidos animais. Se popularizou nos <b>anos 1990</b> nas Olimpíadas de Barcelona</div>
+                    <div class="profile-section">No Brasil</div>
+                    <div class="profile-item">A creatina foi <b>proibida pela Anvisa até 2010</b></div>
+                    <div class="profile-item">O crescimento acelerou <b>pós-pandemia (2020)</b> com aumento de 48% no consumo de suplementos durante a quarentena</div>
+                    <div class="profile-item">Em 2023 <b>superou o whey protein</b> em buscas (+30%) e em 2025 lidera com <b>918K buscas mensais</b></div>
+                    <div class="profile-item"><b>19.8%</b> da população usa suplementos esportivos, com creatina sendo usada por <b>74.1%</b> desses usuários</div>
+                    <div class="profile-item">Brasil ocupa a <b>3ª posição mundial</b> no consumo de creatina</div>
+                    <div class="profile-item"><b>37.3%</b> da receita global de creatina vem de canais online</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: Google Trends, Grand View Research, Anvisa, CNN Brasil, ISSN</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
     const slides = [
         { render: coverHTML },
         { render: marketHTML },
         { render: timelineHTML },
-        { render: profileHTML }
+        { render: profileHTML },
+        { render: creatinaHistoriaHTML },
+        { render: creatinaTimelineHTML },
+        { render: creatinaPerfilHTML },
+        { render: melatoninaHistoriaHTML },
+        { render: melatoninaPerfilHTML },
+        { render: acvHistoriaHTML },
+        { render: acvPerfilHTML },
+        { render: coq10HistoriaHTML },
+        { render: coq10PerfilHTML }
     ];
 
     const total = slides.length;
@@ -348,6 +759,91 @@ body.fullscreen-mode .slide-area:hover .nav-arrow { opacity: 1; }
         viewport.style.width=sw+"px"; viewport.style.height=sh+"px";
     }
     window.addEventListener("resize", resizeSlide); resizeSlide(); setTimeout(resizeSlide,200);
+
+    /* ── TEXT EDITING ── */
+    const EDIT_KEY = "guday-dr-edits";
+    let editMode = false;
+    let textEdits = {};
+
+    async function loadEdits() {
+        try { const r = await fetch("dr-edits.json"); if (r.ok) textEdits = await r.json(); } catch(e) {}
+        if (!textEdits || typeof textEdits !== "object") {
+            try { const s = localStorage.getItem(EDIT_KEY); if (s) textEdits = JSON.parse(s); } catch(e) {}
+        }
+        if (!textEdits) textEdits = {};
+        Object.entries(textEdits).forEach(([key, text]) => {
+            const [si, sel] = key.split("|");
+            const sl = viewport.children[parseInt(si)];
+            if (sl) { const el = sl.querySelector(sel); if (el) el.innerHTML = text; }
+        });
+    }
+
+    function saveEdits() { localStorage.setItem(EDIT_KEY, JSON.stringify(textEdits)); }
+
+    function toggleEditMode() {
+        editMode = !editMode;
+        document.body.classList.toggle("edit-mode", editMode);
+        document.body.classList.toggle("edit-text", editMode);
+        const btn = document.getElementById("btnEdit");
+        btn.innerHTML = editMode
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Salvar`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Editar`;
+        if (!editMode) viewport.querySelectorAll("[contenteditable]").forEach(el => el.removeAttribute("contenteditable"));
+    }
+    window.toggleEditMode = toggleEditMode;
+
+    viewport.addEventListener("click", (e) => {
+        if (!editMode) return;
+        const editable = e.target.closest(".slide-market-heading, .profile-heading, .profile-item, .profile-section, .kpi-value, .kpi-label, .timeline-title, .timeline-desc, .gummies-value, .gummies-label");
+        if (!editable) return;
+        e.stopPropagation();
+        editable.setAttribute("contenteditable", "true");
+        editable.focus();
+        const handler = () => {
+            editable.removeAttribute("contenteditable");
+            const sl = editable.closest(".slide");
+            const si = Array.from(viewport.children).indexOf(sl);
+            const allEditable = sl.querySelectorAll(".slide-market-heading, .profile-heading, .profile-item, .profile-section, .kpi-value, .kpi-label, .timeline-title, .timeline-desc, .gummies-value, .gummies-label");
+            const idx = Array.from(allEditable).indexOf(editable);
+            if (idx >= 0) {
+                const sel = `:scope .slide-market-heading, :scope .profile-heading, :scope .profile-item, :scope .profile-section, :scope .kpi-value, :scope .kpi-label, :scope .timeline-title, :scope .timeline-desc, :scope .gummies-value, :scope .gummies-label`;
+                textEdits[si + "|" + idx] = editable.innerHTML;
+                saveEdits();
+            }
+            editable.removeEventListener("blur", handler);
+        };
+        editable.addEventListener("blur", handler);
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (document.activeElement && document.activeElement.hasAttribute("contenteditable")) e.stopImmediatePropagation();
+    }, true);
+
+    function exportEdits() {
+        const blob = new Blob([JSON.stringify(textEdits, null, 2)], { type: "application/json" });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "dr-edits.json"; a.click();
+    }
+    window.exportEdits = exportEdits;
+
+    // Fix loadEdits to use index-based lookup
+    async function applyEdits() {
+        Object.entries(textEdits).forEach(([key, text]) => {
+            const [si, idx] = key.split("|");
+            const sl = viewport.children[parseInt(si)];
+            if (!sl) return;
+            const allEditable = sl.querySelectorAll(".slide-market-heading, .profile-heading, .profile-item, .profile-section, .kpi-value, .kpi-label, .timeline-title, .timeline-desc, .gummies-value, .gummies-label");
+            if (allEditable[parseInt(idx)]) allEditable[parseInt(idx)].innerHTML = text;
+        });
+    }
+
+    (async () => {
+        try { const r = await fetch("dr-edits.json"); if (r.ok) textEdits = await r.json(); } catch(e) {}
+        if (!textEdits || typeof textEdits !== "object") {
+            try { const s = localStorage.getItem(EDIT_KEY); if (s) textEdits = JSON.parse(s); } catch(e) {}
+        }
+        if (!textEdits) textEdits = {};
+        applyEdits();
+    })();
 })();
 </script>
 </body>
