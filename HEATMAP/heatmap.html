@@ -1,0 +1,69 @@
+<div class="heatmap-container">
+  <div class="hotspot"></div>
+  
+  <div class="ui-mockup">
+    <button class="cta-example">Clique Aqui</button>
+  </div>
+</div>
+
+<style>
+  :root {
+    --heat-red: rgba(255, 0, 0, 0.8);
+    --heat-yellow: rgba(255, 255, 0, 0.5);
+    --heat-blue: rgba(0, 255, 255, 0.2);
+  }
+
+  .heatmap-container {
+    position: relative;
+    width: 400px;
+    height: 300px;
+    background: #f4f4f9;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  /* O efeito do Mapa de Calor */
+  .hotspot {
+    position: absolute;
+    /* Centralizado no exemplo, mas pode ser movido com top/left */
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    pointer-events: none; /* Garante que o heatmap não bloqueie cliques reais */
+    z-index: 10;
+    
+    /* Gradiente Radial Multi-camadas */
+    background: radial-gradient(
+      circle,
+      var(--heat-red) 0%,
+      var(--heat-yellow) 40%,
+      var(--heat-blue) 70%,
+      transparent 100%
+    );
+    
+    /* O "glow" suave característico do Hotjar */
+    filter: blur(15px);
+    opacity: 0.9;
+    animation: pulse 2s infinite ease-in-out;
+  }
+
+  /* Animação opcional para dar vida ao dado */
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.8; }
+  }
+
+  .cta-example {
+    padding: 12px 24px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+</style>

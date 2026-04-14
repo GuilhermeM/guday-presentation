@@ -4,7 +4,7 @@
 
 Sistema de apresentacoes interativas no browser que simula o Google Slides, usado para analises da GUDAY. O formato segue o branding da GUDAY e o modelo da WeConvert.
 
-Existem **2 apresentacoes** independentes:
+Existem **5 apresentacoes** independentes:
 
 ### 1. Competitor Analysis (Analise de Concorrentes)
 
@@ -65,6 +65,49 @@ Existem **2 apresentacoes** independentes:
 **Sheet ID:** `1rQ5VjGYa07zwi-utOK4dE2UmhIxVhSi1WqvcVHECgSs`
 **Funciona direto no browser** — dados carregados do Google Sheets via URL publica, nao precisa de Live Server
 
+### 5. Analytics Analysis (Analise de Funil)
+
+**Arquivo:** `ANALYTICS/analytics-analysis.html`
+**Fonte de dados:** Google Sheets ao vivo (publica)
+**Sheet ID:** `16w4WevtU6cRKbImBp6OxhLcg-cIT8w7320dx3YYdH_U`
+**Aba:** Funil (gid: `212738571`)
+**Edicoes:** `ANALYTICS/analytics-edits.json` (exportavel, opcional)
+**Funciona direto no browser** — dados carregados do Google Sheets via URL publica, nao precisa de Live Server
+**Referencia estetica:** `ANALYTICS/Analytics Analysis (1).pdf` (slides WeConvert)
+
+**Slides atuais (3):**
+1. Capa — "Onde os seus visitantes estao abandonando?" (estilo WeConvert: fundo verde/teal, logo GUDAY)
+2. Funil Homepage — barras verticais: Home (86.353) → Product (34.792) → Cart (7.412) → Checkout (4.131) → Purchase (2.122). Taxa de abandono em badges vermelhos, CVR final em badge teal. Conclusoes no painel direito.
+3. Funil PDP — barras verticais: Product (656.096) → Cart (28.668) → Checkout (14.697) → Purchase (7.010). Mesmo formato.
+
+**Tipo de slide `funnel`:** Grafico de barras verticais com eixo Y, labels de sessoes, badges de abandonment rate (vermelho) e CVR final (teal). Painel de conclusoes editaveis ao lado direito. Visual inspirado no formato WeConvert (cores navy/teal/coral).
+
+**Dados da planilha (aba Funil):**
+- Secao `GA4 - Home - 90D`: funil completo da homepage (5 etapas)
+- Secao `GA4 - PDP - 90D`: funil completo das PDPs (4 etapas)
+- Colunas: Stage, Total, %, CVR, Bench
+- Parser detecta headers `GA4 - Home` e `GA4 - PDP` para separar os dois funis
+
+**Fluxo de dados:**
+1. Fetch da aba Funil do Google Sheets via CSV export
+2. Parser identifica dois blocos (Home e PDP) pelos headers
+3. Calcula abandonment rates automaticamente (1 - next/current)
+4. Dados ao vivo substituem fallback hardcoded
+5. Se fetch falhar, usa dados hardcoded como fallback
+
+**Features:** PDF export, fullscreen, thumbnails, navegacao por teclado, edicao de texto inline (titulos, conclusoes) com persistencia localStorage + JSON export, anotacoes com retangulos
+
+**Paleta de cores (estilo WeConvert):**
+```css
+--weconvert-teal: #0ea5a0;    /* Verde teal (capa, badges CVR) */
+--weconvert-dark: #0c2340;    /* Navy escuro (titulos, barras) */
+--weconvert-coral: #e8524f;   /* Coral (badges abandonment) */
+```
+
+**Cores das barras (degradee navy):**
+- Homepage: `#0c2340`, `#3b6fa0`, `#5a9bc7`, `#7bbce0`, `#a8d8ea`
+- PDP: `#0c2340`, `#3b6fa0`, `#5a9bc7`, `#7bbce0`
+
 ### Repositorios e Deploy
 
 | Repo | URL | Conteudo |
@@ -124,6 +167,11 @@ PRESENTATION/
 │   ├── DB - Post-Purchase - Sheet1.csv       # Dados brutos (backup)
 │   ├── DB - Post-Purchase.xlsx               # Planilha original
 │   └── MYND - Post Purchase Analysis.pdf     # Referencia de formato
+├── ANALYTICS/
+│   ├── analytics-analysis.html               # Apresentacao de funil (analytics)
+│   ├── analytics-edits.json                  # Edicoes exportadas (opcional)
+│   ├── Analytics Analysis.pptx               # Referencia original (WeConvert)
+│   └── Analytics Analysis (1).pdf            # Referencia estetica (PDF)
 ├── presentation_documentation.md             # Este arquivo
 ├── GUDAY_Reposicionamento_05_03_2026.pdf     # Brand guidelines
 └── GUDAY — BASE DE CONHECIMENTO DO ASSISTENTE CRIATIVO (2).pdf
