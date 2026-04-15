@@ -492,6 +492,15 @@ body.fullscreen-mode .slide-counter { background: rgba(0,0,0,0.4); }
 body.edit-rect .annotation-rect { pointer-events: auto; cursor: pointer; }
 body.edit-rect .annotation-rect::after { content: '\2715'; position: absolute; top: -10px; right: -10px; width: 20px; height: 20px; background: #e00; color: white; border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity 0.15s; }
 body.edit-rect .annotation-rect:hover::after { opacity: 1; }
+
+/* ── ANNOTATION LABELS ── */
+.annotation-label { position: absolute; background: var(--purple-deep); color: white; font-family: 'degular','Inter',system-ui,sans-serif; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 4px; white-space: nowrap; z-index: 6; pointer-events: none; line-height: 1.2; letter-spacing: 0.2px; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+body.edit-mode .annotation-label { pointer-events: auto; cursor: move; }
+body.edit-mode .annotation-label:hover { background: #6a47c0; }
+.annotation-label .label-delete { display: none; position: absolute; top: -8px; right: -8px; width: 18px; height: 18px; background: #e00; color: white; border-radius: 50%; font-size: 11px; align-items: center; justify-content: center; cursor: pointer; line-height: 18px; text-align: center; }
+body.edit-mode .annotation-label:hover .label-delete { display: flex; }
+.btn-tool.label-active { background: var(--purple-deep) !important; color: white !important; border-color: var(--purple-deep) !important; }
+body.label-mode .hm-wrap .img-col img, body.label-mode .heur-wrap .phone-mockup img, body.label-mode .comp-wrap .phone-mockup img { cursor: text !important; }
 body.edit-rect .funnel-body, body.edit-rect .table-body, body.edit-rect .table-split-body, body.edit-rect .devices-body, body.edit-rect .bench-body, body.edit-rect .info-card, body.edit-rect .list-items, body.edit-rect .profile-body, body.edit-rect .slide-market, body.edit-rect .gap-cards-body, body.edit-rect .coupon-body, body.edit-rect .bars-table-body, body.edit-rect .cards-grid, body.edit-rect .slide-body, body.edit-rect .quotes-container, body.edit-rect .rm-obj-grid, body.edit-rect .rm-rf-grid, body.edit-rect .rm-cro-grid, body.edit-rect .rm-quotes-grid { cursor: crosshair; }
 .drawing-rect { position: absolute; border: 3px solid #e00; background: rgba(255, 0, 0, 0.08); pointer-events: none; z-index: 10; }
 .btn-tool.active { background: var(--purple-deep); color: white; border-color: var(--purple-deep); }
@@ -922,6 +931,10 @@ body.edit-text .comp-wrap .img-source-url:hover {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
             Texto
         </button>
+        <button class="btn-tool edit-only" id="btnLabel" onclick="toggleLabelMode()" title="Label" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Label
+        </button>
         <button class="btn-edit" onclick="toggleEditMode()" id="btnEdit">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
             Editar
@@ -951,6 +964,16 @@ body.edit-text .comp-wrap .img-source-url:hover {
     /* ═══════════════════════════════════════════════════
        SECTION 1 — STAKEHOLDERS ANALYSIS (slides 1-4)
        ═══════════════════════════════════════════════════ */
+
+    function mainCoverHTML() {
+        return `<div class="slide-cover">
+            <div class="cover-pre-title">GUDAY \u00b7 2026</div>
+            <div class="cover-title">CRO<br>Research</div>
+            <div class="cover-underline"></div>
+            <div class="cover-meta">Pesquisa completa de otimiza\u00e7\u00e3o de convers\u00e3o</div>
+            <div class="cover-logo"><span>${GUDAY_LOGO}</span></div>
+        </div>`;
+    }
 
     function stakeholdersCoverHTML() {
         return `<div class="slide-cover">
@@ -1708,11 +1731,7 @@ body.edit-text .comp-wrap .img-source-url:hover {
             heading: "Usuarios que entram pela homepage tem um grande drop off (" + homeStages[0].abandonRate + ") e apenas " + (100 - parseInt(homeStages[0].abandonRate)) + "% deles avancam para paginas de produto",
             chartTitle: "Usuarios que entraram pela homepage",
             stages: homeStages,
-            conclusions: [
-                "Usuarios que chegaram pela homepage tiveram a menor taxa de conversao do funil, apenas " + homeStages[homeStages.length - 1].finalCVR + ". Isso e incomum, pois visitantes da homepage normalmente exploram mais, se familiarizam com a oferta e tendem a converter melhor ao longo do funil.",
-                "No entanto, a maioria dos usuarios abandona antes de avancar para outras paginas. O drop-off do carrinho e o menor entre todos os caminhos de navegacao.",
-                "Isso mostra claramente que a homepage nao esta educando os usuarios ou definindo expectativas claras desde o inicio, gerando frustracao e abandono precoce."
-            ],
+            conclusions: [],
             source: "Fonte: GA4 Analytics de 1 Jan - 31 Mar, 2026",
             barColors: ["#0c2340", "#3b6fa0", "#5a9bc7", "#7bbce0", "#a8d8ea"]
         },
@@ -1721,11 +1740,7 @@ body.edit-text .comp-wrap .img-source-url:hover {
             heading: "Mesmo usuarios que entram pelo produto tem um grande drop off (" + pdpStages[0].abandonRate + ") e apenas " + (100 - parseInt(pdpStages[0].abandonRate)) + "% deles adicionam produtos ao carrinho",
             chartTitle: "Usuarios que entraram pelas paginas de produto",
             stages: pdpStages,
-            conclusions: [
-                "Um cenario semelhante acontece aqui, mas e ate certo ponto esperado: usuarios tambem tendem a abandonar cedo ao comecar pelas paginas de produto.",
-                "O que surpreende, e e incomum na maioria dos e-commerces, e que comecar pelas paginas de produto resulta nas maiores taxas finais de conversao e checkout. Isso sugere que os passos adicionais quando o usuario comeca pela homepage ou colecoes nao sao persuasivos ou uteis para guia-lo ao produto certo.",
-                "Dito isso, ao analisar de perto o desempenho das PDPs, ainda ha espaco para melhoria, especialmente na reducao do bounce rate e no incentivo para adicionar mais itens ao carrinho."
-            ],
+            conclusions: [],
             source: "Fonte: GA4 Analytics de 1 Jan - 31 Mar, 2026",
             barColors: ["#0c2340", "#3b6fa0", "#5a9bc7", "#7bbce0"]
         },
@@ -2378,11 +2393,7 @@ body.edit-text .comp-wrap .img-source-url:hover {
                 ["Primeira vez", "10.626", "28,4%", "R$ 355", "R$ 268", "1,32x", "20,1%", "57d"]
             ],
             highlightCells: { "0-3": "val-green", "0-6": "val-green" },
-            conclusions: [
-                "Clientes que <strong>ja consumiam creatina</strong> recompram quase o dobro (36% vs 20,1%) e gastam 37% mais ao longo do tempo (LTV R$ 487 vs R$ 355). Eles ja entendem o produto e o ciclo de reposicao.",
-                "Os clientes de <strong>primeira vez</strong> representam 28,4% da base e tem gap menor (57d vs 66d) — quando voltam, voltam mais rapido. Mas a maioria (79,9%) nao volta. O onboarding pos-compra e critico para reter esse grupo.",
-                "Oportunidade: criar conteudo educacional nos primeiros 30 dias para clientes de 1a vez (como usar, resultados esperados, ciclo de reposicao) pode aumentar significativamente a taxa de recompra desse segmento."
-            ],
+            conclusions: [],
             source: "Fonte: Pesquisa Okendo · 37.382 respondentes"
         },
 
@@ -3526,12 +3537,12 @@ body.edit-text .comp-wrap .img-source-url:hover {
     const HEUR_SHEET_URL = `https://docs.google.com/spreadsheets/d/${HEUR_SHEET_ID}/gviz/tq?tqx=out:csv`;
 
     const HEUR_PAGE_SCORES = {
-        "Home":       { trust: 50, motivation: 37, friction: 71 },
-        "Product":    { trust: 62, motivation: 50, friction: 78 },
-        "Collection": { trust: 55, motivation: 42, friction: 65 },
-        "Cart":       { trust: 68, motivation: 54, friction: 26 },
-        "Checkout":   { trust: 45, motivation: 38, friction: 60 },
-        "Menu":       { trust: 58, motivation: 46, friction: 70 }
+        "Home":       { trust: 70, motivation: 40, friction: 80 },
+        "Product":    { trust: 70, motivation: 40, friction: 80 },
+        "Collection": { trust: 70, motivation: 40, friction: 80 },
+        "Cart":       { trust: 70, motivation: 40, friction: 80 },
+        "Checkout":   { trust: 70, motivation: 40, friction: 80 },
+        "Menu":       { trust: 70, motivation: 40, friction: 80 }
     };
 
     const HEUR_TOTAL_SCORES = {
@@ -3542,7 +3553,7 @@ body.edit-text .comp-wrap .img-source-url:hover {
         friction:   { score: 80, bullets: ["CTAs n\u00e3o se destacam", "M\u00faltiplos pontos de fric\u00e7\u00e3o e obje\u00e7\u00f5es n\u00e3o respondidas tornam a compra arriscada, especialmente para compradores de primeira vez"] }
     };
 
-    const HEUR_GAUGE_COLORS = { trust: "#2eaa5a", motivation: "#e8a830", friction: "#e04444" };
+    const HEUR_GAUGE_COLORS = { trust: "#e8a830", motivation: "#e04444", friction: "#2eaa5a" };
 
     function heurGaugeHTML(value, color) {
         const cx = 30, cy = 28, r = 22, sw = 5;
@@ -3987,7 +3998,9 @@ body.edit-text .comp-wrap .img-source-url:hover {
        SLIDE ARRAY — ordered: Stakeholders then Desk Research then Analytics then Retention then User Testing then Post-Purchase then Review Mining then Heatmap then Heuristic then Competitor
        ═══════════════════════════════════════════════════ */
     const slides = [
-        /* 1-3: Stakeholders */
+        /* Main cover */
+        { render: mainCoverHTML },
+        /* Stakeholders */
         { render: stakeholdersCoverHTML },
         { render: stakeholdersResumoHTML },
         { render: stakeholdersSuporteHTML },
@@ -4362,7 +4375,8 @@ body.edit-text .comp-wrap .img-source-url:hover {
     const EDIT_KEY = "guday-pocket-edits";
     let editMode = false;
     let editTool = "rect";
-    let edits = { annotations: {}, texts: {} };
+    let labelMode = false;
+    let edits = { annotations: {}, texts: {}, labels: {} };
     let undoStack = [];
 
     const ANNOTATION_TARGETS = ".funnel-body, .table-body, .table-split-body, .devices-body, .bench-body, .info-card, .list-items, .profile-body, .slide-market, .gap-cards-body, .coupon-body, .bars-table-body, .cards-grid, .slide-body, .quotes-container, .rm-obj-grid, .rm-rf-grid, .rm-cro-grid, .rm-quotes-grid, .hm-wrap .slide-img-area, .heur-wrap .slide-img-area, .comp-wrap .slide-img-area";
@@ -4373,20 +4387,23 @@ body.edit-text .comp-wrap .img-source-url:hover {
             const resp = await fetch("pocket-edits.json");
             if (resp.ok) edits = await resp.json();
         } catch(e) {}
-        if (!edits.annotations || !edits.texts) {
+        if (!edits.annotations || !edits.texts || !edits.labels) {
             try {
                 const saved = localStorage.getItem(EDIT_KEY);
                 if (saved) {
                     const local = JSON.parse(saved);
                     if (!edits.annotations) edits.annotations = local.annotations || {};
                     if (!edits.texts) edits.texts = local.texts || {};
+                    if (!edits.labels) edits.labels = local.labels || {};
                 }
             } catch(e) {}
         }
         if (!edits.annotations) edits.annotations = {};
         if (!edits.texts) edits.texts = {};
+        if (!edits.labels) edits.labels = {};
         renderAnnotations();
         applyTextEdits();
+        renderAllLabels();
     }
 
     function saveEdits() { localStorage.setItem(EDIT_KEY, JSON.stringify(edits)); }
@@ -4406,6 +4423,7 @@ body.edit-text .comp-wrap .img-source-url:hover {
         } else {
             document.body.classList.remove("edit-rect", "edit-text");
             viewport.querySelectorAll("[contenteditable]").forEach(el => el.removeAttribute("contenteditable"));
+            labelMode = false; document.body.classList.remove("label-mode"); document.getElementById("btnLabel").classList.remove("label-active");
         }
     }
     window.toggleEditMode = toggleEditMode;
@@ -4419,6 +4437,13 @@ body.edit-text .comp-wrap .img-source-url:hover {
         if (tool === "rect") viewport.querySelectorAll("[contenteditable]").forEach(el => el.removeAttribute("contenteditable"));
     }
     window.setEditTool = setEditTool;
+
+    function toggleLabelMode() {
+        labelMode = !labelMode;
+        document.body.classList.toggle("label-mode", labelMode);
+        document.getElementById("btnLabel").classList.toggle("label-active", labelMode);
+    }
+    window.toggleLabelMode = toggleLabelMode;
 
     /* ── ANNOTATIONS (red rectangles) ── */
     function renderAnnotations() {
@@ -4529,6 +4554,115 @@ body.edit-text .comp-wrap .img-source-url:hover {
         if (document.activeElement && document.activeElement.hasAttribute("contenteditable")) e.stopImmediatePropagation();
     }, true);
 
+    /* ── LABELS (purple text annotations on images) ── */
+    function renderAllLabels() {
+        document.querySelectorAll(".annotation-label").forEach(el => el.remove());
+        document.querySelectorAll("[data-annoid]").forEach(col => {
+            const key = col.dataset.annoid;
+            const lbls = edits.labels[key] || [];
+            lbls.forEach((lb, li) => {
+                addLabelDOM(col, lb, key, li);
+            });
+        });
+    }
+
+    function addLabelDOM(container, lb, key, li) {
+        const div = document.createElement("div");
+        div.className = "annotation-label";
+        div.style.left = lb.x + "%";
+        div.style.top = lb.y + "%";
+        div.textContent = lb.text;
+
+        const del = document.createElement("span");
+        del.className = "label-delete";
+        del.textContent = "\u2715";
+        del.addEventListener("click", (e) => {
+            e.stopPropagation();
+            deleteLabel(key, li);
+        });
+        div.appendChild(del);
+
+        /* Drag to reposition */
+        let dragging = false, dragOffX = 0, dragOffY = 0;
+        div.addEventListener("mousedown", (e) => {
+            if (!editMode) return;
+            if (e.target === del) return;
+            e.stopPropagation();
+            e.preventDefault();
+            dragging = true;
+            const img = container.querySelector("img");
+            const rect = img.getBoundingClientRect();
+            dragOffX = e.clientX - (lb.x / 100 * rect.width + rect.left);
+            dragOffY = e.clientY - (lb.y / 100 * rect.height + rect.top);
+
+            const onMove = (ev) => {
+                if (!dragging) return;
+                const nx = ((ev.clientX - dragOffX - rect.left) / rect.width) * 100;
+                const ny = ((ev.clientY - dragOffY - rect.top) / rect.height) * 100;
+                div.style.left = nx + "%";
+                div.style.top = ny + "%";
+            };
+            const onUp = (ev) => {
+                if (!dragging) return;
+                dragging = false;
+                const nx = ((ev.clientX - dragOffX - rect.left) / rect.width) * 100;
+                const ny = ((ev.clientY - dragOffY - rect.top) / rect.height) * 100;
+                lb.x = +nx.toFixed(2);
+                lb.y = +ny.toFixed(2);
+                saveEdits();
+                document.removeEventListener("mousemove", onMove);
+                document.removeEventListener("mouseup", onUp);
+            };
+            document.addEventListener("mousemove", onMove);
+            document.addEventListener("mouseup", onUp);
+        });
+
+        /* Double-click to edit text */
+        div.addEventListener("dblclick", (e) => {
+            if (!editMode) return;
+            e.stopPropagation();
+            const newText = prompt("Editar label:", lb.text);
+            if (newText !== null && newText.trim()) {
+                lb.text = newText.trim();
+                saveEdits();
+                renderAllLabels();
+            }
+        });
+
+        container.appendChild(div);
+    }
+
+    function deleteLabel(key, li) {
+        if (!edits.labels[key]) return;
+        edits.labels[key].splice(li, 1);
+        if (!edits.labels[key].length) delete edits.labels[key];
+        saveEdits();
+        renderAllLabels();
+    }
+
+    /* Placing labels on click (only in label mode) */
+    viewport.addEventListener("click", (e) => {
+        if (!editMode || !labelMode) return;
+        const col = e.target.closest(".img-col[data-annoid], .phone-mockup[data-annoid]");
+        if (!col) return;
+        const img = col.querySelector("img");
+        if (!img || e.target !== img) return;
+
+        const rect = img.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+        const text = prompt("Texto do label (ex: 8.42%):");
+        if (!text || !text.trim()) return;
+
+        const key = col.dataset.annoid;
+        if (!edits.labels[key]) edits.labels[key] = [];
+        edits.labels[key].push({ x: +x.toFixed(2), y: +y.toFixed(2), text: text.trim() });
+        undoStack.push({ type: "label", key });
+        saveEdits();
+        renderAllLabels();
+    });
+
     /* ── UNDO / CLEAR / EXPORT ── */
     function undoEdit() {
         if (undoStack.length === 0) return;
@@ -4539,6 +4673,10 @@ body.edit-text .comp-wrap .img-source-url:hover {
             renderAnnotations();
         } else if (last.type === "text") {
             delete edits.texts[last.key];
+        } else if (last.type === "label") {
+            const arr = edits.labels[last.key];
+            if (arr) { arr.pop(); if (arr.length === 0) delete edits.labels[last.key]; }
+            renderAllLabels();
         }
         saveEdits();
     }
@@ -4548,7 +4686,14 @@ body.edit-text .comp-wrap .img-source-url:hover {
         const key = String(cur);
         delete edits.annotations[key];
         Object.keys(edits.texts).forEach(k => { if (k.startsWith(key + "|")) delete edits.texts[k]; });
-        saveEdits(); renderAnnotations();
+        /* Clear labels for any data-annoid containers within the current slide */
+        const slideEl = viewport.children[cur];
+        if (slideEl) {
+            slideEl.querySelectorAll("[data-annoid]").forEach(col => {
+                delete edits.labels[col.dataset.annoid];
+            });
+        }
+        saveEdits(); renderAnnotations(); renderAllLabels();
     }
     window.clearSlideEdits = clearSlideEdits;
 
