@@ -610,8 +610,8 @@
         /* Donut chart */
         .donut-wrap {
             position: relative;
-            width: 190px;
-            height: 190px;
+            width: 150px;
+            height: 150px;
         }
 
         .donut-chart {
@@ -626,10 +626,25 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             background: #f9fafb;
             border-radius: 50%;
+        }
+
+        .devices-insight {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin-top: 8px;
+            font-size: 13px;
+            line-height: 1.55;
+            color: #444;
+            border-left: 3px solid var(--weconvert-teal);
+        }
+
+        .devices-insight strong {
+            color: var(--weconvert-dark);
         }
 
         .donut-legend {
@@ -1554,40 +1569,30 @@
                 source: "Fonte: GA4 Analytics de 1 Jan - 31 Mar, 2026"
             },
             {
-                type: "table-split",
-                id: "canais",
-                heading: "Devemos investir em capturar mais leads e ser mais agressivos com Email. Tambem vale priorizar Paid Shopping sobre Paid Search",
-                columns: ["Canal", "%", "Bounce", "Dur. Sessao", "%", "eCVR", "RPV", "AOV"],
-                sheetGid: CANAIS_GID,
-                fallbackRows: [
-                    ["Paid Social", "49,47%", "0,40%", "0m 50s", "32,29%", "0,90%", "$2,72", "$303,98"],
-                    ["Organic Social", "10,69%", "0,28%", "1m 30s", "19,98%", "2,66%", "$7,80", "$293,26"],
-                    ["Direct", "11,21%", "0,80%", "1m 18s", "15,25%", "1,87%", "$5,68", "$302,97"],
-                    ["Organic Search", "8,75%", "1,78%", "1m 49s", "14,28%", "2,28%", "$6,81", "$299,20"],
-                    ["Unassigned", "18,29%", "79,64%", "0m 43s", "12,95%", "1,00%", "$2,96", "$296,27"],
-                    ["Paid Other", "1,97%", "0,26%", "1m 08s", "3,00%", "2,00%", "$6,35", "$317,09"],
-                    ["Email", "0,31%", "1,81%", "1m 57s", "0,86%", "3,59%", "$11,45", "$318,90"]
+                type: "dual-table-split",
+                id: "canais-returning",
+                heading: "Precisamos concentrar esforços em trazer visitantes que ficam: Email é o melhor canal (3,59% eCVR, maior RPV) e retornantes convertem 19% mais que novos",
+                table1Title: "Desempenho por Canal",
+                table1Columns: ["Canal", "%", "Bounce", "Sessão", "eCVR", "RPV", "AOV"],
+                table1Rows: [
+                    ["Paid Social", "49,47%", "0,40%", "0m 50s", "0,90%", "$2,72", "$303,98"],
+                    ["Organic Social", "10,69%", "0,28%", "1m 30s", "2,66%", "$7,80", "$293,26"],
+                    ["Direct", "11,21%", "0,80%", "1m 18s", "1,87%", "$5,68", "$302,97"],
+                    ["Organic Search", "8,75%", "1,78%", "1m 49s", "2,28%", "$6,81", "$299,20"],
+                    ["Paid Other", "1,97%", "0,26%", "1m 08s", "2,00%", "$6,35", "$317,09"],
+                    ["Email", "0,31%", "1,81%", "1m 57s", "3,59%", "$11,45", "$318,90"]
+                ],
+                table2Title: "Novos vs Retornantes",
+                table2Columns: ["Tipo", "% Sessões", "eCVR", "RPV", "AOV"],
+                table2Rows: [
+                    ["Novos", "71,4%", "1,46%", "$4,36", "$1.139"],
+                    ["Retornantes", "18,2%", "1,74%", "$5,35", "$1.487"]
                 ],
                 conclusions: [
-                    "Paid Social representa 49,5% dos usuarios mas tem a menor duracao de sessao e RPV. Isso sugere que visitantes vindo de redes sociais pagas sao menos engajados com a compra, e ha espaco para melhorar a qualidade dos backlinks.",
-                    "<strong>Email marketing e o canal mais eficiente</strong>, apresentando o maior AOV, RPV, eCVR e duracao de sessao entre todos. Devemos focar em capturar mais leads e ser mais agressivos com essa estrategia.",
-                    "Organic Search traz menos usuarios, mas com forte duracao de sessao, reforçando o valor de investir em SEO."
+                    "<strong>Email marketing é o canal mais eficiente:</strong> maior eCVR (3,59%), maior RPV ($11,45), maior AOV ($318) e maior duração de sessão. Representa apenas 0,31% do tráfego — há espaço enorme para escalar captura de leads.",
+                    "<strong>Retornantes convertem 19% mais</strong> (1,74% vs 1,46%) e têm RPV 23% maior ($5,35 vs $4,36). São apenas 18% do tráfego mas geram 23% da receita. Estratégias de remarketing, CRM e fidelidade são a maior alavanca.",
+                    "Paid Social traz 49% do tráfego mas tem o menor RPV ($2,72) e menor sessão (50s). Precisamos melhorar a qualidade do tráfego pago ou redirecionar budget para canais que retêm."
                 ],
-                source: "Fonte: GA4 Analytics de 1 Jan - 31 Mar, 2026"
-            },
-            {
-                type: "table",
-                id: "returning",
-                heading: "A grande maioria da audiencia pertence a categoria de novos usuarios (71%) ao inves de retornantes, mas retornantes trazem +19% de conversao",
-                columns: ["Tipo", "Sessoes", "% Sessoes", "Receita", "% Receita", "Transacoes", "AOV", "eCVR", "RPV"],
-                sheetGid: RETURNING_GID,
-                fallbackRows: [
-                    ["Novo", "1.033.774", "71,4%", "$4.505.909", "74,5%", "15.098", "$1.139,52", "1,46%", "$4,36"],
-                    ["Retornante", "263.728", "18,2%", "$1.411.864", "23,4%", "4.582", "$1.487,04", "1,74%", "$5,35"]
-                ],
-                highlightCells: {},
-                conclusion: "Devemos focar em atrair mais usuarios retornantes, ja que a porcentagem atual e muito baixa. Implementar mais estrategias de remarketing, CRM e possivelmente programas de fidelidade pode ser muito benefico.",
-                note: "Relatorio New vs Returning",
                 source: "Fonte: GA4 Analytics de 1 Jan - 31 Mar, 2026"
             }
         ];
@@ -1764,6 +1769,9 @@
                         <div class="chart-label">E-commerce conversion rate</div>
                     </div>
                 </div>
+                <div class="devices-insight">
+                    Segundo benchmark de mercado, uma diferença aceitável de taxa de conversão entre desktop e mobile é de <strong>~30%</strong>. Atualmente, a taxa de conversão mobile (3,08%) é <strong>52% menor</strong> que desktop (6,45%) — quase o dobro do gap esperado. Há espaço significativo para otimizar a experiência mobile e capturar mais conversões do canal que representa 94% do tráfego.
+                </div>
                 <div class="table-footer">
                     <span class="funnel-source">${d.source}</span>
                     <span class="funnel-brand">${GUDAY_LOGO}</span>
@@ -1813,7 +1821,7 @@
                             </div>
                         </div>
                         <div class="bench-img-wrap">
-                            <img src="${img}" alt="Benchmark Chart">
+                            <img src="${img}" alt="Benchmark Chart" onerror="this.style.display='none';this.parentElement.style.display='none'">
                         </div>
                     </div>
                     <div class="bench-right">
@@ -1893,6 +1901,37 @@
             </div>`;
         }
 
+        function dualTableSplitHTML(d) {
+            function buildTable(cols, rows) {
+                const hd = cols.map(c => `<th>${c}</th>`).join("");
+                const bd = rows.map(row => `<tr>${row.map(c => `<td>${c}</td>`).join("")}</tr>`).join("");
+                return `<table class="table-wrapper"><thead><tr>${hd}</tr></thead><tbody>${bd}</tbody></table>`;
+            }
+
+            const conclusionsHTML = d.conclusions.map(c =>
+                `<div class="funnel-conclusion-item">${c}</div>`
+            ).join("");
+
+            return `<div class="slide-table">
+                <div class="table-heading">${d.heading}</div>
+                <div class="table-split-body">
+                    <div class="table-split-left">
+                        <div style="font-size:12px;font-weight:700;color:#0c2340;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">${d.table1Title}</div>
+                        ${buildTable(d.table1Columns, d.table1Rows)}
+                        <div style="font-size:12px;font-weight:700;color:#0c2340;text-transform:uppercase;letter-spacing:0.5px;margin:12px 0 6px;">${d.table2Title}</div>
+                        ${buildTable(d.table2Columns, d.table2Rows)}
+                    </div>
+                    <div class="table-split-right">
+                        ${conclusionsHTML}
+                    </div>
+                </div>
+                <div class="table-footer">
+                    <span class="funnel-source">${d.source}</span>
+                    <span class="funnel-brand">${GUDAY_LOGO}</span>
+                </div>
+            </div>`;
+        }
+
         function slideHTML(d) {
             if (d.type === "cover") return coverHTML();
             if (d.type === "devices") return devicesHTML(d);
@@ -1900,6 +1939,7 @@
             if (d.type === "funnel") return funnelHTML(d);
             if (d.type === "table") return tableHTML(d);
             if (d.type === "table-split") return tableSplitHTML(d);
+            if (d.type === "dual-table-split") return dualTableSplitHTML(d);
             return "";
         }
 
@@ -2223,7 +2263,7 @@
 
         viewport.addEventListener("click", (e) => {
             if (!editMode || editTool !== "text") return;
-            const editable = e.target.closest(".funnel-heading, .funnel-conclusion-item, .funnel-chart-title, .table-heading, .table-conclusion, .devices-heading, .bench-heading");
+            const editable = e.target.closest(".funnel-heading, .funnel-conclusion-item, .funnel-chart-title, .table-heading, .table-conclusion, .devices-heading, .devices-insight, .bench-heading");
             if (!editable) return;
             e.stopPropagation();
             editable.setAttribute("contenteditable", "true");

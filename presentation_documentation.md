@@ -189,6 +189,175 @@ Existem **8 apresentações** independentes:
 
 **Features:** PDF export, fullscreen, thumbnails, navegação por teclado, edição de texto inline com persistência localStorage + JSON export
 
+### 8. CRO Research Pocket (Apresentacao Consolidada)
+
+**Arquivo:** `cro-research-pocket.html`
+**Edicoes:** `pocket-edits.json` (exportavel, opcional)
+**Funciona direto no browser** — dados carregados de Google Sheets + CSVs, nao precisa de Live Server para conteudo estatico, mas precisa para heatmap/heuristic/competitors (fetch de dados)
+
+**Descricao:** Apresentacao unica que consolida TODAS as analises em um unico arquivo, com key takeaways entre cada secao e um plano de implementacao no final.
+
+**Secoes e slides (ordem):**
+
+1. **Stakeholders Analysis (3 slides)**
+   - Capa (estilo lilac claro, pre-title "ANALISE DE STAKEHOLDERS")
+   - Resumo da Guday pelos C-Levels (info card)
+   - Leitura da equipe de suporte (info card)
+
+2. **Desk Research (9 slides)**
+   - Capa (estilo lilac claro, "ESTUDO DO MERCADO WELLNESS")
+   - Mercado wellness (KPIs + dados, imagem `img.png`)
+   - Timeline (bodybuilding → wellness → longevidade)
+   - Perfil consumidor (imagem `img-3.png`)
+   - Creatina: historia (imagem `img-2.webp`)
+   - Creatina: timeline (7 marcos)
+   - Creatina: perfil consumidor
+   - Melatonina: historia (imagem `img-4.png`)
+   - Melatonina: perfil
+
+3. **Key Takeaways | Stakeholders & Market (1 slide, 6 pontos)**
+
+4. **Analytics Analysis (8 slides, dados ao vivo do Google Sheets)**
+   - Capa (estilo teal, "Onde os seus visitantes estao abandonando?")
+   - Devices (donuts mobile/desktop + CVR bars)
+   - Benchmark CVR (cards + imagem `ANALYTICS/bench.png`)
+   - Benchmark AOV (cards + imagem `IMGS/benc-aov.png`)
+   - Funil Homepage (barras + conclusoes)
+   - Funil PDP (barras + conclusoes)
+   - Tabela por pagina
+   - Canais + Retornantes (dual table split)
+
+5. **Key Takeaways | Analytics (1 slide, 4 pontos)**
+
+6. **Retention Analysis (9 slides, dados hardcoded)**
+   - Capa (estilo teal, "Como seus clientes estao recomprando?")
+   - Gap cards (tempo entre compras)
+   - LTV x Potes (barras horizontais)
+   - Cupom vs Sem cupom (compare cards)
+   - Idade (barras horizontais)
+   - Canais (tabela split)
+   - Creatina antes? (tabela split)
+   - Frete (tabela split)
+   - Cross-sell (compare cards)
+
+7. **Key Takeaways | Retencao (1 slide, 7 pontos)**
+
+8. **User Testing (5 slides)**
+   - Capa (estilo teal, "Como seus usuarios navegam no site?")
+   - Cards: 5 segundos + Primeiras impressoes + O que destaca
+   - Cards: O que falta + O que impede + Compraria?
+   - Cards 2 colunas: Product Pages + Carrinho/Checkout
+   - Key Takeaways | User Testing (6 pontos)
+
+9. **Post-Purchase (10 slides, dados hardcoded de fallback)**
+   - Capa (estilo teal, "O que seus clientes pensam apos comprar?")
+   - Canal de descoberta (barras)
+   - Interesse (barras)
+   - Fatores de compra (barras)
+   - Dificuldades anteriores (barras)
+   - NPS + Recomendacao (dual chart)
+   - Objecoes (barras)
+   - Medos (barras)
+   - O que convenceria (barras)
+   - Quotes de clientes
+
+10. **Key Takeaways | Post-Purchase (1 slide, 5 pontos)**
+
+11. **Review Mining (11 slides)**
+    - Capa (estilo teal, "O Que Seus Clientes Realmente Pensam?")
+    - KPIs gerais + Amazon vs Okendo
+    - Sentimento por produto (tabela)
+    - Drivers de compra (barras + chips)
+    - O que amam (quotes + chips)
+    - Textura (positiva vs negativa)
+    - Frustracoes (barras + chips)
+    - Barreiras de compra (objection cards)
+    - Red flags (severity cards)
+    - CRO & Copy (voice of customer + objecoes)
+
+12. **Key Takeaways | Review Mining (1 slide, 3 pontos)**
+
+13. **Heatmap Analysis (dinamico do Google Sheets)**
+    - Capa (estilo teal, "Onde seus usuarios estao clicando?")
+    - Slides dinamicos com sidebar + heatmap images (Home, Collection, Product, Cart)
+    - Key Takeaways | Heatmap (9 pontos)
+    - **Sheet ID:** `1S_t8FgGN4qY9UTzupaTBGbkDtPu8Nc3IZi8Vow2h59w`
+
+14. **Heuristic Analysis (dinamico do Google Sheets)**
+    - Capa (estilo teal, "Onde estao as oportunidades de CRO?")
+    - Guidelines slide (5 dimensoes)
+    - Slides dinamicos com sidebar + phone mockups + gauges
+    - Key Takeaways | Heuristica (9 pontos)
+    - **Sheet ID:** `1I6exGP97-OTq65NgopjLHpxXlgJG50efOmnaTFtdpVg`
+
+15. **Competitor Analysis (dinamico do Google Sheets)**
+    - Capa (estilo teal, "O que seus concorrentes estao fazendo?")
+    - Slides dinamicos com sidebar + phone mockups
+    - Key Takeaways | Competitors (6 pontos)
+    - **Sheet ID:** `1jlxjPGC9L-HWMt3DptsRjAxmYc6DszIC5ArWrlYRw5o`
+
+16. **JDIs & Testes A/B (5 slides)**
+    - Capa (estilo teal, "Mudancas no site / JDIs & Testes A/B")
+    - Big Problems Found (3 cards teal: site confuso, up-sell, ciencia)
+    - Homepage: problem statement + 8 recomendacoes
+    - PDP: 12 recomendacoes
+    - Cart & Checkout: problem statement + 8 recomendacoes
+
+**Tipos de slide unificados:**
+- `cover` — capa estilo lilac claro (stakeholders, desk research)
+- `cover-dark` — capa roxa escura (nao usado no pocket)
+- `cover-teal` — capa verde/teal (analytics, retention, user testing, post-purchase, review mining, heatmap, heuristic, competitors, JDIs)
+- `info` — card com secoes (stakeholders)
+- `list` — key takeaways numerados
+- `market/profile` — KPIs + dados + imagem
+- `timeline` — marcos conectados por linha
+- `funnel` — barras verticais com abandonment badges
+- `devices` — donuts + CVR bars
+- `benchmark` — cards de percentil + imagem
+- `table` / `table-split` / `dual-table-split` — tabelas com conclusoes
+- `gap-cards` — cards de timing de recompra
+- `bars-table` — barras horizontais duplas (LTV + retencao)
+- `coupon-compare` / `crosssell-compare` — cards comparativos grandes
+- `cards` — grid de cards com icones (user testing)
+- `content` — barras + conclusoes (post-purchase)
+- `dual-chart` — dois paineis lado a lado (pie + barras)
+- `quotes` — grid de depoimentos
+- `rm-*` — review mining (KPIs, sentimento, drivers, quotes, objections, red flags, CRO)
+- `hm-wrap` — heatmap (sidebar + scroll map + images)
+- `heur-wrap` — heuristic (sidebar + gauges + phone mockups)
+- `comp-wrap` — competitors (sidebar + phone mockups)
+- `problems` — Big Problems Found (cards teal)
+- `recs` — recomendacoes por pagina (JDIs)
+
+**Features do pocket:**
+- PDF export unificado
+- Fullscreen / modo apresentacao
+- Thumbnails com navegacao
+- Teclado (setas, Home, End, Escape)
+- **Modo edicao com 2 ferramentas:**
+  - **Retangulo:** desenha quadros vermelhos arrastando sobre qualquer area de conteudo
+  - **Texto:** clica para editar inline qualquer titulo, conclusao ou texto
+- Desfazer (ultima acao)
+- Limpar slide (remove todas anotacoes do slide atual)
+- Export JSON (salva anotacoes + edits como `pocket-edits.json`)
+- Persistencia via localStorage (`guday-pocket-edits`)
+
+**Imagens utilizadas (paths relativos ao pocket em PRESENTATION/):**
+- `img.png` — mercado wellness
+- `img-3.png` — perfil consumidor wellness
+- `../img-2.webp` — creatina historia
+- `img-4.png` — melatonina historia
+- `../IMGS/vinagre-de-ma%C3%A7a.webp` — B12+ACV (somente no full)
+- `../IMGS/vinagre-2.webp` — perfil B12+ACV (somente no full)
+- `../IMGS/matcha.webp` — CoQ10+Matcha (somente no full)
+- `../IMGS/benc-aov.png` — benchmark AOV chart
+- `ANALYTICS/bench.png` — benchmark CVR chart
+
+### 9. Full Presentation (Versao Completa)
+
+**Arquivo:** `guday-full-presentation.html`
+**Descricao:** Versao completa com stakeholders (4 slides, 9 takeaways) + desk research completo (13 slides incluindo B12+ACV e CoQ10+Matcha). Nao inclui analytics, retention, user testing, post-purchase, review mining, heatmap, heuristic nem competitors. Serve como base para a versao pocket.
+
 ---
 
 **Paleta de cores (estilo WeConvert):**
@@ -276,6 +445,18 @@ PRESENTATION/
 │   ├── review-mining-analysis.html           # Apresentação de review mining (7a)
 │   ├── reviewmining-edits.json               # Edições exportadas (opcional)
 │   └── tmrw - Review Mining Analysis.pdf     # Referência estética (WeConvert/tmrw)
+├── HEATMAP/
+│   ├── heatmap-analysis.html                 # Analise de heatmap (clickmap + scrollmap)
+│   └── (imagens dinamicas referenciadas pelo Google Sheets)
+├── HEURISTIC/
+│   ├── heuristic-analysis.html               # Analise heuristica
+│   ├── Heuristic Example - Anomaly.pdf       # Referencia de formato
+│   └── (imagens dinamicas referenciadas pelo Google Sheets)
+├── cro-research-pocket.html                  # Apresentacao consolidada (TODAS as analises)
+├── guday-full-presentation.html              # Versao completa (stakeholders + desk research)
+├── img.png                                   # Imagem mercado wellness
+├── img-3.png                                 # Imagem perfil consumidor
+├── img-4.png                                 # Imagem melatonina
 ├── presentation_documentation.md             # Este arquivo
 ├── GUDAY_Reposicionamento_05_03_2026.pdf     # Brand guidelines
 └── GUDAY — BASE DE CONHECIMENTO DO ASSISTENTE CRIATIVO (2).pdf

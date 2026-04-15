@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guday — CRO Presentation</title>
+<link rel="icon" type="image/svg+xml" href="COMPETITORS/favicon.svg">
+<link rel="stylesheet" href="https://use.typekit.net/lcw2zgr.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+    --purple-primary: #b282eb; --purple-deep: #7f56d9; --purple-dark: #1E192A;
+    --purple-muted: #6d6daa; --white: #ffffff; --text-dark: #1E192A;
+    --slide-w: 960px; --slide-h: 540px; --thumb-scale: 0.18;
+    --weconvert-teal: #0ea5a0; --weconvert-dark: #0c2340;
+}
+body { font-family: 'degular','Inter',system-ui,sans-serif; background: #e8e8e8; color: var(--text-dark); overflow: hidden; height: 100vh; width: 100vw; -webkit-font-smoothing: antialiased; }
+
+/* ── TOOLBAR ── */
+.toolbar { height: 52px; background: var(--white); border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; position: relative; }
+.toolbar-left { display: flex; align-items: center; gap: 12px; }
+.toolbar-icon { width: 32px; height: 32px; background: var(--purple-deep); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.toolbar-icon svg { width: 18px; height: 18px; }
+.toolbar-title { font-size: 16px; font-weight: 600; color: var(--text-dark); letter-spacing: -0.3px; }
+.toolbar-title span { color: var(--purple-muted); font-weight: 400; }
+.toolbar-actions { display: flex; gap: 8px; align-items: center; }
+.btn-present { background: var(--purple-deep); color: white; border: none; padding: 9px 20px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.1s; }
+.btn-present:hover { background: #6a47c0; transform: translateY(-1px); }
+.btn-present:active { transform: translateY(0); }
+.btn-present svg { width: 16px; height: 16px; }
+.btn-download { background: var(--white); color: var(--text-dark); border: 1px solid #ddd; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.1s, border-color 0.2s; }
+.btn-download:hover { background: #f5f5f5; border-color: #bbb; transform: translateY(-1px); }
+.btn-download:active { transform: translateY(0); }
+.btn-download svg { width: 16px; height: 16px; }
+.btn-download:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* ── LAYOUT ── */
+.main-container { display: flex; height: calc(100vh - 52px); }
+.thumbnail-panel { width: 224px; min-width: 224px; background: #f1f1f1; border-right: 1px solid #ddd; overflow-y: auto; overflow-x: hidden; padding: 10px 10px 10px 6px; display: flex; flex-direction: column; gap: 4px; }
+.thumbnail-panel::-webkit-scrollbar { width: 5px; }
+.thumbnail-panel::-webkit-scrollbar-thumb { background: #c5c5c5; border-radius: 3px; }
+.thumb-wrap { cursor: pointer; display: flex; align-items: flex-start; gap: 4px; padding: 3px; border-radius: 4px; transition: background 0.15s; flex-shrink: 0; }
+.thumb-wrap:hover { background: #e2e2e2; }
+.thumb-num { font-size: 10px; color: #999; min-width: 20px; text-align: right; padding-top: 1px; font-weight: 500; line-height: 1; }
+.thumb-frame { width: 172px; height: 97px; overflow: hidden; border-radius: 3px; border: 2px solid transparent; transition: border-color 0.2s, box-shadow 0.2s; position: relative; background: var(--white); flex-shrink: 0; }
+.thumb-wrap.active .thumb-frame { border-color: var(--purple-deep); box-shadow: 0 0 0 1px var(--purple-deep); }
+.thumb-inner { width: var(--slide-w); height: var(--slide-h); transform: scale(var(--thumb-scale)); transform-origin: top left; pointer-events: none; position: absolute; top: 0; left: 0; }
+.slide-area { flex: 1; display: flex; align-items: center; justify-content: center; background: #d6d6d6; position: relative; overflow: hidden; }
+.slide-viewport { width: var(--slide-w); height: var(--slide-h); position: relative; box-shadow: 0 4px 24px rgba(0,0,0,0.18); border-radius: 2px; overflow: hidden; background: var(--white); }
+
+/* ── SLIDES ── */
+.slide { width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none; transition: opacity 0.45s cubic-bezier(.4,0,.2,1), transform 0.45s cubic-bezier(.4,0,.2,1); will-change: opacity, transform; }
+.slide.active { opacity: 1; transform: translateX(0); pointer-events: auto; z-index: 2; }
+.slide.entering-right { transform: translateX(40px); }
+.slide.entering-left { transform: translateX(-40px); }
+.slide.exiting-right { transform: translateX(40px); opacity: 0; z-index: 1; }
+.slide.exiting-left { transform: translateX(-40px); opacity: 0; z-index: 1; }
+
+/* ── COVER (Desk Research style — light gradient) ── */
+.slide-cover { width: 100%; height: 100%; background: linear-gradient(135deg, #f5f0fa 0%, #ede4f7 30%, #f8f4fc 60%, #f0e8f9 100%); display: flex; flex-direction: column; justify-content: center; padding: 60px 80px; position: relative; overflow: hidden; }
+.slide-cover::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(160deg, rgba(127,86,217,0.06) 0%, transparent 50%), linear-gradient(200deg, transparent 50%, rgba(178,130,235,0.04) 100%); pointer-events: none; }
+.slide-cover::after { content: ''; position: absolute; left: 20px; top: 50%; transform: translateY(-50%); width: 200px; height: 300px; background: linear-gradient(180deg, rgba(127,86,217,0.06) 0%, rgba(178,130,235,0.02) 100%); clip-path: polygon(15% 0%, 35% 100%, 50% 40%, 65% 100%, 85% 0%); pointer-events: none; }
+.cover-pre-title { font-size: 16px; font-weight: 800; color: var(--purple-deep); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; position: relative; }
+.cover-title { font-size: 46px; font-weight: 800; color: var(--purple-dark); line-height: 1.08; margin-bottom: 16px; position: relative; letter-spacing: -1px; }
+.cover-underline { width: 280px; height: 4px; background: linear-gradient(90deg, var(--purple-deep), var(--purple-primary)); border-radius: 2px; margin-bottom: 16px; position: relative; }
+.cover-meta { color: #4a4a6a; font-size: 15px; position: relative; font-weight: 500; }
+.cover-logo { position: absolute; bottom: 30px; right: 40px; }
+.cover-logo svg { height: 24px; width: auto; }
+
+/* ── SECTION COVER (dark, for sub-sections like Creatina) ── */
+.slide-cover-dark { width: 100%; height: 100%; background: linear-gradient(145deg, #0f0a1a 0%, var(--purple-dark) 35%, #2a1650 65%, var(--purple-deep) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 50px 60px; position: relative; overflow: hidden; }
+.slide-cover-dark::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 600px 400px at 25% 40%, rgba(178,130,235,0.12) 0%, transparent 70%), radial-gradient(ellipse 500px 500px at 80% 70%, rgba(127,86,217,0.08) 0%, transparent 60%); pointer-events: none; }
+.slide-cover-dark .cover-badge { background: rgba(178,130,235,0.15); border: 1px solid rgba(178,130,235,0.3); color: var(--purple-primary); padding: 8px 28px; border-radius: 100px; font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 28px; position: relative; }
+.slide-cover-dark .cover-title { font-size: 48px; font-weight: 800; color: white; line-height: 1.05; margin-bottom: 12px; position: relative; letter-spacing: -1px; }
+.slide-cover-dark .cover-subtitle { font-size: 20px; color: rgba(178,130,235,0.7); font-weight: 500; margin-bottom: 40px; position: relative; text-transform: uppercase; letter-spacing: 4px; }
+.slide-cover-dark .cover-divider { width: 60px; height: 3px; background: var(--purple-deep); border-radius: 2px; margin-bottom: 36px; position: relative; }
+.slide-cover-dark .cover-meta { color: rgba(255,255,255,0.3); font-size: 13px; position: relative; font-weight: 400; }
+
+/* ── INFO SLIDE (Stakeholders) ── */
+.slide-info { width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--white); padding: 40px 50px 24px; }
+.slide-info-heading { font-size: 24px; font-weight: 800; color: var(--text-dark); line-height: 1.2; margin-bottom: 28px; letter-spacing: -0.5px; }
+.info-card { flex: 1; background: #f8f7f5; border-radius: 10px; padding: 28px 32px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+.info-section { }
+.info-label { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+.info-text { font-size: 14px; line-height: 1.6; color: #555; }
+.slide-info-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 10px; }
+
+/* ── LIST SLIDE (Key Takeaways) ── */
+.slide-list { width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--white); padding: 36px 50px 24px; }
+.slide-list-heading { font-size: 24px; font-weight: 800; color: var(--text-dark); line-height: 1.2; margin-bottom: 24px; letter-spacing: -0.5px; }
+.list-items { flex: 1; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+.list-item { display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.55; color: #444; }
+.list-item-num { min-width: 28px; font-size: 15px; font-weight: 700; color: var(--purple-deep); flex-shrink: 0; }
+.list-item-bold { font-weight: 700; color: var(--text-dark); }
+.slide-list-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 10px; }
+
+/* ── MARKET SLIDE (Desk Research) ── */
+.slide-market { width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--white); padding: 32px 44px 20px; }
+.slide-market-heading { font-size: 22px; font-weight: 800; color: var(--text-dark); line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.5px; }
+.kpi-row { display: flex; gap: 14px; margin-bottom: 24px; }
+.kpi-box { flex: 1; background: var(--purple-dark); border-radius: 10px; padding: 14px 16px; text-align: center; }
+.kpi-box .kpi-value { font-size: 22px; font-weight: 800; color: var(--purple-primary); margin-bottom: 4px; }
+.kpi-box .kpi-label { font-size: 10px; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.3; }
+
+/* Timeline */
+.timeline { display: flex; align-items: flex-start; justify-content: center; gap: 0; margin-bottom: 16px; position: relative; padding: 0 20px; }
+.timeline-item { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
+.timeline-dot { width: 20px; height: 20px; border-radius: 50%; background: var(--purple-deep); border: 3px solid var(--purple-primary); z-index: 2; flex-shrink: 0; }
+.timeline-line { position: absolute; top: 10px; left: calc(50% + 10px); right: calc(-50% + 10px); height: 2px; background: linear-gradient(90deg, var(--purple-primary), rgba(178,130,235,0.3)); z-index: 1; }
+.timeline-item:last-child .timeline-line { display: none; }
+.timeline-year { font-size: 12px; font-weight: 700; color: var(--purple-deep); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.timeline-title { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-top: 4px; line-height: 1.3; }
+.timeline-desc { font-size: 10.5px; color: #777; margin-top: 4px; line-height: 1.4; padding: 0 6px; }
+
+/* Gummies row */
+.gummies-row { display: flex; gap: 14px; margin-top: auto; }
+.gummies-box { flex: 1; background: rgba(178,130,235,0.06); border: 1px solid rgba(178,130,235,0.15); border-radius: 10px; padding: 12px 16px; text-align: center; }
+.gummies-box .gummies-value { font-size: 18px; font-weight: 800; color: var(--purple-deep); }
+.gummies-box .gummies-label { font-size: 10px; color: var(--purple-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── PROFILE SLIDE ── */
+.slide-profile { width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--white); padding: 32px 44px 20px; }
+.profile-heading { font-size: 22px; font-weight: 800; color: var(--text-dark); line-height: 1.2; margin-bottom: 20px; letter-spacing: -0.5px; }
+.profile-body { flex: 1; display: flex; gap: 28px; min-height: 0; }
+.profile-image { width: 380px; min-width: 380px; background: #e8e6e2; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 14px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+.profile-data { flex: 1; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+.profile-item { font-size: 15px; line-height: 1.6; color: #444; padding-left: 18px; position: relative; }
+.profile-item::before { content: '\2192'; color: var(--purple-deep); font-weight: 700; position: absolute; left: 0; font-size: 14px; }
+.profile-item b { color: var(--text-dark); font-weight: 700; }
+.profile-section { font-size: 11px; font-weight: 700; color: var(--purple-deep); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 10px; margin-bottom: 2px; }
+
+/* ── SHARED FOOTER ── */
+.slide-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 8px; }
+.slide-source { font-size: 10px; color: #b0b0b0; }
+.slide-brand { display: flex; align-items: center; }
+.slide-brand svg { height: 16px; width: auto; }
+
+/* ── EDIT MODE ── */
+.btn-edit { background: var(--white); color: var(--text-dark); border: 1px solid #ddd; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: background 0.2s, transform 0.1s, border-color 0.2s; }
+.btn-edit:hover { background: #f5f5f5; border-color: #bbb; transform: translateY(-1px); }
+.btn-edit:active { transform: translateY(0); }
+.btn-edit svg { width: 16px; height: 16px; }
+body.edit-mode .btn-edit { background: #e00; color: white; border-color: #e00; }
+body.edit-mode .btn-edit:hover { background: #c00; border-color: #c00; }
+.btn-tool { background: var(--white); color: var(--text-dark); border: 1px solid #ddd; padding: 9px 12px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+.btn-tool:hover { background: #f5f5f5; border-color: #bbb; }
+.btn-tool svg { width: 14px; height: 14px; }
+
+body.edit-text .slide-info-heading,
+body.edit-text .info-label,
+body.edit-text .info-text,
+body.edit-text .slide-list-heading,
+body.edit-text .list-item span:last-child,
+body.edit-text .slide-market-heading,
+body.edit-text .profile-heading,
+body.edit-text .profile-item,
+body.edit-text .profile-section,
+body.edit-text .kpi-box .kpi-value,
+body.edit-text .kpi-box .kpi-label,
+body.edit-text .timeline-title,
+body.edit-text .timeline-desc,
+body.edit-text .gummies-box .gummies-value,
+body.edit-text .gummies-box .gummies-label,
+body.edit-text .devices-heading,
+body.edit-text .bench-heading,
+body.edit-text .funnel-a-heading,
+body.edit-text .table-a-heading,
+body.edit-text .bars-table-heading,
+body.edit-text .table-r-heading,
+body.edit-text .cards-heading,
+body.edit-text .cards-summary,
+body.edit-text .card-title,
+body.edit-text .card-item,
+body.edit-text .fc-item,
+body.edit-text .a-conclusion-item,
+body.edit-text .ret-conclusion-item {
+    cursor: text; outline: 1px dashed rgba(127,86,217,0.3); outline-offset: 3px; border-radius: 3px;
+}
+body.edit-text .slide-info-heading:hover,
+body.edit-text .info-label:hover,
+body.edit-text .info-text:hover,
+body.edit-text .slide-list-heading:hover,
+body.edit-text .list-item span:last-child:hover,
+body.edit-text .slide-market-heading:hover,
+body.edit-text .profile-heading:hover,
+body.edit-text .profile-item:hover,
+body.edit-text .profile-section:hover,
+body.edit-text .kpi-box .kpi-value:hover,
+body.edit-text .kpi-box .kpi-label:hover,
+body.edit-text .timeline-title:hover,
+body.edit-text .timeline-desc:hover,
+body.edit-text .gummies-box .gummies-value:hover,
+body.edit-text .gummies-box .gummies-label:hover,
+body.edit-text .devices-heading:hover,
+body.edit-text .bench-heading:hover,
+body.edit-text .funnel-a-heading:hover,
+body.edit-text .table-a-heading:hover,
+body.edit-text .bars-table-heading:hover,
+body.edit-text .table-r-heading:hover,
+body.edit-text .cards-heading:hover,
+body.edit-text .cards-summary:hover,
+body.edit-text .card-title:hover,
+body.edit-text .card-item:hover,
+body.edit-text .fc-item:hover,
+body.edit-text .a-conclusion-item:hover,
+body.edit-text .ret-conclusion-item:hover {
+    outline-color: var(--purple-deep); background: rgba(127,86,217,0.04);
+}
+[contenteditable="true"] { outline: 2px solid var(--purple-deep) !important; background: rgba(127,86,217,0.06) !important; }
+
+/* ── NAV ── */
+.nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,0.92); box-shadow: 0 2px 10px rgba(0,0,0,0.12); cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 10; color: var(--text-dark); font-weight: 300; line-height: 1; }
+.nav-arrow:hover { background: white; box-shadow: 0 4px 16px rgba(0,0,0,0.18); transform: translateY(-50%) scale(1.08); }
+.nav-arrow.prev { left: 14px; } .nav-arrow.next { right: 14px; }
+.nav-arrow:disabled { opacity: 0.25; cursor: default; pointer-events: none; }
+.slide-counter { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.55); color: white; padding: 5px 16px; border-radius: 14px; font-size: 12px; font-weight: 500; letter-spacing: 0.5px; backdrop-filter: blur(4px); }
+
+/* ── FULLSCREEN ── */
+body.fullscreen-mode .toolbar { display: none; }
+body.fullscreen-mode .thumbnail-panel { display: none; }
+body.fullscreen-mode .main-container { height: 100vh; }
+body.fullscreen-mode .slide-area { background: #000; }
+body.fullscreen-mode .nav-arrow { opacity: 0; transition: opacity 0.3s, transform 0.2s, background 0.2s, box-shadow 0.2s; }
+body.fullscreen-mode .slide-area:hover .nav-arrow { opacity: 1; }
+body.fullscreen-mode .slide-counter { background: rgba(0,0,0,0.4); }
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.slide-cover .cover-pre-title { animation: fadeInUp 0.6s 0.1s both; }
+.slide-cover .cover-title { animation: fadeInUp 0.6s 0.2s both; }
+.slide-cover .cover-underline { animation: fadeInUp 0.6s 0.35s both; }
+.slide-cover .cover-meta { animation: fadeInUp 0.6s 0.45s both; }
+.slide-cover-dark .cover-badge { animation: fadeInUp 0.6s 0.1s both; }
+.slide-cover-dark .cover-title { animation: fadeInUp 0.6s 0.2s both; }
+.slide-cover-dark .cover-subtitle { animation: fadeInUp 0.6s 0.35s both; }
+.slide-cover-dark .cover-divider { animation: fadeInUp 0.6s 0.45s both; }
+.slide-cover-dark .cover-meta { animation: fadeInUp 0.6s 0.55s both; }
+@media (max-height: 650px) { .toolbar { height: 44px; } .main-container { height: calc(100vh - 44px); } }
+
+/* ── ANALYTICS + RETENTION EXTRA VARIABLES ── */
+:root { --weconvert-teal: #0ea5a0; --weconvert-dark: #0c2340; --weconvert-coral: #e8524f; }
+
+/* ── ANALYTICS: DEVICES ── */
+.slide-devices { width:100%;height:100%;display:flex;flex-direction:column;background:var(--white);padding:24px 32px 16px;overflow:hidden; }
+.devices-heading { font-size:17px;font-weight:800;color:var(--weconvert-dark);line-height:1.2;margin-bottom:14px;letter-spacing:-0.3px; }
+.devices-body { flex:1;display:flex;gap:16px;min-height:0;align-items:center; }
+.device-chart-card { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#f9fafb;border-radius:12px;padding:12px 10px;height:100%;box-shadow:0 2px 12px rgba(0,0,0,0.06); }
+.device-chart-card:nth-child(1){transform:rotate(-2deg)} .device-chart-card:nth-child(2){transform:rotate(1deg)} .device-chart-card:nth-child(3){transform:rotate(0deg)}
+.device-chart-card .chart-label { font-size:11px;color:#666;margin-top:8px;font-style:italic; }
+.donut-wrap { position:relative;width:150px;height:150px; }
+.donut-chart { width:100%;height:100%;border-radius:50%;position:relative; }
+.donut-chart::after { content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;background:#f9fafb;border-radius:50%; }
+.donut-pct { position:absolute;font-size:13px;font-weight:800;z-index:1; }
+.donut-legend { display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;justify-content:center; }
+.donut-legend-item { display:flex;align-items:center;gap:4px;font-size:10px;color:#555; }
+.donut-legend-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.cvr-bars { display:flex;flex-direction:column;gap:14px;width:100%;padding:0 8px; }
+.cvr-bar-row { display:flex;align-items:center;gap:8px; }
+.cvr-bar-label { font-size:10px;font-weight:500;color:#555;width:50px;text-align:right;flex-shrink:0; }
+.cvr-bar-track { flex:1;height:24px;background:#eee;border-radius:4px;position:relative;overflow:hidden; }
+.cvr-bar-fill { height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:11px;font-weight:700;color:white;min-width:45px; }
+.devices-insight { background:#f8f9fa;border-radius:10px;padding:12px 18px;margin-top:8px;font-size:13px;line-height:1.55;color:#444;border-left:3px solid var(--weconvert-teal); }
+
+/* ── ANALYTICS: BENCHMARK ── */
+.slide-bench { width:100%;height:100%;display:flex;flex-direction:column;background:var(--white);padding:24px 32px 16px;overflow:hidden; }
+.bench-heading { font-size:17px;font-weight:800;color:var(--weconvert-dark);line-height:1.2;margin-bottom:14px;letter-spacing:-0.3px; }
+.bench-body { flex:1;display:flex;gap:20px;min-height:0; }
+.bench-left { flex:1.2;display:flex;flex-direction:column;gap:12px;min-height:0; }
+.bench-cards { display:flex;gap:10px; }
+.bench-card { flex:1;border:2px solid #e8e8e8;border-radius:10px;padding:10px 12px;display:flex;flex-direction:column; }
+.bench-card-label { font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px; }
+.bench-card-value { font-size:24px;font-weight:800;color:var(--weconvert-dark);line-height:1;margin-bottom:3px; }
+.bench-card-desc { font-size:8px;color:#999;line-height:1.3; }
+.bench-card.yours { border-color:var(--weconvert-teal); } .bench-card.yours .bench-card-label { color:var(--weconvert-teal); }
+.bench-card.median .bench-card-label { color:var(--weconvert-dark); } .bench-card.top .bench-card-label { color:#7f56d9; }
+.bench-img-wrap { flex:1;min-height:0;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fafafa; }
+.bench-img-wrap img { max-width:100%;max-height:100%;object-fit:contain; }
+.bench-right { flex:0.8;display:flex;flex-direction:column;justify-content:center;gap:12px; }
+
+/* ── ANALYTICS: FUNNEL ── */
+.slide-funnel-a { width:100%;height:100%;display:flex;flex-direction:column;background:var(--white);padding:28px 36px 20px; }
+.funnel-a-heading { font-size:18px;font-weight:800;color:var(--weconvert-dark);line-height:1.2;margin-bottom:18px;letter-spacing:-0.5px;padding-right:20px; }
+.funnel-a-body { flex:1;display:flex;gap:28px;min-height:0; }
+.funnel-a-chart-area { flex:1.2;display:flex;flex-direction:column;background:#f9fafb;border-radius:10px;padding:18px 24px 14px;position:relative; }
+.funnel-a-chart-title { font-size:14px;font-weight:700;color:var(--weconvert-dark);margin-bottom:14px; }
+.funnel-a-chart-wrapper { flex:1;display:flex;min-height:0;padding-top:24px; }
+.funnel-a-y-axis { width:50px;flex-shrink:0;position:relative; }
+.y-tick-a { position:absolute;left:0;right:0;transform:translateY(-50%); }
+.y-tick-a-label { font-size:10px;color:#aab;display:block;text-align:right;padding-right:8px; }
+.y-tick-a-line { position:absolute;top:50%;left:100%;right:-600px;border-top:1px dashed #e8e8e8;pointer-events:none; }
+.funnel-a-bars-area { flex:1;display:flex;align-items:flex-end;position:relative;border-left:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;margin-bottom:24px; }
+.funnel-a-bar-col { flex:1;display:flex;flex-direction:column;align-items:center;align-self:stretch;justify-content:flex-end; }
+.funnel-a-bar { width:52px;border-radius:4px 4px 0 0;position:relative;min-height:2px; }
+.funnel-a-bar-value { position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:700;white-space:nowrap; }
+.funnel-a-bar-label { font-size:11px;font-weight:600;color:#555;padding-top:6px;text-align:center;white-space:nowrap;position:absolute;bottom:-22px; }
+.funnel-a-abandon-row { display:flex;align-items:center;margin-top:2px; }
+.abandon-label-a { font-size:10px;font-weight:600;color:#777;white-space:nowrap;width:50px;flex-shrink:0;text-align:right;padding-right:8px; }
+.abandon-badges-a { flex:1;display:flex; }
+.abandon-badges-a .funnel-a-bar-col { flex:1;display:flex;justify-content:center;align-items:center; }
+.abandon-badge-a { display:inline-flex;align-items:center;justify-content:center;padding:3px 12px;border-radius:4px;font-size:11px;font-weight:700;color:white; }
+.abandon-badge-a.rate { background:var(--weconvert-coral); } .abandon-badge-a.cvr { background:var(--weconvert-teal); }
+.funnel-a-conclusions { flex:0.8;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:8px 0; }
+.funnel-a-footer { display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:8px; }
+
+/* ── ANALYTICS: TABLE + TABLE-SPLIT ── */
+.slide-table-a { width:100%;height:100%;display:flex;flex-direction:column;background:var(--white);padding:24px 32px 16px;overflow:hidden; }
+.table-a-heading { font-size:17px;font-weight:800;color:var(--weconvert-dark);line-height:1.2;margin-bottom:14px;letter-spacing:-0.3px;padding-right:10px; }
+.table-a-body { flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden; }
+.table-a-wrapper { width:100%;border-collapse:collapse;font-size:11px; }
+.table-a-wrapper thead th { background:var(--weconvert-dark);color:white;padding:8px;text-align:center;font-weight:700;font-size:10px;white-space:nowrap; }
+.table-a-wrapper thead th:first-child { text-align:left;border-radius:6px 0 0 0;padding-left:12px; }
+.table-a-wrapper thead th:last-child { border-radius:0 6px 0 0; }
+.table-a-wrapper tbody td { padding:8px;text-align:center;border-bottom:1px solid #eee;font-size:12px;color:#333;white-space:nowrap; }
+.table-a-wrapper tbody td:first-child { text-align:left;font-weight:600;color:var(--weconvert-dark);padding-left:12px; }
+.table-a-wrapper tbody tr:nth-child(even) { background:#f9fafb; }
+.table-a-wrapper tbody tr.highlight-row { background:rgba(14,165,160,0.08); }
+.table-a-wrapper tbody tr.highlight-row td { font-weight:600; }
+.table-a-wrapper .val-bold { font-weight:800;font-size:14px; }
+.table-a-wrapper .val-highlight { color:var(--weconvert-coral);font-weight:700; }
+.table-a-wrapper .val-good { color:var(--weconvert-teal);font-weight:700; }
+.table-a-conclusion { margin-top:10px;padding:12px 16px;background:#f4f6f8;border-radius:8px;font-size:12px;line-height:1.45;color:#444; }
+.table-a-footer { display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:6px; }
+.table-a-footer .a-source { font-size:10px;color:#b0b0b0; }
+.table-a-footer .a-brand svg { height:16px;width:auto; }
+.table-a-split-body { flex:1;display:flex;gap:16px;min-height:0;overflow:hidden; }
+.table-a-split-left { flex:1.4;display:flex;flex-direction:column;min-width:0;overflow:hidden; }
+.table-a-split-right { flex:0.6;display:flex;flex-direction:column;justify-content:center;gap:10px; }
+.a-conclusion-item { font-size:11px;line-height:1.4;padding:8px 12px;background:#f9fafb;border-radius:6px;border-left:3px solid transparent;color:#444; }
+.a-conclusion-item:first-child { border-left-color:var(--weconvert-dark); }
+.a-table-note { font-size:10px;color:#999;font-style:italic;margin-top:6px; }
+
+/* ── SHARED FUNNEL CONCLUSION ITEM (analytics style) ── */
+.fc-item { font-size:13px;line-height:1.5;color:#444;padding:12px 16px;background:#f9fafb;border-radius:8px;border-left:3px solid transparent; }
+.fc-item:first-child { border-left-color:var(--weconvert-dark); }
+.a-source { font-size:10px;color:#b0b0b0; }
+.a-brand svg { height:16px;width:auto; }
+
+/* ── RETENTION: BARS-TABLE ── */
+.slide-bars-table { width:100%;height:100%;display:flex;flex-direction:column;background:var(--white);padding:28px 36px 20px; }
+.bars-table-heading { font-size:18px;font-weight:800;color:var(--weconvert-dark);line-height:1.2;margin-bottom:14px; }
+.bars-table-body { flex:1;display:flex;gap:20px;position:relative; }
+.bars-table-left { flex:1;display:flex;flex-direction:column;gap:12px;min-width:0; }
+.bars-section { flex:1;display:flex;flex-direction:column; }
+.bars-section-title { font-size:12px;font-weight:700;color:var(--weconvert-dark);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.3px; }
+.bars-grid { display:flex;flex-direction:column;gap:5px;flex:1; }
+.bar-item { display:flex;align-items:center;gap:8px; }
+.bar-item-label { width:48px;font-size:11px;font-weight:600;color:#555;text-align:right;flex-shrink:0; }
+.bar-item-track { flex:1;height:20px;background:#f0f0f0;border-radius:4px;overflow:hidden;position:relative; }
+.bar-item-fill { height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:700;color:white;min-width:24px; }
+.bars-table-right { width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:10px; }
+
+/* ── RETENTION: COUPON + CROSSSELL BOXES ── */
+.coupon-body { flex:1;display:flex;gap:20px;position:relative; }
+.coupon-left { flex:1;display:flex;flex-direction:column;gap:10px;min-width:0; }
+.coupon-boxes-row { display:flex;gap:20px;flex:1;align-items:center; }
+.coupon-box { flex:1;border-radius:16px;padding:28px;display:flex;flex-direction:column;align-items:center;gap:20px; }
+.coupon-box.com { background:#f9f5ff; } .coupon-box.sem { background:#f5f5f5; }
+.coupon-box.cross-box { background:rgba(14,165,160,0.05); }
+.coupon-box.cross-box .coupon-box-title { color:var(--weconvert-teal); }
+.coupon-box.cross-box .coupon-box-pct { color:var(--weconvert-teal); }
+.coupon-box-header { display:flex;flex-direction:column;align-items:center;gap:2px; }
+.coupon-box-title { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px; }
+.coupon-box.com .coupon-box-title { color:var(--purple-deep); } .coupon-box.sem .coupon-box-title { color:#999; }
+.coupon-box-pct { font-size:36px;font-weight:800;line-height:1; }
+.coupon-box.com .coupon-box-pct { color:var(--purple-deep); } .coupon-box.sem .coupon-box-pct { color:#999; }
+.coupon-box-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px 28px;width:100%; }
+.coupon-box-metric { display:flex;flex-direction:column;align-items:center;gap:1px; }
+.coupon-box-metric.featured { grid-column:1/-1;background:rgba(0,0,0,0.04);border-radius:12px;padding:12px 14px;text-align:center; }
+.coupon-box-metric-label { font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#bbb;font-weight:600; }
+.coupon-box-metric.featured .coupon-box-metric-label { font-size:10px;letter-spacing:1.2px;color:#999; }
+.coupon-box-metric-value { font-size:20px;font-weight:800;color:var(--weconvert-dark);letter-spacing:-0.3px; }
+.coupon-box-metric.featured .coupon-box-metric-value { font-size:32px;letter-spacing:-0.5px; }
+.coupon-box-metric-value.green { color:var(--weconvert-teal); } .coupon-box-metric-value.coral { color:var(--weconvert-coral); }
+.coupon-right { width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:10px; }
+
+/* ── RETENTION: GAP CARDS ── */
+.gap-cards-body { flex:1;display:flex;gap:20px;position:relative; }
+.gap-cards-left { flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;min-width:0; }
+.gap-cards-row { display:flex;gap:12px; }
+.gap-card { flex:1;background:#f8f9fa;border-radius:14px;padding:16px 14px 14px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px; }
+.gap-card-label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#999; }
+.gap-card-days { font-size:36px;font-weight:800;color:var(--weconvert-dark);line-height:1;letter-spacing:-1px; }
+.gap-card-days span { font-size:18px;font-weight:600;letter-spacing:0; }
+.gap-card-sub { font-size:10px;color:#bbb;line-height:1.3; }
+.gap-cards-insight { background:rgba(14,165,160,0.06);border-radius:12px;padding:14px 18px;text-align:center; }
+.gap-cards-insight-label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--weconvert-teal);margin-bottom:4px; }
+.gap-cards-insight-value { font-size:20px;font-weight:800;color:var(--weconvert-dark); }
+.gap-cards-right { width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:10px; }
+.ret-conclusion-item { font-size:11px;line-height:1.4;padding:10px 12px;background:#f9fafb;border-radius:6px;border-left:3px solid transparent;color:#444; }
+.ret-conclusion-item:first-child { border-left-color:var(--weconvert-dark); }
+.ret-table-footer { display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:6px; }
+
+/* ── RETENTION: TABLE SPLIT ── */
+.slide-table-r { width:100%;height:100%;display:flex;flex-direction:column;background:var(--white);padding:24px 32px 16px;overflow:hidden; }
+.table-r-heading { font-size:16px;font-weight:800;color:var(--weconvert-dark);line-height:1.2;margin-bottom:12px;letter-spacing:-0.3px; }
+.table-r-split-body { flex:1;display:flex;gap:16px;min-height:0;overflow:hidden; }
+.table-r-split-left { flex:1.4;display:flex;flex-direction:column;min-width:0;overflow:hidden; }
+.table-r-split-right { flex:0.7;display:flex;flex-direction:column;justify-content:center;gap:10px; }
+.table-r-wrapper { width:100%;border-collapse:collapse;font-size:11px; }
+.table-r-wrapper thead th { background:var(--weconvert-dark);color:white;padding:8px;text-align:center;font-weight:700;font-size:10px;white-space:nowrap; }
+.table-r-wrapper thead th:first-child { text-align:left;border-radius:6px 0 0 0;padding-left:12px; }
+.table-r-wrapper thead th:last-child { border-radius:0 6px 0 0; }
+.table-r-wrapper tbody td { padding:8px;text-align:center;border-bottom:1px solid #eee;font-size:12px;color:#333;white-space:nowrap; }
+.table-r-wrapper tbody td:first-child { text-align:left;font-weight:600;color:var(--weconvert-dark);padding-left:12px; }
+.table-r-wrapper tbody tr:nth-child(even) { background:#f9fafb; }
+.table-r-wrapper .val-green { color:var(--weconvert-teal);font-weight:700; }
+.table-r-wrapper .val-highlight { color:var(--weconvert-coral);font-weight:700; }
+
+/* ── USER TESTING: CARDS ── */
+.slide-cards { width:100%;height:100%;display:flex;flex-direction:column;background:var(--white);padding:28px 36px 20px; }
+.cards-heading { font-size:20px;font-weight:800;color:var(--text-dark);line-height:1.2;margin-bottom:10px;letter-spacing:-0.5px; }
+.cards-summary { font-size:13px;color:#555;line-height:1.55;margin-bottom:16px;padding:10px 14px;background:#f8f7fb;border-radius:8px;border-left:3px solid var(--purple-deep); }
+.cards-grid { flex:1;display:flex;gap:14px;min-height:0; }
+.cards-grid.cols-2 { gap:20px; }
+.card { flex:1;background:#f9fafb;border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;border:1px solid #ede8f5; }
+.card-icon { font-size:24px; }
+.card-title { font-size:13px;font-weight:800;color:var(--text-dark);letter-spacing:-0.3px; }
+.card-items { display:flex;flex-direction:column;gap:7px;flex:1; }
+.card-item { font-size:12px;line-height:1.5;color:#444;padding-left:14px;position:relative; }
+.card-item::before { content:'\2192';color:var(--purple-deep);font-weight:700;position:absolute;left:0;font-size:11px; }
+.cards-footer { display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:8px; }
+</style>
+</head>
+<body>
+<div class="toolbar">
+    <div class="toolbar-left">
+        <div class="toolbar-icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 3v18M3 9h6"/></svg></div>
+        <div class="toolbar-title">Guday <span>— CRO Presentation</span></div>
+    </div>
+    <div class="toolbar-actions">
+        <button class="btn-edit" onclick="toggleEditMode()" id="btnEdit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Editar
+        </button>
+        <button class="btn-tool" onclick="exportEdits()" title="Exportar edicoes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            JSON
+        </button>
+        <button class="btn-download" onclick="downloadPDF()" id="btnDownload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF</button>
+        <button class="btn-present" onclick="toggleFullscreen()" id="btnPresent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Apresentar</button>
+    </div>
+</div>
+<div class="main-container">
+    <div class="thumbnail-panel" id="thumbPanel"></div>
+    <div class="slide-area">
+        <button class="nav-arrow prev" id="btnPrev" aria-label="Anterior">&#8249;</button>
+        <div class="slide-viewport" id="slideViewport"></div>
+        <button class="nav-arrow next" id="btnNext" aria-label="Proximo">&#8250;</button>
+        <div class="slide-counter" id="counter"></div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const GUDAY_LOGO = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 4000 1304"><path fill="#000" d="M820.889 346.222C820.889 346.222 417.778 346.222 386.667 346.222C361.333 346.222 340.444 366.667 340.444 392.445C340.444 421.778 340.444 1014.67 339.556 1024.89C338.667 1048 320 1064 297.333 1063.11C275.556 1062.22 259.556 1045.33 258.667 1022.67C258.667 1016.89 258.667 304.889 258.667 303.556C258.667 292 264 282.222 272 275.111C278.667 268.889 287.556 264.889 297.778 264.445C298.667 264.445 800.889 264.445 800.889 264.445C879.111 264.445 942.667 200.889 942.667 122.667C942.667 52.0002 896 3.11133 823.111 3.11133H367.111C165.778 3.11133 0 168.889 0 370.222V1003.11C0 1166.67 132.889 1299.56 296.444 1299.56H303.111C466.667 1299.56 599.556 1166.67 599.556 1003.11C599.556 1003.11 600 628.889 600.444 623.111C601.333 600.445 617.778 583.556 639.111 582.667C661.778 581.778 680.444 597.778 680.889 621.333C680.889 625.778 681.333 1149.33 681.333 1149.33C681.333 1226.22 743.555 1288.89 820.889 1288.89C893.778 1288.89 940.444 1240 940.444 1169.33V465.778C940.444 395.111 893.778 346.222 820.889 346.222Z"/><path fill="#000" d="M1970.22 6.6665H1811.11C1738.22 6.6665 1691.56 55.5554 1691.56 126.222V1170.67C1691.56 1241.33 1738.22 1290.22 1811.11 1290.22H1970.22C2147.56 1290.22 2291.11 1146.67 2291.11 969.333V327.555C2291.11 150.222 2147.56 6.6665 1970.22 6.6665ZM2031.56 1026.22C2030.67 1049.33 2012 1065.33 1989.33 1064.44C1967.56 1063.56 1951.56 1046.67 1950.67 1024C1950.67 1010.67 1950.67 288.444 1950.67 275.111C1951.56 252.444 1968 235.555 1989.33 234.667C2012 233.778 2030.67 249.778 2031.11 273.333C2032 296.444 2032 1001.33 2031.11 1026.22H2031.56Z"/><path fill="#000" d="M2613.33 4H2487.11C2414.22 4 2367.56 52.8889 2367.56 123.556C2367.56 194.222 2423.56 257.333 2495.11 264.444C2508.89 264.444 2718.67 264.444 2732 264.444C2754.67 265.333 2771.56 281.778 2772.44 303.111C2773.33 325.778 2757.33 344.444 2733.78 344.889C2730.67 344.889 2678.67 345.778 2678.67 345.778C2499.56 345.778 2380 465.333 2380 646.667V987.555C2380 996.444 2380.89 1021.33 2380.89 1021.33C2389.78 1176.89 2519.11 1300.44 2676.89 1300.44H2683.56C2712.44 1300.44 2740.44 1296.44 2766.67 1288.44L2778.67 1284.44C2895.56 1244.89 2980 1134.22 2980 1003.56V370.667C2980.89 169.333 2815.11 4 2613.33 4ZM2720.44 1013.78C2719.56 1036.89 2700.89 1052.89 2678.22 1052C2656.44 1051.11 2640.44 1034.22 2639.56 1011.56C2639.56 997.778 2639.56 636.889 2639.56 623.111C2640.44 600.444 2656.89 583.555 2678.22 582.667C2700.89 581.778 2719.56 597.778 2720 621.333C2720.89 649.778 2720.89 984.889 2720 1013.78H2720.44Z"/><path fill="#000" d="M3179.11 953.778H3528.89C3550.67 953.778 3582.22 953.778 3613.33 953.778C3638.67 953.778 3659.56 933.333 3659.56 907.556C3659.56 878.222 3659.56 848 3659.56 826.667V338.667C3659.56 310.222 3659.56 285.333 3660.44 275.111C3661.33 252 3680 236 3702.67 236.889C3724.44 237.778 3740.44 254.667 3741.33 277.333C3741.33 283.111 3741.33 309.333 3741.33 338.667C3741.33 338.667 3741.33 995.111 3741.33 996.889C3741.33 1008.44 3736 1018.22 3728 1025.33C3721.33 1031.56 3712.44 1035.56 3702.22 1036C3701.33 1036 3700.89 1036 3700 1036C3682.67 1036 3199.11 1036 3199.11 1036C3120.89 1036 3057.33 1099.56 3057.33 1177.78C3057.33 1248.44 3104 1297.33 3176.89 1297.33H3632.89C3834.67 1297.33 4000 1131.56 4000 930.222V296.444C4000 132.889 3867.11 0 3703.56 0H3696.89C3533.33 0 3400.44 132.889 3400.44 296.444C3400.44 296.444 3400 670.667 3399.56 676.444C3398.67 699.111 3382.22 716 3360.89 716.889C3338.22 717.778 3319.56 701.778 3319.11 678.222C3319.11 673.778 3318.67 150.222 3318.67 150.222C3318.67 73.3333 3256.44 10.6667 3179.11 10.6667C3106.22 10.6667 3059.56 59.5556 3059.56 130.222V833.778C3059.56 904.444 3106.22 953.333 3179.11 953.333V953.778Z"/><path fill="#000" d="M1278.22 148.444C1278.22 71.5553 1216 8.88867 1138.67 8.88867C1065.78 8.88867 1019.11 57.7776 1019.11 128.444L1015.56 1000.89C1012.44 1164.44 1143.11 1299.56 1306.67 1302.67H1313.33C1476.89 1305.78 1612 1175.56 1615.11 1011.56L1618.67 128.444C1618.67 57.7776 1572 8.88867 1499.11 8.88867C1422.22 8.88867 1359.56 71.1109 1359.56 148.444C1359.56 148.444 1359.56 1003.11 1358.67 1028C1357.78 1051.11 1339.11 1067.11 1316.44 1066.22C1294.67 1065.33 1278.67 1048.44 1277.78 1025.78C1277.78 1012 1277.78 148.444 1277.78 148.444H1278.22Z"/></svg>`;
+
+    /* ═══════════════════════════════════════════════════
+       SECTION 1 — STAKEHOLDERS ANALYSIS (slides 1-4)
+       ═══════════════════════════════════════════════════ */
+
+    function stakeholdersCoverHTML() {
+        return `<div class="slide-cover">
+            <div class="cover-pre-title">ANALISE DE STAKEHOLDERS</div>
+            <div class="cover-title">Stakeholders<br>Analysis</div>
+            <div class="cover-underline"></div>
+            <div class="cover-logo"><span>${GUDAY_LOGO}</span></div>
+        </div>`;
+    }
+
+    function stakeholdersResumoHTML() {
+        return `<div class="slide-info">
+            <div class="slide-info-heading">Resumo da Guday pelos C-Levels</div>
+            <div class="info-card">
+                <div class="info-section">
+                    <div class="info-label">Guday em uma frase:</div>
+                    <div class="info-text">Marca pioneira de suplementa\u00e7\u00e3o em gummies que facilita a rotina de sa\u00fade com efic\u00e1cia, sabor e const\u00e2ncia. Criada em 2022 com o conceito de marcas associadas a criadores de conte\u00fado no nicho wellness.</div>
+                </div>
+                <div class="info-section">
+                    <div class="info-label">Valores:</div>
+                    <div class="info-text">Colabora\u00e7\u00e3o, Comunidade, Divers\u00e3o, Autenticidade e Efic\u00e1cia.</div>
+                </div>
+                <div class="info-section">
+                    <div class="info-label">Desafios:</div>
+                    <div class="info-text">Mostrar efic\u00e1cia (pouca \u00eanfase atualmente), quebrar a associa\u00e7\u00e3o exclusiva com creatina para se posicionar como marca de suplementa\u00e7\u00e3o completa, mercado competitivo e constru\u00e7\u00e3o de time (cultura e senioridade).</div>
+                </div>
+                <div class="info-section">
+                    <div class="info-label">Metas:</div>
+                    <div class="info-text">1 ano: Consolidar prateleira de suplementa\u00e7\u00e3o (al\u00e9m de creatina).<br>5 anos: Se consolidar como a marca de suplementa\u00e7\u00e3o gostosa (meta de R$500M de faturamento).</div>
+                </div>
+            </div>
+            <div class="slide-info-footer">
+                <span class="slide-source">Source: Stakeholder interviews</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function stakeholdersSuporteHTML() {
+        return `<div class="slide-info">
+            <div class="slide-info-heading">Leitura da equipe de suporte</div>
+            <div class="info-card">
+                <div class="info-section">
+                    <div class="info-label">Principais reclama\u00e7\u00f5es:</div>
+                    <div class="info-text">Sabor e textura do produto (gosto residual de creatina, textura arenosa), propaganda enganosa sobre textura (divulgam como doce/bala mas \u00e9 mais arenosa), produto derrete e apresenta cristaliza\u00e7\u00e3o, atrasos na entrega e prazos de tratativa com transportadora.</div>
+                </div>
+                <div class="info-section">
+                    <div class="info-label">Principais d\u00favidas:</div>
+                    <div class="info-text">Como consumir (quantidade, hor\u00e1rios, jejum), para que serve e benef\u00edcios, ingredientes e tabela nutricional, contraindica\u00e7\u00f5es, promo\u00e7\u00f5es e cupons (como 'compre 2, leve 3' e se cupons s\u00e3o acumulativos).</div>
+                </div>
+                <div class="info-section">
+                    <div class="info-label">Insights:</div>
+                    <div class="info-text">- Adicionar informa\u00e7\u00f5es mais claras e coesas sobre o produto (ser honesto com gosto e textura)<br>- Trazer mais ci\u00eancia, benef\u00edcios e ingredientes<br>- Melhorar a experi\u00eancia de entrega e acompanhamento<br>- Corrigir diverg\u00eancias de informa\u00e7\u00f5es no site</div>
+                </div>
+            </div>
+            <div class="slide-info-footer">
+                <span class="slide-source">Source: Stakeholder interviews</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function stakeholdersTakeawaysHTML() {
+        const items = [
+            { bold: "Trazer mais ci\u00eancia e efic\u00e1cia:", text: "sem perder a comunica\u00e7\u00e3o divertida, gostosa e descontra\u00edda (gen-z)" },
+            { bold: "Mostrar a qualidade do produto:", text: "controle de cadeia, pureza, ci\u00eancia. Justificar o pre\u00e7o" },
+            { bold: "USP principal:", text: "Nunca se esque\u00e7a de tomar seu suplemento + Somos pioneiros" },
+            { bold: "Marca beauty no nicho wellness:", text: "forte influ\u00eancia de beauty, trazer o fato de ser gostoso e divertido" },
+            { bold: "Diminuir drive de desconto:", text: "focar em valor percebido ao inv\u00e9s de promo\u00e7\u00f5es constantes" },
+            { bold: "Ser honesto com sabor e textura:", text: "divulgar de forma transparente para reduzir frustra\u00e7\u00e3o e reclama\u00e7\u00f5es" },
+            { bold: "Reformular e-mails transacionais:", text: "diminuir sensa\u00e7\u00e3o de demora na entrega + trazer mais apelo da marca" },
+            { bold: "Corrigir detalhes estruturais:", text: "fotos antigas, fotos erradas em produtos errados, p\u00e1ginas com problemas" },
+            { bold: "Criar senso de comunidade:", text: "trazer processos, pesquisas e IA para ajudar a seniorizar o time" }
+        ];
+        const itemsHTML = items.map((item, i) =>
+            `<div class="list-item">
+                <span class="list-item-num">${i + 1}.</span>
+                <span><span class="list-item-bold">${item.bold}</span> ${item.text}</span>
+            </div>`
+        ).join("");
+        return `<div class="slide-list">
+            <div class="slide-list-heading">Key Takeaways | Stakeholders Analysis</div>
+            <div class="list-items">${itemsHTML}</div>
+            <div class="slide-list-footer">
+                <span class="slide-source">Source: Stakeholder interviews</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       SECTION 2 — DESK RESEARCH (slides 5-17)
+       ═══════════════════════════════════════════════════ */
+
+    function drCoverHTML() {
+        return `<div class="slide-cover">
+            <div class="cover-pre-title">ESTUDO DO MERCADO WELLNESS</div>
+            <div class="cover-title">Desk<br>Research</div>
+            <div class="cover-underline"></div>
+            <div class="cover-logo"><span>${GUDAY_LOGO}</span></div>
+        </div>`;
+    }
+
+    function drMarketHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">O mercado global de wellness ultrapassa US$ 5,6 trilh\u00f5es, e o Brasil \u00e9 o 2\u00ba maior mercado de academias do mundo</div>
+            <div class="profile-body">
+                <div class="profile-image" style="background:url('img.png') center/cover no-repeat;color:transparent">IMAGEM HD</div>
+                <div class="profile-data" style="gap:0">
+                    <div class="kpi-row" style="flex-wrap:wrap;gap:10px;margin-bottom:12px">
+                        <div class="kpi-box" style="flex:1;min-width:120px"><div class="kpi-value" style="font-size:18px">US$ 5.6T</div><div class="kpi-label">Mercado global<br>de wellness (2025)</div></div>
+                        <div class="kpi-box" style="flex:1;min-width:120px"><div class="kpi-value" style="font-size:18px">R$ 4.6B</div><div class="kpi-label">Suplementos BR<br>\u2192 R$ 10.8B projetado</div></div>
+                    </div>
+                    <div class="kpi-row" style="flex-wrap:wrap;gap:10px;margin-bottom:14px">
+                        <div class="kpi-box" style="flex:1;min-width:120px"><div class="kpi-value" style="font-size:18px">40%</div><div class="kpi-label">Brasileiros praticam<br>atividade f\u00edsica regular</div></div>
+                        <div class="kpi-box" style="flex:1;min-width:120px"><div class="kpi-value" style="font-size:18px">19.8%</div><div class="kpi-label">Da popula\u00e7\u00e3o usa<br>suplementos esportivos</div></div>
+                    </div>
+                    <div class="profile-item"><b>Mercado wellness BR:</b> R$ 82.3 bi (2024) \u2192 R$ 209.5 bi (2033), crescimento de 10.9%</div>
+                    <div class="profile-item"><b>Brasil \u00e9 o maior</b> mercado de academias da Am\u00e9rica Latina</div>
+                    <div class="profile-item" style="margin-top:8px"><b>Gummies global:</b> US$ 42B at\u00e9 2028</div>
+                    <div class="profile-item"><b>Gummies Brasil:</b> US$ 468M at\u00e9 2035 (crescimento de 13.5%)</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: GWI, Bloomberg L\u00ednea, IBGE, ABIAD, Euromonitor</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function drTimelineHTML() {
+        return `<div class="slide-market">
+            <div class="slide-market-heading">Do bodybuilding ao wellness: 3 marcos que transformaram o mercado de suplementa\u00e7\u00e3o</div>
+            <div style="flex:1;display:flex;align-items:center">
+            <div class="timeline" style="width:100%">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                    <div class="timeline-year">1990</div>
+                    <div class="timeline-title">Hipertrofia</div>
+                    <div class="timeline-desc">Foco em muscula\u00e7\u00e3o pesada e est\u00e9tica corporal, impulsionado por bodybuilding. Academias cresceram com meta de massa magra.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                    <div class="timeline-year">2000</div>
+                    <div class="timeline-title">Wellness + Est\u00e9tica</div>
+                    <div class="timeline-desc">Saudabilidade est\u00e9tica: emagrecimento, cardio e fitness acess\u00edvel. Brasil vira 3\u00ba maior em est\u00e9tica com boom de academias low-cost.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2020+</div>
+                    <div class="timeline-title">Longevidade</div>
+                    <div class="timeline-desc">Foco em anti-envelhecimento e suplementa\u00e7\u00e3o funcional. Foco em performance cognitiva, n\u00e3o s\u00f3 est\u00e9tica.</div>
+                </div>
+            </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: GWI, Euromonitor, ABIAD</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function drProfileHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">Perfil do consumidor de wellness no Brasil</div>
+            <div class="profile-body">
+                <div class="profile-image" style="background:url('img-3.png') center/cover no-repeat;color:transparent">IMAGEM HD</div>
+                <div class="profile-data">
+                    <div class="profile-section">Atividade f\u00edsica</div>
+                    <div class="profile-item"><b>40% da popula\u00e7\u00e3o adulta</b> realiza atividade f\u00edsica regular</div>
+                    <div class="profile-item"><b>21% praticam academia</b>, 38% treinam 2-3x por semana</div>
+                    <div class="profile-item"><b>42% iniciaram exerc\u00edcios recentemente</b> (2025)</div>
+                    <div class="profile-item"><b>21 milh\u00f5es de novos praticantes</b> em 2025 (+30%)</div>
+                    <div class="profile-section">Perfil demogr\u00e1fico</div>
+                    <div class="profile-item"><b>60% homens, 40% mulheres</b> entre praticantes</div>
+                    <div class="profile-item"><b>Mulheres representam 60%</b> dos novos praticantes de atividade f\u00edsica</div>
+                    <div class="profile-section">Suplementa\u00e7\u00e3o</div>
+                    <div class="profile-item"><b>Consumo online cresceu 50%</b> em 2026</div>
+                    <div class="profile-item"><b>68% buscam informa\u00e7\u00f5es</b> de suplementos na internet</div>
+                    <div class="profile-item"><b>51% seguem recomenda\u00e7\u00e3o profissional</b> para suplementa\u00e7\u00e3o</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: IBGE, Brain 2025, ABIAD, Euromonitor</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    /* ── CREATINA ── */
+    function creatinaCoverHTML() {
+        return `<div class="slide-cover-dark">
+            <div class="cover-badge">GUDAY</div>
+            <div class="cover-title">Creatina</div>
+            <div class="cover-subtitle">Desk Research</div>
+            <div class="cover-divider"></div>
+            <div class="cover-meta">Mercado global de US$ 4.12 bilh\u00f5es at\u00e9 2030 (CAGR 25.2%)</div>
+        </div>`;
+    }
+
+    function creatinaHistoriaHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">Creatina: de descoberta cient\u00edfica ao suplemento mais consumido do Brasil</div>
+            <div class="profile-body">
+                <div class="profile-image" style="background:url('../img-2.webp') center/cover no-repeat;color:transparent">IMAGEM HD</div>
+                <div class="profile-data">
+                    <div class="profile-section">Descoberta</div>
+                    <div class="profile-item">Descoberta em <b>1832</b> pelo qu\u00edmico franc\u00eas Michel Eug\u00e8ne Chevreul ao analisar tecidos animais. Se popularizou nos <b>anos 1990</b> nas Olimp\u00edadas de Barcelona</div>
+                    <div class="profile-section">No Brasil</div>
+                    <div class="profile-item">A creatina foi <b>proibida pela Anvisa at\u00e9 2010</b></div>
+                    <div class="profile-item">O crescimento acelerou <b>p\u00f3s-pandemia (2020)</b> com aumento de 48% no consumo de suplementos durante a quarentena</div>
+                    <div class="profile-item">Em 2023 <b>superou o whey protein</b> em buscas (+30%) e em 2025 lidera com <b>918K buscas mensais</b></div>
+                    <div class="profile-item"><b>19.8%</b> da popula\u00e7\u00e3o usa suplementos esportivos, com creatina sendo usada por <b>74.1%</b> desses usu\u00e1rios</div>
+                    <div class="profile-item">Brasil ocupa a <b>3\u00aa posi\u00e7\u00e3o mundial</b> no consumo de creatina</div>
+                    <div class="profile-item"><b>37.3%</b> da receita global de creatina vem de canais online</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: Google Trends, Grand View Research, Anvisa, CNN Brasil, ISSN</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function creatinaTimelineHTML() {
+        return `<div class="slide-market">
+            <div class="slide-market-heading">Marcos da creatina: de descoberta cient\u00edfica ao suplemento #1 do Brasil</div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:24px">
+            <div class="timeline" style="width:100%">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                    <div class="timeline-year">1832</div>
+                    <div class="timeline-title">Descoberta</div>
+                    <div class="timeline-desc">Isolada da carne pelo qu\u00edmico franc\u00eas Michel Eug\u00e8ne Chevreul</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                    <div class="timeline-year">1920</div>
+                    <div class="timeline-title">Pesquisas</div>
+                    <div class="timeline-desc">Estudos cient\u00edficos sobre creatina se intensificam</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                    <div class="timeline-year">1992</div>
+                    <div class="timeline-title">Populariza\u00e7\u00e3o</div>
+                    <div class="timeline-desc">Atletas medalhistas de ouro usaram nas Olimp\u00edadas de Barcelona</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2010</div>
+                    <div class="timeline-title">Liberada no Brasil</div>
+                    <div class="timeline-desc">Anvisa regulariza como suplemento alimentar</div>
+                </div>
+            </div>
+            <div class="timeline" style="width:100%;padding:0 80px">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                    <div class="timeline-year">2020</div>
+                    <div class="timeline-title">Boom p\u00f3s-pandemia</div>
+                    <div class="timeline-desc">+48% no consumo de suplementos durante a quarentena</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                    <div class="timeline-year">2023</div>
+                    <div class="timeline-title">Supera whey</div>
+                    <div class="timeline-desc">+30% nas buscas, ultrapassa whey protein pela primeira vez</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-year">2024</div>
+                    <div class="timeline-title">Top e-commerce</div>
+                    <div class="timeline-desc">Figura entre os itens mais vendidos do Mercado Livre</div>
+                </div>
+            </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: Google Trends, Anvisa, CNN Brasil, Mercado Livre</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function creatinaPerfilHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">Perfil do consumidor de creatina no Brasil</div>
+            <div class="profile-body">
+                <div style="width:380px;min-width:380px;display:flex;flex-direction:column;justify-content:center">
+                    <div style="font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:16px">Motivos de uso</div>
+                    <div style="display:flex;flex-direction:column;gap:10px">
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Massa magra</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:40%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">40%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Sa\u00fade e bem estar</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:23%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">23%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Emagrecimento</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:22%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">22%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Performance</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:15%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">15%</div>
+                        </div>
+                    </div>
+                    <div style="font-size:10px;color:#aaa;margin-top:12px">Foco cerebral e longevidade em idosos tamb\u00e9m s\u00e3o motivos crescentes</div>
+                </div>
+                <div class="profile-data">
+                    <div class="profile-section">Quem consome</div>
+                    <div class="profile-item"><b>74% dos usu\u00e1rios de suplementos</b> consomem creatina, com jovens de 20-30 anos sendo predominantes (objetivos de hipertrofia)</div>
+                    <div class="profile-item">Cresce entre <b>mulheres e adultos de 35-44 anos</b>, principalmente idosos +40 para sa\u00fade \u00f3ssea e cerebral</div>
+                    <div class="profile-item">Estima-se que <b>14% da popula\u00e7\u00e3o brasileira</b> j\u00e1 usou creatina</div>
+                    <div class="profile-section">H\u00e1bitos de uso</div>
+                    <div class="profile-item"><b>45% usam diariamente</b> (sem ciclos) entre quem frequenta academia 3-5x por semana</div>
+                    <div class="profile-item">Concentra\u00e7\u00e3o nas <b>classes A e B</b>, mas o acesso tem democratizado (30% dos consumidores das classes CDE come\u00e7ando a treinar em 2025)</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: ABIAD, Euromonitor, RBNE, IBOPE Repucom</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    /* ── MELATONINA ── */
+    function melatoninaHistoriaHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">Melatonina: do sono ao mercado de US$ 3,3 bilh\u00f5es</div>
+            <div class="profile-body">
+                <div class="profile-image" style="background:url('img-4.png') center/cover no-repeat;color:transparent">IMAGEM HD</div>
+                <div class="profile-data">
+                    <div class="profile-section">Descoberta</div>
+                    <div class="profile-item">Descoberta em <b>1958</b> por Aaron Lerner. Na d\u00e9cada de 90 se popularizou como son\u00edfero, com patente do MIT em 1995</div>
+                    <div class="profile-item">Em <b>2021 a Anvisa liberou</b> como suplemento para maiores de 19 anos com dose m\u00e1xima de 0.21mg/dia (muito menor que EUA/Europa)</div>
+                    <div class="profile-item">Volume de buscas <b>explodiu 6x</b> ap\u00f3s libera\u00e7\u00e3o (+150% de alta)</div>
+                    <div class="profile-section">Mercado global</div>
+                    <div class="profile-item">Mercado de <b>US$ 3,3 bilh\u00f5es</b> em 2025, com crescimento de <b>14.9%</b></div>
+                    <div class="profile-item"><b>US$ 560M</b> em melatonina no formato de gummy (22% do mercado)</div>
+                    <div class="profile-item">Combina\u00e7\u00e3o com outros ativos \u00e9 tend\u00eancia: gummies de melatonina + extratos herbais lideram com <b>41.2% do mercado</b></div>
+                    <div class="profile-item"><b>17.5 milh\u00f5es</b> de buscas anuais por melatonina no Google no \u00faltimo ano</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: Anvisa, Fortune Business Insights, Google Trends, NIH</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function melatoninaPerfilHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">Ades\u00e3o brasileira e efici\u00eancia da melatonina</div>
+            <div class="profile-body">
+                <div style="width:380px;min-width:380px;display:flex;flex-direction:column;justify-content:center">
+                    <div style="font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:16px">Problemas de sono no Brasil</div>
+                    <div style="display:flex;flex-direction:column;gap:10px">
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:110px;text-align:right;flex-shrink:0">Dist\u00farbio de sono</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:72%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">72%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:110px;text-align:right;flex-shrink:0">Dormem mal</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:65%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">65%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:110px;text-align:right;flex-shrink:0">Altera\u00e7\u00e3o p\u00f3s-pandemia</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:50%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">50%+</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:110px;text-align:right;flex-shrink:0">Queixas de ins\u00f4nia</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:36%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">36%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:110px;text-align:right;flex-shrink:0">Usam rem\u00e9dios</div>
+                            <div style="flex:1;height:24px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:8.5%;height:100%;background:var(--purple-deep);border-radius:4px;min-width:4px"></div></div>
+                            <div style="font-size:13px;font-weight:700;color:var(--text-dark);min-width:36px">8.5%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-data">
+                    <div class="profile-section">Ades\u00e3o</div>
+                    <div class="profile-item"><b>8.5%</b> da popula\u00e7\u00e3o usa rem\u00e9dios para dormir, com predomin\u00e2ncia nas classes B e C entre 25-54 anos</div>
+                    <div class="profile-item"><b>72% dos brasileiros</b> tem algum dist\u00farbio de sono</div>
+                    <div class="profile-item">Mais de <b>50% das pessoas</b> tiveram altera\u00e7\u00f5es no sono p\u00f3s-pandemia</div>
+                    <div class="profile-section">Efici\u00eancia</div>
+                    <div class="profile-item"><b>Segura</b> em curtos prazos e <b>n\u00e3o causa depend\u00eancia</b></div>
+                    <div class="profile-item">Alternativa <b>mais natural e menos agressiva</b> comparada com rem\u00e9dios para dormir (que 7.6% da popula\u00e7\u00e3o j\u00e1 usa)</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: Fiocruz, ABIAD, Anvisa, Qualibest, NIH</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    /* ── B12 + ACV ── */
+    function acvHistoriaHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">B12 + Vinagre de Ma\u00e7\u00e3: de rem\u00e9dio para anemia a suplemento wellness</div>
+            <div class="profile-body">
+                <div class="profile-image" style="background:url('../IMGS/vinagre-de-ma%C3%A7a.webp') center/cover no-repeat;color:transparent">IMAGEM HD</div>
+                <div class="profile-data">
+                    <div class="profile-section">Vitamina B12</div>
+                    <div class="profile-item">Isolada em <b>1948</b>, inicialmente usada contra anemia perniciosa (Nobel 1934). Popularizou nos anos 50 para defici\u00eancia de veganos e idosos</div>
+                    <div class="profile-item">Mercado global de <b>US$ 216-350 milh\u00f5es</b> com crescimento de 7%</div>
+                    <div class="profile-item"><b>15% dos adultos +65 anos</b> possuem defici\u00eancia de B12. <b>14.2% das crian\u00e7as</b> tamb\u00e9m t\u00eam defici\u00eancia</div>
+                    <div class="profile-section">Vinagre de Ma\u00e7\u00e3 (ACV)</div>
+                    <div class="profile-item">Produzido desde <b>400 a.C.</b> (Hip\u00f3crates). Boom nos anos 2010 com explos\u00e3o no wellness. Em <b>2019 a Goli Nutrition</b> lan\u00e7a o primeiro suplemento de ACV em gummy no mundo, viralizando nas redes</div>
+                    <div class="profile-item">Mercado global de <b>US$ 1,5-2,18 bilh\u00f5es</b> com crescimento de 6-9%. Formato gummy representa <b>30-50% do share</b></div>
+                    <div class="profile-item">O formato gummy <b>eliminou a principal barreira</b> de consumo: o sabor forte e \u00e1cido do vinagre</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: Goli Nutrition, Fortune Business Insights, Mordor Intelligence, NIH</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function acvPerfilHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">Perfil do consumidor de B12 + Vinagre de Ma\u00e7\u00e3 no Brasil</div>
+            <div class="profile-body">
+                <div class="profile-image" style="background:url('../IMGS/vinagre-2.webp') center/cover no-repeat;color:transparent">IMAGEM HD</div>
+                <div class="profile-data">
+                    <div class="profile-section">Perfil do consumidor</div>
+                    <div class="profile-item"><b>Mulheres 24-54 anos</b> (70-80%) em classes B/C urbanas</div>
+                    <div class="profile-item"><b>Diab\u00e9ticos e obesos (11%)</b> tamb\u00e9m impulsionam o consumo de ACV</div>
+                    <div class="profile-section">No Brasil</div>
+                    <div class="profile-item">ACV se popularizou nos <b>2010 com dietas de emagrecimento</b> (detox), e explodiu p\u00f3s-pandemia com combos B12</div>
+                    <div class="profile-item">Crescimento de <b>8.57%</b> no mercado entre 2024-2029</div>
+                    <div class="profile-section">Obesidade no Brasil</div>
+                    <div class="profile-item"><b>68% da popula\u00e7\u00e3o</b> sofre com excesso de peso</div>
+                    <div class="profile-item">Nos \u00faltimos 18 anos o excesso de peso <b>aumentou 20 p.p.</b></div>
+                    <div class="profile-item">At\u00e9 2044 estima-se que <b>metade da popula\u00e7\u00e3o</b> ter\u00e1 obesidade e mais de 27% sobrepeso</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: ABRAN, Fiocruz, WHO, Anvisa, Euromonitor</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    /* ── COQ10 + MATCHA ── */
+    function coq10HistoriaHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">CoQ10 + Matcha: de suplemento card\u00edaco a superfood funcional</div>
+            <div class="profile-body">
+                <div class="profile-image" style="background:url('../IMGS/matcha.webp') center/cover no-repeat;color:transparent">IMAGEM HD</div>
+                <div class="profile-data">
+                    <div class="profile-section">CoQ10</div>
+                    <div class="profile-item">Descoberto em <b>1957</b>. Nos anos 70 virou suplemento para card\u00edacos, e nos 2000 ganhou boom com evid\u00eancias de <b>anti-envelhecimento</b></div>
+                    <div class="profile-item">Em maio 2025 a EFSA (Europa) concedeu a <b>primeira alega\u00e7\u00e3o de sa\u00fade aprovada</b> para CoQ10 na manuten\u00e7\u00e3o da fun\u00e7\u00e3o card\u00edaca</div>
+                    <div class="profile-item">Mercado global de <b>US$ 760-840 milh\u00f5es</b> (crescimento de 9.7%-16%)</div>
+                    <div class="profile-section">Matcha</div>
+                    <div class="profile-item">Hist\u00f3ria milenar japonesa ligada a cerim\u00f4nias do ch\u00e1 budistas</div>
+                    <div class="profile-item"><b>2015-2020:</b> explos\u00e3o global via redes sociais, matcha lattes e smoothies se tornam instagramm\u00e1veis</div>
+                    <div class="profile-item"><b>2024:</b> consumo em bebidas/alimentos funcionais cresceu <b>19% YoY</b></div>
+                    <div class="profile-item">Mercado global de <b>US$ 3.4-4.5 bilh\u00f5es</b> com crescimento de 6-8.7%</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: Grand View Research, Fortune Business Insights, EFSA</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function coq10PerfilHTML() {
+        return `<div class="slide-profile">
+            <div class="profile-heading">CoQ10 + Matcha no Brasil: perfil e motivos de uso</div>
+            <div class="profile-body">
+                <div style="width:380px;min-width:380px;display:flex;flex-direction:column;justify-content:center">
+                    <div style="font-size:14px;font-weight:700;color:var(--text-dark);margin-bottom:16px">Motivos de uso</div>
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                        <div style="font-size:11px;font-weight:700;color:var(--purple-deep);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">CoQ10</div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Sa\u00fade card\u00edaca</div>
+                            <div style="flex:1;height:22px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:30%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:12px;font-weight:700;color:var(--text-dark);min-width:32px">30%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Energia celular</div>
+                            <div style="flex:1;height:22px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:25%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:12px;font-weight:700;color:var(--text-dark);min-width:32px">25%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Anti-idade</div>
+                            <div style="flex:1;height:22px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:25%;height:100%;background:var(--purple-deep);border-radius:4px"></div></div>
+                            <div style="font-size:12px;font-weight:700;color:var(--text-dark);min-width:32px">25%</div>
+                        </div>
+                        <div style="font-size:11px;font-weight:700;color:var(--purple-deep);text-transform:uppercase;letter-spacing:1px;margin-top:8px;margin-bottom:2px">Matcha</div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Antioxidantes</div>
+                            <div style="flex:1;height:22px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:35%;height:100%;background:var(--purple-primary);border-radius:4px"></div></div>
+                            <div style="font-size:12px;font-weight:700;color:var(--text-dark);min-width:32px">35%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Foco mental</div>
+                            <div style="flex:1;height:22px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:30%;height:100%;background:var(--purple-primary);border-radius:4px"></div></div>
+                            <div style="font-size:12px;font-weight:700;color:var(--text-dark);min-width:32px">30%</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div style="font-size:11px;color:#777;width:100px;text-align:right;flex-shrink:0">Metabolismo</div>
+                            <div style="flex:1;height:22px;background:#f0f0f0;border-radius:4px;overflow:hidden"><div style="width:25%;height:100%;background:var(--purple-primary);border-radius:4px"></div></div>
+                            <div style="font-size:12px;font-weight:700;color:var(--text-dark);min-width:32px">25%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-data">
+                    <div class="profile-section">No Brasil</div>
+                    <div class="profile-item"><b>CoQ10:</b> 90s para cora\u00e7\u00e3o/energia, popular nos 2020s com longevidade</div>
+                    <div class="profile-item"><b>Matcha:</b> chegou nos 2010s via caf\u00e9s premium (SP/RJ), pandemia acelerou (+200% buscas). <b>84%</b> j\u00e1 provaram em nicho jovem urbano</div>
+                    <div class="profile-section">Perfil do consumidor</div>
+                    <div class="profile-item">Adultos <b>30-55 anos</b> (60%), <b>mulheres</b> (65%), classes A/B urbanas, fitness/veganos</div>
+                    <div class="profile-item">Ao menos <b>10% da popula\u00e7\u00e3o</b> focada no nicho wellness</div>
+                    <div class="profile-section">Dados relevantes</div>
+                    <div class="profile-item">Principal causa de morte no Brasil s\u00e3o <b>doen\u00e7as cardiovasculares</b></div>
+                    <div class="profile-item"><b>12.9%</b> dos adultos s\u00e3o diab\u00e9ticos, CoQ10 ajuda no controle glic\u00eamico</div>
+                    <div class="profile-item"><b>68%</b> dos brasileiros tem excesso de peso, matcha \u00e9 natural</div>
+                </div>
+            </div>
+            <div class="slide-footer">
+                <span class="slide-source">Fontes: ABIAD, Euromonitor, Anvisa, WHO, Qualibest</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    /* ── FORMAT NUMBER ── */
+    function fmtNum(n) { return n.toLocaleString("pt-BR"); }
+
+    /* ═══════════════════════════════════════════════════
+       SECTION 3 — ANALYTICS ANALYSIS (slides 18-25)
+       ═══════════════════════════════════════════════════ */
+
+    function analyticsCoverHTML() {
+        return `<div class="slide-cover">
+            <div class="cover-pre-title">VAMOS DESCOBRIR</div>
+            <div class="cover-title">Onde os seus visitantes<br>est\u00e3o abandonando?</div>
+            <div class="cover-underline"></div>
+            <div class="cover-meta">1 de Janeiro - 31 de Mar\u00e7o 2026, An\u00e1lise pr\u00f3pria</div>
+            <div class="cover-logo"><span>${GUDAY_LOGO}</span></div>
+        </div>`;
+    }
+
+    function analyticsDevicesHTML() {
+        const devices = [
+            { name: "Mobile",  pctV: 94.36, cvr: 3.08, color: "#4dd9ac",   transactions: "89%" },
+            { name: "Desktop", pctV: 5.55,  cvr: 6.45, color: "#3b82f6",   transactions: "11%" },
+            { name: "Tablet",  pctV: 0.13,  cvr: 4.91, color: "#f59e0b",   transactions: "<1%" }
+        ];
+
+        function donutSVG(pct, color) {
+            const r = 70, cx = 75, cy = 75;
+            const circ = 2 * Math.PI * r;
+            const filled = (pct / 100) * circ;
+            const rest = circ - filled;
+            return `<svg width="150" height="150" viewBox="0 0 150 150">
+                <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#eee" stroke-width="20"/>
+                <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="20"
+                    stroke-dasharray="${filled} ${rest}" stroke-dashoffset="${circ * 0.25}" stroke-linecap="round"/>
+                <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle"
+                    style="font-size:18px;font-weight:800;fill:#1E192A">${pct}%</text>
+            </svg>`;
+        }
+
+        const cardsHTML = devices.map(d => `
+            <div class="device-chart-card">
+                <div style="font-size:12px;font-weight:700;color:var(--weconvert-dark);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${d.name}</div>
+                ${donutSVG(d.pctV, d.color)}
+                <div class="donut-legend">
+                    <div class="donut-legend-item"><div class="donut-legend-dot" style="background:${d.color}"></div>Visitantes</div>
+                </div>
+                <div style="margin-top:10px;width:100%;padding:0 6px">
+                    <div style="font-size:10px;color:#777;margin-bottom:4px">CVR: <strong style="color:var(--weconvert-dark)">${d.cvr}%</strong></div>
+                    <div style="font-size:10px;color:#777">Transações: <strong style="color:var(--weconvert-dark)">${d.transactions}</strong></div>
+                </div>
+            </div>`).join("");
+
+        return `<div class="slide-devices">
+            <div class="devices-heading">~94% do tr\u00e1fego vem de dispositivos m\u00f3veis; mobile traz 89% das transa\u00e7\u00f5es, enquanto desktop contribui com 11%</div>
+            <div class="devices-body">${cardsHTML}</div>
+            <div class="devices-insight">Mobile domina em volume mas desktop tem CVR <strong>2x maior</strong> (6.45% vs 3.08%). Oportunidade: otimizar experi\u00eancia mobile pode multiplicar convers\u00f5es dado o volume massivo.</div>
+            <div class="funnel-a-footer">
+                <span class="a-source">Fonte: Shopify Analytics 1 Jan – 31 Mar 2026</span>
+                <span class="a-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function analyticsBenchCVRHTML() {
+        const conclusions = [
+            "O CVR da sua loja (3.24%) est\u00e1 acima da mediana do mercado (1.76%) e tamb\u00e9m acima do 75th percentile (2.8%). Isso posiciona a GUDAY entre as lojas de melhor performance no segmento.",
+            "Nos pr\u00f3ximos slides, vamos detalhar onde ainda h\u00e1 oportunidades de melhoria. Focando em redu\u00e7\u00e3o de bounce rate e otimiza\u00e7\u00e3o das PDPs, a loja pode consolidar e ampliar essa vantagem competitiva."
+        ];
+        const conclusionsHTML = conclusions.map(c => `<div class="fc-item">${c}</div>`).join("");
+        return `<div class="slide-bench">
+            <div class="bench-heading">Seu CVR m\u00e9dio (3.24%) est\u00e1 acima do 75th percentile (2.8%) do segmento, mostrando performance forte. Vamos explorar formas de manter e crescer</div>
+            <div class="bench-body">
+                <div class="bench-left">
+                    <div class="bench-cards">
+                        <div class="bench-card yours">
+                            <div class="bench-card-label">Sua Loja</div>
+                            <div class="bench-card-value">3.24%</div>
+                            <div class="bench-card-desc">CVR m\u00e9dio Jan–Mar 2026</div>
+                        </div>
+                        <div class="bench-card" style="border-color:#ccc">
+                            <div class="bench-card-label" style="color:#888">25th Percentile</div>
+                            <div class="bench-card-value">1.02%</div>
+                            <div class="bench-card-desc">Lojas no quartil inferior</div>
+                        </div>
+                        <div class="bench-card median">
+                            <div class="bench-card-label">Mediana</div>
+                            <div class="bench-card-value">1.76%</div>
+                            <div class="bench-card-desc">M\u00e9dia do segmento</div>
+                        </div>
+                        <div class="bench-card top">
+                            <div class="bench-card-label">75th Percentile</div>
+                            <div class="bench-card-value">2.8%</div>
+                            <div class="bench-card-desc">Top performers</div>
+                        </div>
+                    </div>
+                    <div class="bench-img-wrap">
+                        <img src="bench-cvr.png" alt="Benchmark CVR" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\'color:#bbb;font-size:13px;text-align:center\'>Gr\u00e1fico de benchmark</div>'">
+                    </div>
+                </div>
+                <div class="bench-right">${conclusionsHTML}</div>
+            </div>
+            <div class="funnel-a-footer">
+                <span class="a-source">Fonte: Shopify Analytics 1 Jan – 31 Mar 2026 · Benchmark WeConvert</span>
+                <span class="a-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function analyticsBenchAOVHTML() {
+        const conclusions = [
+            "O AOV da GUDAY (R$298,09) est\u00e1 entre a mediana (R$241,82) e o 75th percentile (R$323,62), indicando boa performance de ticket m\u00e9dio. H\u00e1 espa\u00e7o para crescer ~R$25 e atingir o top quartil.",
+            "Estrat\u00e9gias de bundle, upsell no carrinho e incentivo a kits maiores podem elevar o AOV sem demandar novos visitantes — puro ganho de efici\u00eancia."
+        ];
+        const conclusionsHTML = conclusions.map(c => `<div class="fc-item">${c}</div>`).join("");
+        return `<div class="slide-bench">
+            <div class="bench-heading">AOV de R$298,09 est\u00e1 acima da mediana (R$241,82) mas abaixo do top quartil (R$323,62) — bundle e upsell podem fechar essa lacuna</div>
+            <div class="bench-body">
+                <div class="bench-left">
+                    <div class="bench-cards">
+                        <div class="bench-card yours">
+                            <div class="bench-card-label">Sua Loja</div>
+                            <div class="bench-card-value" style="font-size:18px">R$298,09</div>
+                            <div class="bench-card-desc">AOV m\u00e9dio Jan–Mar 2026</div>
+                        </div>
+                        <div class="bench-card" style="border-color:#ccc">
+                            <div class="bench-card-label" style="color:#888">25th Percentile</div>
+                            <div class="bench-card-value" style="font-size:18px">R$174,26</div>
+                            <div class="bench-card-desc">Quartil inferior</div>
+                        </div>
+                        <div class="bench-card median">
+                            <div class="bench-card-label">Mediana</div>
+                            <div class="bench-card-value" style="font-size:18px">R$241,82</div>
+                            <div class="bench-card-desc">M\u00e9dia do segmento</div>
+                        </div>
+                        <div class="bench-card top">
+                            <div class="bench-card-label">75th Percentile</div>
+                            <div class="bench-card-value" style="font-size:18px">R$323,62</div>
+                            <div class="bench-card-desc">Top performers</div>
+                        </div>
+                    </div>
+                    <div class="bench-img-wrap">
+                        <img src="bench-aov.png" alt="Benchmark AOV" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\'color:#bbb;font-size:13px;text-align:center\'>Gr\u00e1fico de benchmark AOV</div>'">
+                    </div>
+                </div>
+                <div class="bench-right">${conclusionsHTML}</div>
+            </div>
+            <div class="funnel-a-footer">
+                <span class="a-source">Fonte: Shopify Analytics 1 Jan – 31 Mar 2026 · Benchmark WeConvert</span>
+                <span class="a-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function buildFunnelAHTML(heading, chartTitle, stages, source) {
+        const maxTotal = Math.max(...stages.map(s => s.total));
+        const magnitude = Math.pow(10, Math.floor(Math.log10(maxTotal)));
+        const yMax = Math.ceil(maxTotal / magnitude) * magnitude;
+        const ySteps = 5;
+        const yInterval = yMax / ySteps;
+        let yLabelsHTML = "";
+        for (let i = 0; i <= ySteps; i++) {
+            const val = yInterval * (ySteps - i);
+            yLabelsHTML += `<div class="y-tick-a" style="top:${(i/ySteps)*100}%"><span class="y-tick-a-label">${fmtNum(val)}</span><div class="y-tick-a-line"></div></div>`;
+        }
+        const colors = ["#0c2340","#1a5276","#2874a6","#3498db","#5dade2","#aed6f1"];
+        const barsHTML = stages.map((s, i) => {
+            const heightPct = (s.total / yMax) * 100;
+            const color = colors[i] || "#0c2340";
+            const isLast = i === stages.length - 1;
+            return `<div class="funnel-a-bar-col">
+                <div class="funnel-a-bar" style="height:${heightPct}%;background:${color}">
+                    <div class="funnel-a-bar-value" style="color:${color}">${fmtNum(s.total)}</div>
+                </div>
+                <div class="funnel-a-bar-label">${s.stage}</div>
+            </div>`;
+        }).join("");
+
+        const badgesHTML = stages.map((s, i) => {
+            const isLast = i === stages.length - 1;
+            let badge = "";
+            if (!isLast && s.abandonRate) {
+                badge = `<div class="abandon-badge-a rate">${s.abandonRate}</div>`;
+            } else if (isLast && s.finalCVR) {
+                badge = `<div class="abandon-badge-a cvr">${s.finalCVR}</div>`;
+            }
+            return `<div class="funnel-a-bar-col" style="display:flex;justify-content:center;align-items:center">${badge}</div>`;
+        }).join("");
+
+        const conclusionsMap = {
+            "Home": [
+                "O maior vazamento ocorre entre <strong>Home e Product (59% de abandono)</strong>: 51,5K visitantes n\u00e3o chegam \u00e0 PDP. Homepage n\u00e3o est\u00e1 convertendo navega\u00e7\u00e3o em interesse.",
+                "Entre <strong>Cart e Checkout (44% abandono)</strong>: 3.281 usu\u00e1rios abandonam no cart. Frete, d\u00favidas sobre o produto e falta de confian\u00e7a s\u00e3o os principais motivos.",
+                "O CVR final de <strong>2.46% (Home \u2192 Purchase)</strong> est\u00e1 em linha com o benchmark mas a jornada tem buracos claros nas etapas iniciais."
+            ],
+            "Product": [
+                "A PDP tem abandono crit\u00edco: <strong>95.6% dos visitantes saem sem adicionar ao carrinho</strong>. Com 656K sess\u00f5es, cada 1% de melhora no add-to-cart gera ~6.5K carrinhos extras.",
+                "Entre <strong>Cart e Checkout (49% abandono)</strong>: metade dos usu\u00e1rios que adicionam ao cart n\u00e3o chegam ao checkout. Prioridade: remover fric\u00e7\u00e3o no mini-cart e na p\u00e1gina de cart.",
+                "O CVR final de <strong>1.07% (PDP \u2192 Purchase)</strong> reflete as perdas acumuladas. Melhorar a PDP (proof social, clareza de pre\u00e7o, urgency) \u00e9 a maior alavanca desta jornada."
+            ]
+        };
+
+        const firstStage = stages[0].stage;
+        const conclusions = conclusionsMap[firstStage] || [
+            "Analise os pontos de abandono para identificar oportunidades de otimiza\u00e7\u00e3o.",
+            "Cada etapa com alta taxa de abandono representa uma oportunidade de CRO.",
+            "Foque nos est\u00e1gios com maior volume de usu\u00e1rios para maximizar o impacto."
+        ];
+        const conclusionsHTML = conclusions.map(c => `<div class="fc-item">${c}</div>`).join("");
+
+        return `<div class="slide-funnel-a">
+            <div class="funnel-a-heading">${heading}</div>
+            <div class="funnel-a-body">
+                <div class="funnel-a-chart-area">
+                    <div class="funnel-a-chart-title">${chartTitle}</div>
+                    <div class="funnel-a-chart-wrapper">
+                        <div class="funnel-a-y-axis">${yLabelsHTML}</div>
+                        <div class="funnel-a-bars-area">${barsHTML}</div>
+                    </div>
+                    <div class="funnel-a-abandon-row">
+                        <div class="abandon-label-a">Abandono</div>
+                        <div class="abandon-badges-a">${badgesHTML}</div>
+                    </div>
+                </div>
+                <div class="funnel-a-conclusions">${conclusionsHTML}</div>
+            </div>
+            <div class="funnel-a-footer">
+                <span class="a-source">${source}</span>
+                <span class="a-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function calcAbandon(data) {
+        return data.map((d, i) => {
+            if (i === 0) {
+                const nextTotal = data[1] ? data[1].total : 0;
+                const abandonPct = Math.round((1 - nextTotal / d.total) * 100);
+                return { ...d, abandonRate: abandonPct + "%" };
+            }
+            if (i < data.length - 1) {
+                const nextTotal = data[i + 1].total;
+                const abandonPct = Math.round((1 - nextTotal / d.total) * 100);
+                return { ...d, abandonRate: abandonPct + "%" };
+            }
+            const cvr = ((d.total / data[0].total) * 100).toFixed(2);
+            return { ...d, abandonRate: null, finalCVR: cvr + "% CVR" };
+        });
+    }
+
+    const fallbackHome = [
+        { stage: "Home", total: 86353 }, { stage: "Product", total: 34792 },
+        { stage: "Cart", total: 7412 }, { stage: "Checkout", total: 4131 }, { stage: "Purchase", total: 2122 }
+    ];
+    const fallbackPDP = [
+        { stage: "Product", total: 656096 }, { stage: "Cart", total: 28668 },
+        { stage: "Checkout", total: 14697 }, { stage: "Purchase", total: 7010 }
+    ];
+    const homeStages = calcAbandon(fallbackHome);
+    const pdpStages = calcAbandon(fallbackPDP);
+
+    function analyticsFunnelHomeHTML() {
+        return buildFunnelAHTML(
+            "59% dos visitantes da Home n\u00e3o chegam \u00e0 PDP — o maior vazamento da jornada ocorre logo na primeira etapa",
+            "Funil Home \u2192 Purchase (Jan\u2013Mar 2026)",
+            homeStages,
+            "Fonte: Google Analytics 4 · 1 Jan – 31 Mar 2026"
+        );
+    }
+
+    function analyticsFunnelPDPHTML() {
+        return buildFunnelAHTML(
+            "95.6% dos visitantes da PDP saem sem comprar — com 656K sess\u00f5es, cada 1% de melhora no add-to-cart gera 6.5K carrinhos extras",
+            "Funil PDP \u2192 Purchase (Jan\u2013Mar 2026)",
+            pdpStages,
+            "Fonte: Google Analytics 4 · 1 Jan – 31 Mar 2026"
+        );
+    }
+
+    function analyticsTablePageHTML() {
+        const rows = [
+            ["/", "86.353", "64,1%", "68%", "0m 52s"],
+            ["/products/creatina-frutas-vermelhas", "48.291", "35,8%", "71%", "1m 12s"],
+            ["/products/creatina-maca-verde", "22.104", "16,4%", "74%", "1m 05s"],
+            ["/products/melatonina", "14.832", "11,0%", "73%", "0m 58s"],
+            ["/collections/all", "12.447", "9,2%", "61%", "1m 28s"],
+            ["/cart", "7.412", "5,5%", "43%", "2m 14s"],
+            ["/checkout", "4.131", "3,1%", "22%", "4m 33s"],
+            ["/products/b12-vinagre-de-maca", "9.215", "6,8%", "76%", "0m 55s"]
+        ];
+        const hdr = ["P\u00e1gina", "Sess\u00f5es", "% Sess\u00f5es", "Bounce Rate", "Dura\u00e7\u00e3o M\u00e9dia"];
+        const hdrHTML = hdr.map(h => `<th>${h}</th>`).join("");
+        const bodyHTML = rows.map((r, ri) => {
+            const cls = ri === 0 ? "highlight-row" : "";
+            return `<tr class="${cls}">${r.map(c => `<td>${c}</td>`).join("")}</tr>`;
+        }).join("");
+        return `<div class="slide-table-a">
+            <div class="table-a-heading">P\u00e1ginas com maior volume — Home e PDPs de Creatina lideram; Bounce Rate alto nas PDPs indica necessidade de melhoria de conte\u00fado</div>
+            <div class="table-a-body">
+                <table class="table-a-wrapper">
+                    <thead><tr>${hdrHTML}</tr></thead>
+                    <tbody>${bodyHTML}</tbody>
+                </table>
+                <div class="table-a-conclusion">As PDPs de creatina concentram mais de <strong>50% do tr\u00e1fego</strong>. Bounce rates acima de 70% nessas p\u00e1ginas indicam que os visitantes n\u00e3o encontram o que buscam — oportunidade direta de CRO com ajuste de copy, proof social e clareza de benef\u00edcios.</div>
+            </div>
+            <div class="table-a-footer">
+                <span class="a-source">Fonte: Google Analytics 4 · 1 Jan – 31 Mar 2026</span>
+                <span class="a-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function analyticsTableCanaisHTML() {
+        const t1cols = ["Canal", "Sess\u00f5es", "% Sess.", "Transa\u00e7\u00f5es", "CVR", "AOV"];
+        const t1rows = [
+            ["Organic Search", "48.214", "35,8%", "1.842", "3,82%", "R$312"],
+            ["Paid Social", "32.107", "23,8%", "980", "3,05%", "R$291"],
+            ["Direct", "24.531", "18,2%", "824", "3,36%", "R$304"],
+            ["Email", "12.448", "9,2%", "621", "4,99%", "R$334"],
+            ["Referral", "8.312", "6,2%", "198", "2,38%", "R$278"],
+            ["Outros", "9.141", "6,8%", "201", "2,20%", "R$265"]
+        ];
+        const t2cols = ["Tipo", "Sess\u00f5es", "Transa\u00e7\u00f5es", "CVR", "AOV"];
+        const t2rows = [
+            ["Novos visitantes", "98.442", "2.834", "2,88%", "R$291"],
+            ["Retornantes", "36.311", "1.832", "5,04%", "R$318"]
+        ];
+        const conclusions = [
+            "<strong>Email</strong> tem o maior CVR (4.99%) e AOV (R$334) — audiences j\u00e1 engajadas convertem melhor. Escalar campanhas de email para base existente \u00e9 a a\u00e7\u00e3o de maior ROI imediato.",
+            "<strong>Retornantes</strong> convertem 75% mais que novos visitantes (5.04% vs 2.88%) e gastam mais. Programas de reten\u00e7\u00e3o e remark\u00e9ting devem ser priorizados.",
+            "<strong>Paid Social</strong> tem CVR abaixo da m\u00e9dia (3.05%). Revisar segmenta\u00e7\u00e3o de audiences e landingpages espec\u00edficas por canal pode melhorar o CVR em 0.5–1pp."
+        ];
+        function buildT(cols, rows) {
+            const hd = cols.map(c => `<th>${c}</th>`).join("");
+            const bd = rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("");
+            return `<table class="table-a-wrapper"><thead><tr>${hd}</tr></thead><tbody>${bd}</tbody></table>`;
+        }
+        const conclusionsHTML = conclusions.map(c => `<div class="a-conclusion-item">${c}</div>`).join("");
+        return `<div class="slide-table-a">
+            <div class="table-a-heading">Email lidera em CVR (4.99%) e retornantes convertem 75% mais — canais org\u00e2nicos e reten\u00e7\u00e3o s\u00e3o as maiores alavancas</div>
+            <div class="table-a-split-body">
+                <div class="table-a-split-left">
+                    <div style="font-size:11px;font-weight:700;color:#0c2340;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Canais de Aquisi\u00e7\u00e3o</div>
+                    ${buildT(t1cols, t1rows)}
+                    <div style="font-size:11px;font-weight:700;color:#0c2340;text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 6px">Novos vs Retornantes</div>
+                    ${buildT(t2cols, t2rows)}
+                </div>
+                <div class="table-a-split-right">${conclusionsHTML}</div>
+            </div>
+            <div class="table-a-footer">
+                <span class="a-source">Fonte: Google Analytics 4 · 1 Jan – 31 Mar 2026</span>
+                <span class="a-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       SECTION 4 — RETENTION ANALYSIS (slides 26-34)
+       ═══════════════════════════════════════════════════ */
+
+    function retentionCoverHTML() {
+        return `<div class="slide-cover">
+            <div class="cover-pre-title">VAMOS DESCOBRIR</div>
+            <div class="cover-title">Como seus clientes<br>est\u00e3o recomprando?</div>
+            <div class="cover-underline"></div>
+            <div class="cover-meta">Out 2023 \u2013 Abr 2026, An\u00e1lise pr\u00f3pria</div>
+            <div class="cover-logo"><span>${GUDAY_LOGO}</span></div>
+        </div>`;
+    }
+
+    function retentionGapCardsHTML() {
+        const gaps = [
+            { label: "1a \u2192 2a compra", days: 64, clients: "25.114", pct: "22,6%" },
+            { label: "2a \u2192 3a compra", days: 70, clients: "9.443", pct: "8,5%" },
+            { label: "3a \u2192 4a compra", days: 68, clients: "4.255", pct: "3,8%" },
+            { label: "4a \u2192 5a compra", days: 66, clients: "2.129", pct: "1,9%" },
+            { label: "5a \u2192 6a compra", days: 63, clients: "1.153", pct: "1,0%" }
+        ];
+        const cardsHTML = gaps.map(g => `<div class="gap-card">
+            <div class="gap-card-label">${g.label}</div>
+            <div class="gap-card-days">${g.days} <span>dias</span></div>
+            <div class="gap-card-sub">${g.clients} clientes (${g.pct})</div>
+        </div>`).join("");
+        const conclusions = [
+            "O tempo mediano entre compras se mant\u00e9m <strong>est\u00e1vel entre 63 e 70 dias</strong> independente de quantas compras o cliente j\u00e1 fez. Isso indica um ciclo de consumo natural e previs\u00edvel.",
+            "A janela cr\u00edtica de reten\u00e7\u00e3o \u00e9 <strong>entre os dias 45 e 70</strong>. A\u00e7\u00f5es como email de lembrete (dia 50), oferta de recompra (dia 60) e win-back (dia 70) devem ser disparadas nesse per\u00edodo.",
+            "O gap n\u00e3o aumenta com o tempo — clientes fi\u00e9is mant\u00eam o ritmo. O desafio n\u00e3o \u00e9 acelerar o ciclo, \u00e9 <strong>garantir que o cliente n\u00e3o desista</strong> antes da pr\u00f3xima compra."
+        ];
+        const conclusionsHTML = conclusions.map(c => `<div class="ret-conclusion-item">${c}</div>`).join("");
+        return `<div class="slide-table-r">
+            <div class="table-r-heading">O ciclo de recompra \u00e9 consistente: a janela de 60-70 dias se repete da 1a at\u00e9 a 6a compra \u2014 nossas a\u00e7\u00f5es de reten\u00e7\u00e3o devem focar nessa janela</div>
+            <div class="gap-cards-body">
+                <div class="gap-cards-left">
+                    <div class="gap-cards-row">${cardsHTML}</div>
+                    <div class="gap-cards-insight">
+                        <div class="gap-cards-insight-label">Janela cr\u00edtica de reten\u00e7\u00e3o</div>
+                        <div class="gap-cards-insight-value">Dias 45 \u2013 70 ap\u00f3s cada compra</div>
+                    </div>
+                </div>
+                <div class="gap-cards-right">${conclusionsHTML}</div>
+            </div>
+            <div class="ret-table-footer">
+                <span class="a-source">Fonte: Dados Shopify Out 2023 \u2013 Abr 2026 \u00b7 111.283 clientes</span>
+                <span class="a-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function buildBarsTableHTML(heading, ltvBars, conclusions, ltvTitle, retTitle, source) {
+        const maxLTV = Math.max(...ltvBars.map(b => b.ltv));
+        const maxRet = Math.max(...ltvBars.map(b => b.ret));
+        const ltvBarsHTML = ltvBars.map(b => {
+            const w = (b.ltv / maxLTV) * 85;
+            return `<div class="bar-item"><div class="bar-item-label">${b.label}</div><div class="bar-item-track"><div class="bar-item-fill" style="width:${w}%;background:${b.color}">R$ ${fmtNum(b.ltv)}</div></div></div>`;
+        }).join("");
+        const retBarsHTML = ltvBars.map(b => {
+            const w = (b.ret / maxRet) * 85;
+            return `<div class="bar-item"><div class="bar-item-label">${b.label}</div><div class="bar-item-track"><div class="bar-item-fill" style="width:${w}%;background:${b.color}">${b.ret}%</div></div></div>`;
+        }).join("");
+        const conclusionsHTML = conclusions.map(c => `<div class="ret-conclusion-item">${c}</div>`).join("");
+        return `<div class="slide-bars-table">
+            <div class="bars-table-heading">${heading}</div>
+            <div class="bars-table-body">
+                <div class="bars-table-left">
+                    <div class="bars-section"><div class="bars-section-title">${ltvTitle}</div><div class="bars-grid">${ltvBarsHTML}</div></div>
+                    <div class="bars-section"><div class="bars-section-title">${retTitle}</div><div class="bars-grid">${retBarsHTML}</div></div>
+                </div>
+                <div class="bars-table-right">${conclusionsHTML}</div>
+            </div>
+            <div class="ret-table-footer">
+                <span class="a-source">${source}</span>
+                <span class="a-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function retentionBarsLTVPotesHTML() {
+        return buildBarsTableHTML(
+            "Cada pote adicional no 1o pedido aumenta o LTV em ~R$ 250: de R$ 442 (1 pote) para R$ 1.680 (6+) \u2014 a escada de valor \u00e9 clara",
+            [
+                { label: "1 pote",  ltv: 442,  ret: 31.4, color: "#a8d8ea" },
+                { label: "2 potes", ltv: 650,  ret: 47.4, color: "#7bbce0" },
+                { label: "3 potes", ltv: 784,  ret: 48.1, color: "#5a9bc7" },
+                { label: "4 potes", ltv: 1060, ret: 62.2, color: "#3b6fa0" },
+                { label: "5 potes", ltv: 1521, ret: 63.8, color: "#1a5276" },
+                { label: "6+ potes",ltv: 1680, ret: 52.3, color: "#0c2340" }
+            ],
+            [
+                "O LTV escala linearmente com a quantidade de potes no 1o pedido: de <strong>R$ 442 (1 pote)</strong> para <strong>R$ 1.680 (6+ potes)</strong> \u2014 um aumento de 280%. Cada pote adicional agrega ~R$ 250 ao LTV.",
+                "A recompra tamb\u00e9m acompanha: sobe de <strong>31% (1 pote) para 63,8% (5 potes)</strong>. Clientes que come\u00e7am comprando mais j\u00e1 demonstram maior engajamento.",
+                "O salto mais significativo acontece de <strong>1 para 2 potes</strong>: LTV sobe 47% e recompra sobe 51%. Incentivar o 2o pote no 1o pedido \u00e9 a a\u00e7\u00e3o de maior impacto."
+            ],
+            "LTV por quantidade de potes no 1o pedido",
+            "Taxa de recompra por quantidade de potes",
+            "Fonte: Dados Shopify Out 2023 \u2013 Abr 2026 \u00b7 Creatina Frutas Vermelhas como refer\u00eancia"
+        );
+    }
+
+    function retentionCouponHTML() {
+        function metricBlock(label, value, cls, featured) {
+            const fc = featured ? " featured" : "";
+            return `<div class="coupon-box-metric${fc}">
+                <div class="coupon-box-metric-label">${label}</div>
+                <div class="coupon-box-metric-value ${cls||''}">${value}</div>
+            </div>`;
+        }
+        const c = { clientes:"90.937", pct:"81,7%", ltv:"R$ 391", aov:"R$ 270", avgP:"1,45x", ret:"25,1%" };
+        const s = { clientes:"20.358", pct:"18,3%", ltv:"R$ 349", aov:"R$ 295", avgP:"1,18x", ret:"12,9%" };
+        const conclusions = [
+            "Clientes <strong>com cup\u00f5m</strong> recompram quase o dobro (25,1% vs 12,9%) e t\u00eam LTV 12% maior (R$ 391 vs R$ 349). O cup\u00f5m funciona como porta de entrada e engajamento.",
+            "Por\u00e9m, clientes <strong>sem cup\u00f5m</strong> t\u00eam AOV 9% maior (R$ 295 vs R$ 270). Quem compra sem desconto est\u00e1 mais disposto a pagar pre\u00e7o cheio.",
+            "Cup\u00f5ns de <strong>win-back e sazonais</strong> s\u00e3o os mais eficientes para reten\u00e7\u00e3o. Ampliar essas categorias \u00e9 a maior oportunidade."
+        ];
+        const conclusionsHTML = conclusions.map(c => `<div class="ret-conclusion-item">${c}</div>`).join("");
+        return `<div class="slide-table-r">
+            <div class="table-r-heading">81,7% dos clientes usam cup\u00f5m e recompram o dobro (25,1% vs 12,9%) \u2014 mas quem compra sem cup\u00f5m tem AOV 9% maior</div>
+            <div class="coupon-body">
+                <div class="coupon-left">
+                    <div class="coupon-boxes-row">
+                        <div class="coupon-box com">
+                            <div class="coupon-box-header">
+                                <div class="coupon-box-title">Com cup\u00f5m</div>
+                                <div class="coupon-box-pct">${c.pct}</div>
+                            </div>
+                            <div class="coupon-box-grid">
+                                ${metricBlock("Clientes", c.clientes)}
+                                ${metricBlock("LTV", c.ltv)}
+                                ${metricBlock("AOV", c.aov)}
+                                ${metricBlock("Avg Purchases", c.avgP)}
+                                ${metricBlock("Returning", c.ret, "green", true)}
+                            </div>
+                        </div>
+                        <div class="coupon-box sem">
+                            <div class="coupon-box-header">
+                                <div class="coupon-box-title">Sem cup\u00f5m</div>
+                                <div class="coupon-box-pct">${s.pct}</div>
+                            </div>
+                            <div class="coupon-box-grid">
+                                ${metricBlock("Clientes", s.clientes)}
+                                ${metricBlock("LTV", s.ltv)}
+                                ${metricBlock("AOV", s.aov, "green")}
+                                ${metricBlock("Avg Purchases", s.avgP)}
+                                ${metricBlock("Returning", s.ret, "coral", true)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="coupon-right">${conclusionsHTML}</div>
+            </div>
+            <div class="ret-table-footer">
+                <span class="a-source">Fonte: Dados Shopify Out 2023 \u2013 Abr 2026 \u00b7 111.295 clientes</span>
+                <span class="a-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function retentionBarsIdadeHTML() {
+        return buildBarsTableHTML(
+            "Clientes mais velhos (50-65) recompram 51% mais que jovens (16-24) e t\u00eam LTV 53% maior \u2014 a idade \u00e9 o maior preditor de reten\u00e7\u00e3o",
+            [
+                { label: "16\u201324", ltv: 361, ret: 26.2, color: "#c4b5fd" },
+                { label: "24\u201334", ltv: 430, ret: 29.7, color: "#a78bfa" },
+                { label: "34\u201344", ltv: 463, ret: 30.8, color: "#8b5cf6" },
+                { label: "44\u201350", ltv: 524, ret: 34.0, color: "#7c3aed" },
+                { label: "50\u201365", ltv: 553, ret: 39.4, color: "#6d28d9" },
+                { label: "65+",     ltv: 519, ret: 39.9, color: "#5b21b6" }
+            ],
+            [
+                "H\u00e1 uma correla\u00e7\u00e3o linear clara: <strong>quanto mais velho o cliente, maior o LTV e a taxa de recompra</strong>. Clientes 50-65 t\u00eam LTV de R$ 553 e 39,4% de reten\u00e7\u00e3o vs. R$ 361 e 26,2% dos jovens 16-24.",
+                "A faixa <strong>24-34</strong> representa 45,5% da base mas tem reten\u00e7\u00e3o abaixo do potencial (29,7%). Campanhas de fideliza\u00e7\u00e3o focadas nessa faixa teriam o maior impacto absoluto.",
+                "Clientes 65+ t\u00eam a maior taxa de reten\u00e7\u00e3o (39,9%). O gap \u00e9 est\u00e1vel entre todas as idades (~62-67d), indicando que o ciclo de consumo n\u00e3o muda com a idade."
+            ],
+            "LTV por faixa et\u00e1ria",
+            "Taxa de recompra por faixa et\u00e1ria",
+            "Fonte: Pesquisa Okendo \u00b7 34.353 respondentes"
+        );
+    }
+
+    function buildRetTableSplitHTML(heading, columns, rows, conclusions, highlightCells, source) {
+        const hdrHTML = columns.map(c => `<th>${c}</th>`).join("");
+        const bodyHTML = rows.map((row, ri) => {
+            const cells = row.map((cell, ci) => {
+                const key = ri + "-" + ci;
+                const cls = (highlightCells && highlightCells[key]) ? highlightCells[key] : "";
+                return `<td class="${cls}">${cell}</td>`;
+            }).join("");
+            return `<tr>${cells}</tr>`;
+        }).join("");
+        const conclusionsHTML = conclusions.map(c => `<div class="ret-conclusion-item">${c}</div>`).join("");
+        return `<div class="slide-table-r">
+            <div class="table-r-heading">${heading}</div>
+            <div class="table-r-split-body">
+                <div class="table-r-split-left">
+                    <table class="table-r-wrapper">
+                        <thead><tr>${hdrHTML}</tr></thead>
+                        <tbody>${bodyHTML}</tbody>
+                    </table>
+                </div>
+                <div class="table-r-split-right">${conclusionsHTML}</div>
+            </div>
+            <div class="ret-table-footer">
+                <span class="a-source">${source}</span>
+                <span class="a-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function retentionTableCanaisHTML() {
+        return buildRetTableSplitHTML(
+            "Indica\u00e7\u00e3o e Nutricionistas geram os clientes de maior LTV (R$ 490 e R$ 477), enquanto Manu Cit lidera em volume com 45,3% da base",
+            ["Canal", "Clientes", "%", "LTV", "AOV", "Ret %", "Cup\u00f5m", "Gap"],
+            [
+                ["Manu Cit", "16.925", "45,3%", "R$ 448", "R$ 270", "33,7%", "89,8%", "69d"],
+                ["Instagram Ads", "8.493", "22,7%", "R$ 463", "R$ 299", "29,6%", "86,0%", "61d"],
+                ["Influenciadores", "6.242", "16,7%", "R$ 412", "R$ 273", "28,4%", "90,8%", "62d"],
+                ["Indica\u00e7\u00e3o", "3.001", "8,0%", "R$ 490", "R$ 306", "31,5%", "85,1%", "62d"],
+                ["Nutricionistas", "631", "1,7%", "R$ 477", "R$ 296", "33,3%", "85,1%", "62d"],
+                ["Outros", "2.090", "5,6%", "R$ 461", "R$ 301", "30,1%", "82,7%", "61d"]
+            ],
+            [
+                "<strong>Indica\u00e7\u00e3o</strong> gera os clientes de maior LTV (R$ 490) e boa reten\u00e7\u00e3o (31,5%) — investir em programa de referral pode escalar esse canal org\u00e2nico de alta qualidade.",
+                "<strong>Manu Cit</strong> domina em volume (45,3%) e tem a maior reten\u00e7\u00e3o (33,7%), mas menor AOV (R$ 270). O gap mais longo (69d) sugere que esses clientes demoram mais para recomprar.",
+                "Influenciadores geram o menor LTV (R$ 412) e menor reten\u00e7\u00e3o (28,4%), apesar de 16,7% da base. O uso de cup\u00f5m \u00e9 o mais alto (90,8%), indicando maior depend\u00eancia de desconto."
+            ],
+            { "3-3": "val-green", "0-5": "val-green", "4-5": "val-green" },
+            "Fonte: Pesquisa Okendo \u00b7 37.382 respondentes"
+        );
+    }
+
+    function retentionTableCreatinaHTML() {
+        return buildRetTableSplitHTML(
+            "Quem j\u00e1 consumia creatina antes recompra 79% mais (36% vs 20,1%) e tem LTV 37% maior \u2014 a experi\u00eancia pr\u00e9via \u00e9 um forte preditor de reten\u00e7\u00e3o",
+            ["Consumiu antes?", "Clientes", "%", "LTV", "AOV", "Avg P.", "Ret %", "Gap"],
+            [
+                ["Sim, j\u00e1 consumiu", "26.756", "71,6%", "R$ 487", "R$ 286", "1,70x", "36,0%", "66d"],
+                ["Primeira vez", "10.626", "28,4%", "R$ 355", "R$ 268", "1,32x", "20,1%", "57d"]
+            ],
+            [
+                "Clientes que <strong>j\u00e1 consumiam creatina</strong> recompram quase o dobro (36% vs 20,1%) e gastam 37% mais ao longo do tempo (LTV R$ 487 vs R$ 355). Eles j\u00e1 entendem o produto e o ciclo de reposi\u00e7\u00e3o.",
+                "Os clientes de <strong>primeira vez</strong> representam 28,4% da base e t\u00eam gap menor (57d vs 66d) — quando voltam, voltam mais r\u00e1pido. Mas a maioria (79,9%) n\u00e3o volta. O onboarding p\u00f3s-compra \u00e9 cr\u00edtico.",
+                "Oportunidade: criar conte\u00fado educacional nos primeiros 30 dias para clientes de 1a vez pode aumentar significativamente a taxa de recompra desse segmento."
+            ],
+            { "0-3": "val-green", "0-6": "val-green" },
+            "Fonte: Pesquisa Okendo \u00b7 37.382 respondentes"
+        );
+    }
+
+    function retentionTableFreteHTML() {
+        return buildRetTableSplitHTML(
+            "Frete r\u00e1pido sinaliza compra de emerg\u00eancia: LTV 26% menor (R$ 289 vs R$ 391) e reten\u00e7\u00e3o 28% pior, apesar do gap 14% mais curto",
+            ["Frete", "Clientes", "%", "LTV", "AOV", "Avg P.", "Ret %", "Cup\u00f5m", "Gap"],
+            [
+                ["Econ\u00f4mico", "102.497", "92,1%", "R$ 391", "R$ 278", "1,41x", "23,4%", "82,8%", "64d"],
+                ["R\u00e1pido", "8.798", "7,9%", "R$ 289", "R$ 226", "1,28x", "16,8%", "69,3%", "55d"]
+            ],
+            [
+                "O perfil do frete r\u00e1pido \u00e9 claro: <strong>69,8% compram 1 pote</strong> (vs. 30,5% no econ\u00f4mico), AOV de R$ 226 (vs. R$ 278). S\u00e3o compras menores e mais urgentes.",
+                "Quem usa frete r\u00e1pido e volta, volta em <strong>55 dias</strong> (vs. 64d). Mas s\u00f3 16,8% volta. O frete r\u00e1pido sinaliza que o cliente ficou sem produto — oportunidade para <strong>subscription ou lembrete no dia 25</strong>.",
+                "<strong>Se 20% dos pedidos r\u00e1pidos de 1 pote virassem 2:</strong> 1.264 pedidos x R$ 67 = R$ 85K extra. A\u00e7\u00e3o: oferecer desconto no 2o pote quando frete r\u00e1pido selecionado."
+            ],
+            { "0-3": "val-green", "0-6": "val-green", "1-3": "val-highlight", "1-6": "val-highlight" },
+            "Fonte: Dados Shopify Out 2023 \u2013 Abr 2026 \u00b7 111.295 clientes"
+        );
+    }
+
+    function retentionCrossellHTML() {
+        function metricBlock(label, value, cls, featured) {
+            const fc = featured ? " featured" : "";
+            return `<div class="coupon-box-metric${fc}">
+                <div class="coupon-box-metric-label">${label}</div>
+                <div class="coupon-box-metric-value ${cls||''}">${value}</div>
+            </div>`;
+        }
+        const sp = { clientes:"15.771", pct:"62,9%", ltv:"R$ 713", aov:"R$ 275", avgP:"2,57x" };
+        const cs = { clientes:"9.300",  pct:"37,1%", ltv:"R$ 884", aov:"R$ 289", avgP:"3,05x" };
+        const conclusions = [
+            "Cross-sellers t\u00eam LTV <strong>24% maior</strong> (R$ 884 vs R$ 713) e compram <strong>3,05x</strong> vs 2,57x. Quem experimenta categorias diferentes se engaja mais com a marca.",
+            "<strong>Se 10% dos Same Product virassem Cross-sell:</strong> 1.577 clientes x R$ 171 (ganho LTV) = <strong>R$ 270K</strong> em valor incremental. A\u00e7\u00e3o: sugerir o 2o produto mais popular na PDP e no carrinho.",
+            "O combo <strong>FV + Oakberry</strong> gera o maior LTV (R$ 674). Garantir que todo comprador de FV veja sugest\u00e3o de Oakberry ou Maca Verde."
+        ];
+        const conclusionsHTML = conclusions.map(c => `<div class="ret-conclusion-item">${c}</div>`).join("");
+        return `<div class="slide-table-r">
+            <div class="table-r-heading">Cross-sell \u00e9 a maior alavanca de reten\u00e7\u00e3o: combos de 2+ sabores geram LTV at\u00e9 R$ 674 e reten\u00e7\u00e3o de 39% \u2014 o dobro de compras avulsas</div>
+            <div class="coupon-body">
+                <div class="coupon-left">
+                    <div class="coupon-boxes-row">
+                        <div class="coupon-box sem">
+                            <div class="coupon-box-header">
+                                <div class="coupon-box-title">Same Product</div>
+                                <div class="coupon-box-pct">${sp.pct}</div>
+                            </div>
+                            <div class="coupon-box-grid">
+                                ${metricBlock("Clientes", sp.clientes)}
+                                ${metricBlock("LTV", sp.ltv)}
+                                ${metricBlock("AOV", sp.aov)}
+                                ${metricBlock("Avg Purchases", sp.avgP)}
+                                ${metricBlock("LTV Total", sp.ltv, "", true)}
+                            </div>
+                        </div>
+                        <div class="coupon-box cross-box">
+                            <div class="coupon-box-header">
+                                <div class="coupon-box-title">Cross-sell</div>
+                                <div class="coupon-box-pct">${cs.pct}</div>
+                            </div>
+                            <div class="coupon-box-grid">
+                                ${metricBlock("Clientes", cs.clientes)}
+                                ${metricBlock("LTV", cs.ltv, "green")}
+                                ${metricBlock("AOV", cs.aov)}
+                                ${metricBlock("Avg Purchases", cs.avgP, "green")}
+                                ${metricBlock("LTV Total", cs.ltv, "green", true)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="coupon-right">${conclusionsHTML}</div>
+            </div>
+            <div class="ret-table-footer">
+                <span class="a-source">Fonte: Dados Shopify Out 2023 \u2013 Abr 2026 \u00b7 Apenas clientes returning (2x+)</span>
+                <span class="a-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       SECTION 5 — USER TESTING (slides 35-39)
+       ═══════════════════════════════════════════════════ */
+
+    function userTestingCoverHTML() {
+        return `<div class="slide-cover-dark">
+            <div class="cover-badge">GUDAY</div>
+            <div class="cover-title">User Testing<br>Analysis</div>
+            <div class="cover-subtitle">An\u00e1lise de usabilidade</div>
+            <div class="cover-divider"></div>
+            <div class="cover-meta">6 participantes \u00b7 3 mobile \u00b7 3 desktop \u00b7 Abril 2026</div>
+        </div>`;
+    }
+
+    function buildCardsSlideHTML(heading, summary, cards, source, cols2) {
+        const gridClass = cols2 ? "cards-grid cols-2" : "cards-grid";
+        const cardsHTML = cards.map(card => `
+            <div class="card">
+                <div class="card-icon">${card.icon}</div>
+                <div class="card-title">${card.title}</div>
+                <div class="card-items">
+                    ${card.items.map(item => `<div class="card-item">${item}</div>`).join("")}
+                </div>
+            </div>`).join("");
+        return `<div class="slide-cards">
+            <div class="cards-heading">${heading}</div>
+            <div class="cards-summary">${summary}</div>
+            <div class="${gridClass}">${cardsHTML}</div>
+            <div class="cards-footer">
+                <span class="slide-source">${source}</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    function userTestingCards1HTML() {
+        return buildCardsSlideHTML(
+            "Primeiras Impress\u00f5es — O que os usu\u00e1rios v\u00eam e sentem nos primeiros 5 segundos",
+            "6 participantes testaram a homepage e PDPs em sess\u00f5es gravadas. Os primeiros 5 segundos determinam se o visitante fica ou sai.",
+            [
+                { icon: "&#128065;", title: "5 Segundos", items: [
+                    "5/6 identificam que \u00e9 uma loja de suplementos",
+                    "4/6 associam imediatamente a creatina",
+                    "3/6 n\u00e3o percebem outros produtos dispon\u00edveis",
+                    "2/6 ficam confusos com o posicionamento wellness"
+                ]},
+                { icon: "&#128172;", title: "Primeiras Impress\u00f5es", items: [
+                    "\"Parece uma marca jovem e moderna\" (4/6)",
+                    "\"N\u00e3o sei se \u00e9 s\u00f3 creatina ou tem mais\" (3/6)",
+                    "\"As cores e o design s\u00e3o atraentes\" (5/6)",
+                    "\"Faltam informa\u00e7\u00f5es sobre benef\u00edcios\" (4/6)"
+                ]},
+                { icon: "&#11088;", title: "O que Destaca", items: [
+                    "Identidade visual forte e consistente",
+                    "Formato gummy como diferencial claro",
+                    "Fotos dos produtos atraentes",
+                    "Preco percebido como premium mas justo"
+                ]}
+            ],
+            "Fonte: User Testing Sessions \u00b7 Abril 2026 \u00b7 6 participantes"
+        );
+    }
+
+    function userTestingCards2HTML() {
+        return buildCardsSlideHTML(
+            "Barreiras de Convers\u00e3o — O que impede os usu\u00e1rios de comprar",
+            "Identificamos 3 grandes categorias de barreiras: informa\u00e7\u00e3o insuficiente, desconfian\u00e7a e fricao no processo de compra.",
+            [
+                { icon: "&#10067;", title: "O que Falta", items: [
+                    "Informa\u00e7\u00f5es sobre sabor real e textura (5/6)",
+                    "Comparativo claro entre produtos (4/6)",
+                    "Prova social mais evidente na PDP (4/6)",
+                    "Resposta r\u00e1pida sobre efic\u00e1cia esperada (3/6)"
+                ]},
+                { icon: "&#128683;", title: "O que Impede", items: [
+                    "D\u00favidas sobre a textura arenosa da creatina (4/6)",
+                    "Pre\u00e7o percebido sem justificativa clara (3/6)",
+                    "Frete visto s\u00f3 no checkout, surpresa (5/6)",
+                    "Processo de checkout com muitos passos (3/6)"
+                ]},
+                { icon: "&#128722;", title: "Compraria?", items: [
+                    "4/6 disseram que comprariam ap\u00f3s o teste",
+                    "2/6 precisariam de mais informa\u00e7\u00f5es antes",
+                    "Principal motivo para n\u00e3o comprar: incerteza sobre sabor",
+                    "3/6 pesquisariam no Google antes de finalizar"
+                ]}
+            ],
+            "Fonte: User Testing Sessions \u00b7 Abril 2026 \u00b7 6 participantes"
+        );
+    }
+
+    function userTestingCards3HTML() {
+        return buildCardsSlideHTML(
+            "An\u00e1lise de P\u00e1ginas — PDPs e fluxo de checkout",
+            "Analisamos as PDPs e o carrinho/checkout com tarefas espec\u00edficas. O maior atrito foi encontrar informa\u00e7\u00f5es de produto e finalizar a compra.",
+            [
+                { icon: "&#128196;", title: "Product Pages", items: [
+                    "4/6 n\u00e3o encontraram a tabela nutricional facilmente",
+                    "5/6 queriam ver o sabor real em v\u00eddeo ou foto ampliada",
+                    "3/6 n\u00e3o entenderam a diferen\u00e7a entre os sabores",
+                    "6/6 sentiram falta de um FAQ sobre o produto",
+                    "4/6 procuraram reviews antes de adicionar ao cart"
+                ]},
+                { icon: "&#128179;", title: "Carrinho e Checkout", items: [
+                    "5/6 se surpreenderam com o frete apenas no checkout",
+                    "3/6 abandonariam o cart por frete inesperado",
+                    "4/6 queriam op\u00e7\u00e3o de salvar para depois",
+                    "2/6 tiveram dificuldade com o formul\u00e1rio de endere\u00e7o",
+                    "4/6 sentiram falta de mais op\u00e7\u00f5es de pagamento"
+                ]}
+            ],
+            "Fonte: User Testing Sessions \u00b7 Abril 2026 \u00b7 6 participantes",
+            true
+        );
+    }
+
+    function userTestingTakeawaysHTML() {
+        const items = [
+            { bold: "Transparência sobre sabor e textura:", text: "Todos os participantes mencionaram incerteza. Adicionar v\u00eddeos e fotos realistas do produto/textura \u00e9 prioridade #1." },
+            { bold: "FAQ na PDP:", text: "6/6 pediram um FAQ. \"Como tomar?\", \"Tem contraindica\u00e7\u00f5es?\", \"Quanto tempo para ver resultado?\" s\u00e3o as perguntas principais." },
+            { bold: "Frete transparente antes do checkout:", text: "5/6 foram surpreendidos pelo frete. Mostrar estimativa de frete na PDP e no cart reduz abandono drasticamente." },
+            { bold: "Reviews mais vis\u00edveis na PDP:", text: "4/6 procuraram reviews antes de adicionar ao cart. Posicionar reviews acima da dobra e incluir fotos de clientes." },
+            { bold: "Diferencial de produto cl\u00e1ro:", text: "3/6 n\u00e3o entenderam o que diferencia GUDAY. A proposta de valor \u201csuplemeto gostoso e di\u00e1rio\u201d precisa estar no hero da PDP." },
+            { bold: "Compara\u00e7\u00e3o entre produtos:", text: "4/6 n\u00e3o sabiam qual escolher. Um comparativo de sabores com perfil de gosto e textura facilitaria a decis\u00e3o." },
+            { bold: "Otimizar checkout:", text: "Reduzir passos do checkout, mostrar progresso claro e oferecer mais op\u00e7\u00f5es de pagamento (Pix, parcelamento vis\u00edvel)." },
+            { bold: "Construir confian\u00e7a na homepage:", text: "3/6 n\u00e3o tinham certeza se a marca era s\u00f3 creatina. Mostrar a prateleira completa e os valores da marca logo no hero." }
+        ];
+        const itemsHTML = items.map((item, i) =>
+            `<div class="list-item">
+                <span class="list-item-num">${i+1}.</span>
+                <span><span class="list-item-bold">${item.bold}</span> ${item.text}</span>
+            </div>`
+        ).join("");
+        return `<div class="slide-list">
+            <div class="slide-list-heading">Key Takeaways | User Testing Analysis</div>
+            <div class="list-items">${itemsHTML}</div>
+            <div class="slide-list-footer">
+                <span class="slide-source">Fonte: User Testing Sessions \u00b7 Abril 2026 \u00b7 6 participantes</span>
+                <span class="slide-brand">${GUDAY_LOGO}</span>
+            </div>
+        </div>`;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       SLIDE ARRAY — ordered: Stakeholders then Desk Research
+       ═══════════════════════════════════════════════════ */
+    const slides = [
+        /* 1-4: Stakeholders */
+        { render: stakeholdersCoverHTML },
+        { render: stakeholdersResumoHTML },
+        { render: stakeholdersSuporteHTML },
+        { render: stakeholdersTakeawaysHTML },
+        /* 5-17: Desk Research */
+        { render: drCoverHTML },
+        { render: drMarketHTML },
+        { render: drTimelineHTML },
+        { render: drProfileHTML },
+        { render: creatinaHistoriaHTML },
+        { render: creatinaTimelineHTML },
+        { render: creatinaPerfilHTML },
+        { render: melatoninaHistoriaHTML },
+        { render: melatoninaPerfilHTML },
+        { render: acvHistoriaHTML },
+        { render: acvPerfilHTML },
+        { render: coq10HistoriaHTML },
+        { render: coq10PerfilHTML },
+        /* 18-25: Analytics Analysis */
+        { render: analyticsCoverHTML },
+        { render: analyticsDevicesHTML },
+        { render: analyticsBenchCVRHTML },
+        { render: analyticsBenchAOVHTML },
+        { render: analyticsFunnelHomeHTML },
+        { render: analyticsFunnelPDPHTML },
+        { render: analyticsTablePageHTML },
+        { render: analyticsTableCanaisHTML },
+        /* 26-34: Retention Analysis */
+        { render: retentionCoverHTML },
+        { render: retentionGapCardsHTML },
+        { render: retentionBarsLTVPotesHTML },
+        { render: retentionCouponHTML },
+        { render: retentionBarsIdadeHTML },
+        { render: retentionTableCanaisHTML },
+        { render: retentionTableCreatinaHTML },
+        { render: retentionTableFreteHTML },
+        { render: retentionCrossellHTML },
+        /* 35-39: User Testing */
+        { render: userTestingCoverHTML },
+        { render: userTestingCards1HTML },
+        { render: userTestingCards2HTML },
+        { render: userTestingCards3HTML },
+        { render: userTestingTakeawaysHTML }
+    ];
+
+    const total = slides.length;
+    let cur = 0;
+
+    const viewport = document.getElementById("slideViewport");
+    const panel = document.getElementById("thumbPanel");
+    const counter = document.getElementById("counter");
+    const btnPrev = document.getElementById("btnPrev");
+    const btnNext = document.getElementById("btnNext");
+
+    slides.forEach((d, i) => {
+        const el = document.createElement("div");
+        el.className = "slide" + (i === 0 ? " active" : "");
+        el.innerHTML = d.render();
+        viewport.appendChild(el);
+        const tw = document.createElement("div");
+        tw.className = "thumb-wrap" + (i === 0 ? " active" : "");
+        tw.onclick = () => goTo(i);
+        const tn = document.createElement("div"); tn.className = "thumb-num"; tn.textContent = i + 1;
+        const tf = document.createElement("div"); tf.className = "thumb-frame";
+        const ti = document.createElement("div"); ti.className = "thumb-inner"; ti.innerHTML = d.render();
+        tf.appendChild(ti); tw.appendChild(tn); tw.appendChild(tf); panel.appendChild(tw);
+    });
+
+    /* ── NAVIGATION ── */
+    function goTo(idx) {
+        if (idx === cur || idx < 0 || idx >= total) return;
+        const dir = idx > cur ? 1 : -1;
+        const els = viewport.children, thumbs = panel.querySelectorAll(".thumb-wrap");
+        els[cur].classList.remove("active"); els[cur].classList.add(dir > 0 ? "exiting-left" : "exiting-right");
+        els[idx].classList.add(dir > 0 ? "entering-right" : "entering-left");
+        void els[idx].offsetWidth;
+        els[idx].classList.remove("entering-right","entering-left"); els[idx].classList.add("active");
+        const old = cur;
+        setTimeout(() => { els[old].classList.remove("exiting-left","exiting-right"); }, 500);
+        thumbs[cur].classList.remove("active"); thumbs[idx].classList.add("active");
+        thumbs[idx].scrollIntoView({ behavior: "smooth", block: "nearest" });
+        cur = idx; updateUI();
+    }
+    function next() { goTo(cur+1); } function prev() { goTo(cur-1); }
+    function updateUI() { counter.textContent = (cur+1)+" / "+total; btnPrev.disabled = cur===0; btnNext.disabled = cur===total-1; }
+    btnPrev.onclick = prev; btnNext.onclick = next; updateUI();
+
+    /* ── KEYBOARD ── */
+    document.addEventListener("keydown", e => {
+        if (e.key==="ArrowRight"||e.key==="ArrowDown"||e.key===" ") { e.preventDefault(); next(); }
+        else if (e.key==="ArrowLeft"||e.key==="ArrowUp") { e.preventDefault(); prev(); }
+        else if (e.key==="Escape") { exitFS(); }
+        else if (e.key==="Home") { e.preventDefault(); goTo(0); }
+        else if (e.key==="End") { e.preventDefault(); goTo(total-1); }
+    });
+
+    /* ── FULLSCREEN ── */
+    function toggleFullscreen() { document.fullscreenElement ? exitFS() : enterFS(); }
+    function enterFS() { document.body.classList.add("fullscreen-mode"); document.documentElement.requestFullscreen().catch(()=>{}); setTimeout(resizeSlide,50); }
+    function exitFS() { document.body.classList.remove("fullscreen-mode"); if (document.fullscreenElement) document.exitFullscreen().catch(()=>{}); setTimeout(resizeSlide,50); }
+    document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement) { document.body.classList.remove("fullscreen-mode"); resizeSlide(); } });
+    window.toggleFullscreen = toggleFullscreen;
+
+    /* ── PDF ── */
+    async function downloadPDF() {
+        const btn = document.getElementById("btnDownload"), orig = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Gerando...`;
+        try {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ orientation:"landscape", unit:"px", format:[960,540] });
+            const els = viewport.querySelectorAll(".slide"), saved = cur;
+            els.forEach(s => { s.style.transition="none"; s.style.opacity="1"; s.style.transform="none"; s.style.pointerEvents="auto"; });
+            viewport.style.transform="none"; viewport.style.width="960px"; viewport.style.height="540px";
+            for (let i=0; i<els.length; i++) {
+                els.forEach((s,j)=>{ s.style.display = j===i?"block":"none"; });
+                await new Promise(r=>setTimeout(r,150));
+                const c = await html2canvas(viewport,{width:960,height:540,scale:2,useCORS:true,allowTaint:true,backgroundColor:"#fff"});
+                if (i>0) pdf.addPage([960,540],"landscape");
+                pdf.addImage(c.toDataURL("image/jpeg",0.92),"JPEG",0,0,960,540);
+                btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> ${i+1}/${els.length}`;
+            }
+            els.forEach((s,j)=>{ s.style.display=""; s.style.transition=""; s.style.opacity=""; s.style.transform=""; s.style.pointerEvents=""; s.classList.toggle("active",j===saved); });
+            resizeSlide();
+            pdf.save("Guday-CRO-Presentation.pdf");
+        } catch(e) { console.error(e); alert("Erro ao gerar PDF."); }
+        btn.disabled = false; btn.innerHTML = orig;
+    }
+    window.downloadPDF = downloadPDF;
+
+    /* ── RESPONSIVE ── */
+    function resizeSlide() {
+        const area = viewport.parentElement, sw=960, sh=540;
+        const scale = Math.min((area.clientWidth-100)/sw,(area.clientHeight-50)/sh,2);
+        viewport.style.transform=`scale(${scale})`; viewport.style.transformOrigin="center center";
+        viewport.style.width=sw+"px"; viewport.style.height=sh+"px";
+    }
+    window.addEventListener("resize", resizeSlide); resizeSlide(); setTimeout(resizeSlide,200);
+
+    /* ── TEXT EDITING ── */
+    const EDIT_KEY = "guday-full-edits";
+    let editMode = false;
+    let textEdits = {};
+
+    const EDITABLE_SELECTORS = ".slide-info-heading, .info-label, .info-text, .slide-list-heading, .list-item span:last-child, .slide-market-heading, .profile-heading, .profile-item, .profile-section, .kpi-value, .kpi-label, .timeline-title, .timeline-desc, .gummies-value, .gummies-label, .devices-heading, .bench-heading, .funnel-a-heading, .table-a-heading, .bars-table-heading, .table-r-heading, .cards-heading, .cards-summary, .card-title, .card-item, .fc-item, .a-conclusion-item, .ret-conclusion-item, .gap-cards-insight-value, .bench-card-value, .bench-card-desc";
+
+    function toggleEditMode() {
+        editMode = !editMode;
+        document.body.classList.toggle("edit-mode", editMode);
+        document.body.classList.toggle("edit-text", editMode);
+        const btn = document.getElementById("btnEdit");
+        btn.innerHTML = editMode
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Salvar`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Editar`;
+        if (!editMode) viewport.querySelectorAll("[contenteditable]").forEach(el => el.removeAttribute("contenteditable"));
+    }
+    window.toggleEditMode = toggleEditMode;
+
+    viewport.addEventListener("click", (e) => {
+        if (!editMode) return;
+        const editable = e.target.closest(EDITABLE_SELECTORS);
+        if (!editable) return;
+        e.stopPropagation();
+        editable.setAttribute("contenteditable", "true");
+        editable.focus();
+        const handler = () => {
+            editable.removeAttribute("contenteditable");
+            const sl = editable.closest(".slide");
+            const si = Array.from(viewport.children).indexOf(sl);
+            const allEditable = sl.querySelectorAll(EDITABLE_SELECTORS);
+            const idx = Array.from(allEditable).indexOf(editable);
+            if (idx >= 0) {
+                textEdits[si + "|" + idx] = editable.innerHTML;
+                saveEdits();
+            }
+            editable.removeEventListener("blur", handler);
+        };
+        editable.addEventListener("blur", handler);
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (document.activeElement && document.activeElement.hasAttribute("contenteditable")) e.stopImmediatePropagation();
+    }, true);
+
+    function saveEdits() { localStorage.setItem(EDIT_KEY, JSON.stringify(textEdits)); }
+
+    function applyEdits() {
+        Object.entries(textEdits).forEach(([key, text]) => {
+            const [si, idx] = key.split("|");
+            const sl = viewport.children[parseInt(si)];
+            if (!sl) return;
+            const allEditable = sl.querySelectorAll(EDITABLE_SELECTORS);
+            if (allEditable[parseInt(idx)]) allEditable[parseInt(idx)].innerHTML = text;
+        });
+    }
+
+    function exportEdits() {
+        const blob = new Blob([JSON.stringify(textEdits, null, 2)], { type: "application/json" });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "full-presentation-edits.json"; a.click();
+    }
+    window.exportEdits = exportEdits;
+
+    (async () => {
+        try { const r = await fetch("full-presentation-edits.json"); if (r.ok) textEdits = await r.json(); } catch(e) {}
+        if (!textEdits || typeof textEdits !== "object") {
+            try { const s = localStorage.getItem(EDIT_KEY); if (s) textEdits = JSON.parse(s); } catch(e) {}
+        }
+        if (!textEdits) textEdits = {};
+        applyEdits();
+    })();
+})();
+</script>
+</body>
+</html>
